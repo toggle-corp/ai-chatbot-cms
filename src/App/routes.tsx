@@ -40,14 +40,14 @@ const home = myWrapRoute({
     title: 'Home',
     index: true,
     component: () => import('#views/Home'),
-    componentProps: { name: 'Pine Apple' },
+    componentProps: {},
     parent: root,
 });
 
-const preferences = myWrapRoute({
-    title: 'Preferences',
-    path: 'preferences',
-    component: () => import('#views/Preferences'),
+const login = myWrapRoute({
+    title: 'Login',
+    path: 'login',
+    component: () => import('#views/Login'),
     componentProps: {},
     parent: root,
 });
@@ -55,7 +55,7 @@ const preferences = myWrapRoute({
 export const wrappedRoutes = {
     root,
     home,
-    preferences,
+    login,
 };
 
 export const unwrappedRoutes = unwrapRoute(Object.values(wrappedRoutes));
