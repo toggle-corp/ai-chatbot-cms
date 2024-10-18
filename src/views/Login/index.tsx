@@ -8,7 +8,7 @@ export function Component() {
     return (
         <>
             <h1>
-                Preferences
+                Login
             </h1>
             <Link to={wrappedRoutes.root.absolutePath}>
                 Go to home
@@ -17,4 +17,4 @@ export function Component() {
     );
 }
 
-Component.displayName = 'Preferences';
+Component.displayName = 'Login';
