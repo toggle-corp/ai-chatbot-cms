@@ -20,11 +20,11 @@ const config = {
         '@typescript-eslint',
         'react-refresh',
         'simple-import-sort',
-        'import-newlines'
+        'import-newlines',
     ],
     settings: {
         'import/parsers': {
-            '@typescript-eslint/parser': ['.ts', '.tsx']
+            '@typescript-eslint/parser': ['.ts', '.tsx'],
         },
         'import/resolver': {
             typescript: {
@@ -66,7 +66,7 @@ const config = {
         'import/no-cycle': ['error', { allowUnsafeDynamicCyclicDependency: true }],
 
         'react/react-in-jsx-scope': 'off',
-        'camelcase': 'off',
+        camelcase: 'off',
 
         'react/jsx-indent': ['error', 4],
         'react/jsx-indent-props': ['error', 4],
@@ -80,7 +80,7 @@ const config = {
         'react/require-default-props': ['warn', { ignoreFunctionalComponents: true }],
         'simple-import-sort/imports': 'warn',
         'simple-import-sort/exports': 'warn',
-        'import-newlines/enforce': ['warn', 1]
+        'import-newlines/enforce': ['warn', 1],
     },
     overrides: [
         {
@@ -89,7 +89,7 @@ const config = {
                 'simple-import-sort/imports': [
                     'error',
                     {
-                        'groups': [
+                        groups: [
                             // side effect imports
                             ['^\\u0000'],
                             // packages `react` related packages come first
@@ -101,12 +101,12 @@ const config = {
                             ['^\\.\\.(?!/?$)', '^\\.\\./?$', '^\\./(?=.*/)(?!/?$)', '^\\.(?!/?$)', '^\\./?$'],
                             // style imports
                             ['^.+\\.json$', '^.+\\.module.css$'],
-                        ]
-                    }
-                ]
-            }
-        }
-    ]
+                        ],
+                    },
+                ],
+            },
+        },
+    ],
 };
 
 module.exports = config;
