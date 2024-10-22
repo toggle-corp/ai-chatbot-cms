@@ -3,7 +3,7 @@
         "paths": {
             "#views/*": ["./src/views/*"],
             "#utils/*": ["./src/utils/*"],
-            "#base/*": ["./src/configs/*"]
+            "#configs/*": ["./src/configs/*"]
         },
 
         "target": "ESNext",
