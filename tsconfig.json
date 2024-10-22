@@ -2,7 +2,8 @@
     "compilerOptions": {
         "paths": {
             "#views/*": ["./src/views/*"],
-            "#utils/*": ["./src/utils/*"]
+            "#utils/*": ["./src/utils/*"],
+            "#configs/*": ["./src/configs/*"]
         },
 
         "target": "ESNext",
