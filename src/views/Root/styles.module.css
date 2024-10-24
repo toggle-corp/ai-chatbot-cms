@@ -1,11 +1,11 @@
 .logo {
     transition: filter 300ms;
-    padding: var(--padding-small);
+    padding: var(--cms-ui-spacing-sm);
     height: 6em;
     will-change: filter;
 
     &:hover {
-        filter: drop-shadow(0 0 2em var(--shadow-color));
+        filter: drop-shadow(0 0 2em var(--cms-ui-color-gray-200));
     }
 }
 
