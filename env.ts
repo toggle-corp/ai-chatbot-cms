@@ -5,5 +5,5 @@ import {
 
 export default defineConfig({
     APP_TITLE: Schema.string.optional(),
-    GRAPHQL_ENDPOINT: Schema.string.optional(),
+    APP_GRAPHQL_ENDPOINT: Schema.string.optional(),
 });
