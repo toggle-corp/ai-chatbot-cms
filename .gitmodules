@@ -1,0 +1,3 @@
+[submodule "backend"]
+	path = backend
+	url = git@github.com:toggle-corp/ai-chatbot-backend.git

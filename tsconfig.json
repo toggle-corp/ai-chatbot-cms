@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "paths": {
+            "#generated/*": ["./generated/*"],
             "#views/*": ["./src/views/*"],
             "#utils/*": ["./src/utils/*"],
             "#configs/*": ["./src/configs/*"]

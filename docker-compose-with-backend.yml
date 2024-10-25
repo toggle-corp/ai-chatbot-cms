@@ -1,0 +1,16 @@
+name: chatbot
+
+services:
+  react:
+    build: ../
+    command: sh -c 'pnpm install && pnpm start --host'
+    environment:
+      APP_TITLE: ${APP_TITLE:-CMS}
+      APP_GRAPHQL_ENDPOINT: ${APP_GRAPHQL_ENDPOINT:-http://localhost:8001/graphql/}
+      APP_GRAPHQL_CODEGEN_ENDPOINT: ${APP_GRAPHQL_CODEGEN_ENDPOINT:-http://web:8001/graphql/}
+    volumes:
+      - ../:/code
+    ports:
+      - '3000:3000'
+    depends_on:
+      - web
