@@ -9,6 +9,7 @@ on:
 env:
   APP_TITLE: ${{ vars.APP_TITLE }}
   APP_GRAPHQL_CODEGEN_ENDPOINT: ${{ vars.APP_GRAPHQL_CODEGEN_ENDPOINT }}
+  APP_GRAPHQL_ENDPOINT: ${{ vars.APP_GRAPHQL_ENDPOINT }}
   GITHUB_WORKFLOW: true
 
 jobs:
@@ -17,8 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -56,7 +55,7 @@ jobs:
         run: pnpm install
 
       - name: Run knip
-        run: pnpm lint:unused
+        run: pnpm generate:type && pnpm lint:unused
   lint-js:
     name: Lint JS
     environment: 'test'

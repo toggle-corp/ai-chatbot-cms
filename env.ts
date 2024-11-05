@@ -5,5 +5,5 @@ import {
 
 export default defineConfig({
     COMPOSE_FILE: Schema.string.optional(),
-    APP_TITLE: Schema.string(),
+    APP_TITLE: Schema.string.optional(),
 });
