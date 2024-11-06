@@ -1,18 +1,14 @@
-import { Link } from 'react-router-dom';
-
-import { wrappedRoutes } from '../../App/routes';
+import Navbar from '#components/Navbar';
 
 /** @knipignore */
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
     return (
         <>
+            <Navbar />
             <h1>
-                AI CHATBOT CMS
+                Dashboard
             </h1>
-            <Link to={wrappedRoutes.login.absolutePath}>
-                Login
-            </Link>
         </>
     );
 }

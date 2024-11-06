@@ -4,7 +4,10 @@
             "#generated/*": ["./generated/*"],
             "#views/*": ["./src/views/*"],
             "#utils/*": ["./src/utils/*"],
-            "#configs/*": ["./src/configs/*"]
+            "#configs/*": ["./src/configs/*"],
+            "#contexts/*": ["./src/contexts/*"],
+            "#components/*": ["./src/components/*"],
+            "#hooks/*": ["./src/hooks/*"]
         },
 
         "target": "ESNext",
