@@ -1,0 +1,3 @@
+.container {
+    padding: var(--cms-ui-spacing-lg) var(--cms-ui-spacing-md);
+}

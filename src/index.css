@@ -24,13 +24,13 @@
     --cms-ui-font-weight-medium: 400;
     --cms-ui-font-weight-bold: 600;
 
-    --cms-ui-line-height-2xl: 76;
-    --cms-ui-line-height-xl: 62;
-    --cms-ui-line-height-lg: 48;
-    --cms-ui-line-height-md: 41;
-    --cms-ui-line-height-sm: 32;
-    --cms-ui-line-height-xs: 28;
-    --cms-ui-line-height-2xs: 24;
+    --cms-ui-line-height-2xl: 76px;
+    --cms-ui-line-height-xl: 62px;
+    --cms-ui-line-height-lg: 48px;
+    --cms-ui-line-height-md: 41px;
+    --cms-ui-line-height-sm: 32px;
+    --cms-ui-line-height-xs: 28px;
+    --cms-ui-line-height-2xs: 24px;
 
     --cms-ui-spacing-2xs: calc(var(--base-spacing) * 0.125);
     --cms-ui-spacing-xs: calc(var(--base-spacing) * 0.25);

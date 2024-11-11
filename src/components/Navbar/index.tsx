@@ -7,9 +7,14 @@ import {
     gql,
     useMutation,
 } from '@apollo/client';
-import { _cs, isDefined, isNotDefined } from '@togglecorp/fujs';
+import {
+    _cs,
+    isDefined,
+    isNotDefined,
+} from '@togglecorp/fujs';
 import { Button } from '@togglecorp/toggle-ui';
 
+import Heading from '#components/Heading';
 import UserContext from '#contexts/user';
 import {
     LogoutMutation,
@@ -35,8 +40,9 @@ const LOGOUT_MUTATION = gql`
 
 function Navbar(props: Props) {
     const { className } = props;
+
     const { userAuth, removeUserAuth } = useContext(UserContext);
-    console.log('user', userAuth);
+
     const [
         logout,
         { loading },
@@ -60,36 +66,34 @@ function Navbar(props: Props) {
             },
         },
     );
+
     const handleLogoutClick = useCallback(() => {
         logout();
     }, [logout]);
+
     return (
         <nav className={_cs(styles.navbar, className)}>
+            <Heading level={5}>
+                ToggTalkie
+            </Heading>
             <div>
-                <Link
-                    to="/"
-                >
-                    CMS
-                </Link>
-            </div>
-            {isNotDefined(userAuth) && (
-                <div>
+                {isNotDefined(userAuth) && (
                     <Link
                         to="login"
                     >
                         Login
                     </Link>
-                </div>
-            )}
-            {isDefined(userAuth) && (
-                <Button
-                    name="logout"
-                    onClick={handleLogoutClick}
-                    disabled={loading}
-                >
-                    Logout
-                </Button>
-            )}
+                )}
+                {isDefined(userAuth) && (
+                    <Button
+                        name="logout"
+                        onClick={handleLogoutClick}
+                        disabled={loading}
+                    >
+                        Logout
+                    </Button>
+                )}
+            </div>
         </nav>
     );
 }

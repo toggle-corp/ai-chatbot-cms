@@ -1,0 +1,20 @@
+.basic-layout {
+    display: flex;
+
+    .icons-container {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .children-container {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: var(--cms-ui-spacing-sm);
+    }
+
+    .actions-container {
+        display: flex;
+        align-items: flex-start;
+    }
+}

@@ -2,7 +2,6 @@ import {
     useCallback,
     useContext,
 } from 'react';
-import { Link } from 'react-router-dom';
 import {
     gql,
     useMutation,
@@ -26,11 +25,16 @@ import {
     TextInput,
 } from '@togglecorp/toggle-ui';
 
+import loginCover from '#assets/loginCover.png';
+import Container from '#components/Container';
+import Page from '#components/Page';
 import UserContext from '#contexts/user';
 import {
     LoginMutation,
     LoginMutationVariables,
 } from '#generated/types/graphql';
+
+import styles from './styles.module.css';
 
 const LOGIN = gql`
     mutation Login($input: LoginInput!){
@@ -134,41 +138,59 @@ export function Component() {
     }, [login]);
 
     return (
-        <>
-            <h1>
-                Login
-            </h1>
-            <form
-                onSubmit={createSubmitHandler(validate, setError, handleSubmit)}
+        <Page>
+            <Container
+                className={styles.banner}
+                showHeader
+                heading="ToggTalkie"
+                headingDescription="Welcome to ToggTalkie Dashboard!"
+                childrenContainerClassName={styles.coverImage}
             >
-                <TextInput
-                    name="email"
-                    label="Email *"
-                    onChange={setFieldValue}
-                    value={value?.email}
-                    error={error?.email}
-                    autoFocus
+                <img
+                    className={styles.coverImage}
+                    src={loginCover}
+                    alt="cover"
                 />
-                <PasswordInput
-                    name="password"
-                    label="Password *"
-                    onChange={setFieldValue}
-                    value={value?.password}
-                    error={error?.password}
-                />
-                <Button
-                    disabled={pristine || loading}
-                    type="submit"
-                    variant="primary"
-                    name="login"
+            </Container>
+            <Container
+                showHeader
+                className={styles.formContainer}
+                heading="Welcome back"
+                childrenContainerClassName={styles.formContent}
+            >
+                <form
+                    className={styles.form}
+                    onSubmit={createSubmitHandler(validate, setError, handleSubmit)}
                 >
-                    Submit
-                </Button>
-            </form>
-            <Link to="home">
-                Go to home
-            </Link>
-        </>
+                    <TextInput
+                        name="email"
+                        label="Email*"
+                        placeholder="Enter email"
+                        onChange={setFieldValue}
+                        value={value?.email}
+                        error={error?.email}
+                        autoFocus
+                    />
+                    <PasswordInput
+                        name="password"
+                        label="Password*"
+                        placeholder="Enter password"
+                        onChange={setFieldValue}
+                        value={value?.password}
+                        error={error?.password}
+                    />
+                    <Button
+                        className={styles.loginButton}
+                        disabled={pristine || loading}
+                        type="submit"
+                        variant="primary"
+                        name="login"
+                    >
+                        Submit
+                    </Button>
+                </form>
+            </Container>
+        </Page>
     );
 }
 
