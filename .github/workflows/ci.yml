@@ -55,7 +55,7 @@ jobs:
         run: pnpm install
 
       - name: Run knip
-        run: pnpm generate:type && pnpm lint:unused
+        run: pnpm lint:unused
   lint-js:
     name: Lint JS
     environment: 'test'

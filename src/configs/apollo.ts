@@ -28,5 +28,4 @@ const apolloOptions: ApolloClientOptions<NormalizedCacheObject> = {
     },
 };
 
-/** @knipignore */
 export default apolloOptions;
