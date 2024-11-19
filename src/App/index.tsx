@@ -27,13 +27,12 @@ import { unwrappedRoutes } from './routes';
 const ME_QUERY = gql`
     query Me {
         public {
-            id
             me {
-                displayName
-                email
-                firstName
                 id
+                firstName
                 lastName
+                email
+                displayName
             }
         }
     }
@@ -52,10 +51,9 @@ function App() {
     );
 
     useEffect(() => {
-        if (loading) {
-            return;
+        if (!loading) {
+            setUserAuth(meResult?.public.me ?? undefined);
         }
-        setUserAuth(meResult?.public.me ?? undefined);
     }, [meResult, loading]);
 
     const removeUserAuth = useCallback(
@@ -73,6 +71,10 @@ function App() {
         }),
         [userAuth, removeUserAuth],
     );
+
+    if (loading) {
+        return null;
+    }
 
     return (
         <UserContext.Provider value={userContextValue}>
