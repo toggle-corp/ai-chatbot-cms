@@ -5,8 +5,8 @@ import {
 
 export default defineConfig({
     // NOTE: We need to replace with URL
-    APP_GRAPHQL_ENDPOINT: Schema.string.optional(),
+    APP_GRAPHQL_ENDPOINT: Schema.string(),
 
     // NOTE: It is not used for now
-    APP_TITLE: Schema.string.optional(),
+    APP_TITLE: Schema.string(),
 });

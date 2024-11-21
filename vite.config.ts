@@ -53,6 +53,10 @@ export default defineConfig(({ mode }) => {
             sourcemap: isProd,
         },
         test: {
+            exclude: [
+                'node_modules', // Standard exclusion
+                '.pnpm-store', // pnpm store files
+            ],
             environment: 'happy-dom',
         },
     };

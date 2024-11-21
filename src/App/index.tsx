@@ -73,6 +73,7 @@ function App() {
     );
 
     if (loading) {
+        // NOTE: Handle checking user session for loading state
         return null;
     }
 
