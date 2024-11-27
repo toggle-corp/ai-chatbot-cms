@@ -1,0 +1,19 @@
+.navigation-button {
+    display: flex;
+    align-items: center;
+    border-radius: var(--cms-ui-radius-md);
+    padding: var(--cms-ui-spacing-sm);
+    text-decoration: none;
+    color: var(--cms-ui-primary-text-color);
+    font-weight: var(--cms-ui-font-weight-bold);
+    gap: var(--cms-ui-spacing-md);
+
+    &.active {
+        background-color: var(--cms-ui-color-gray-20);
+        color: var(--cms-ui-color-blue-700);
+    }
+
+    &.disabled {
+        opacity: var(--cms-ui-opacity);
+    }
+}

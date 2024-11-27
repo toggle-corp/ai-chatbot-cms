@@ -39,11 +39,11 @@
     --cms-ui-spacing-lg: calc(var(--base-spacing) * 2);
     --cms-ui-spacing-xl: calc(var(--base-spacing) * 4);
     --cms-ui-spacing-2xl: calc(var(--base-spacing) * 8);
-    
-    --cms-ui-radius-sm: calc(var(--base-radius) * 0.5);
-    --cms-ui-radius-md: var(--base-radius);
-    --cms-ui-radius-lg: calc(var(--base-radius) * 2);
-    --cms-ui-radius-xl: calc(var(--base-radius) * 4);
+
+    --cms-ui-radius-sm: calc(var(--base-radius) * 0.25);
+    --cms-ui-radius-md: calc(var(--base-radius) * 0.5);
+    --cms-ui-radius-lg: var(--base-radius);
+    --cms-ui-radius-xl: calc(var(--base-radius) * 2);
 
     --cms-ui-color-blue-20: #F5FAFF;
     --cms-ui-color-blue-50: #EDF6FF;
@@ -61,6 +61,7 @@
     --cms-ui-color-yellow-400: #FFC165;
     --cms-ui-color-yellow-550: #FFA732;
 
+    --cms-ui-color-gray-20: #F2F2F2;
     --cms-ui-color-gray-50: #A1A2A5;
     --cms-ui-color-gray-100: #838487;
     --cms-ui-color-gray-200: #66676A;
@@ -89,6 +90,8 @@
     --cms-ui-color-success: var(--cms-ui-color-green-600);
     --cms-ui-color-progress: var(--cms-ui-color-yellow-400);
     --cms-ui-color-icon: var(--cms-ui-color-blue-700);
+
+    --cms-ui-opacity: 0.5;
 
 }
 

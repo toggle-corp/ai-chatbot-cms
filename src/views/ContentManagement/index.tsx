@@ -32,7 +32,7 @@ const CONTENT_QUERY = gql`
 
 /** @knipignore */
 // eslint-disable-next-line import/prefer-default-export
-export default function ContentManagement() {
+export function Component() {
     const {
         loading,
         data: contentResult,
@@ -58,3 +58,5 @@ export default function ContentManagement() {
         </Container>
     );
 }
+
+Component.displayName = 'ContentManagement';
