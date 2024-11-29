@@ -45,6 +45,11 @@
     --cms-ui-radius-lg: var(--base-radius);
     --cms-ui-radius-xl: calc(var(--base-radius) * 2);
 
+    --cms-ui-width-separator-sm: 1pt;
+    --cms-ui-width-separator-md: 2pt;
+    --cms-ui-width-separator-lg: 4pt;
+    --cms-ui-width-separator-xl: 8pt;
+
     --cms-ui-color-blue-20: #F5FAFF;
     --cms-ui-color-blue-50: #EDF6FF;
     --cms-ui-color-blue-100: #CFE5FB;

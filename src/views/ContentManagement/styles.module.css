@@ -1,3 +1,15 @@
 .container {
     padding: var(--cms-ui-spacing-lg) var(--cms-ui-spacing-md);
+
+    .table {
+        background-color: var(--cms-ui-color-white-card);
+
+        .header-row {
+            .header-cell {
+                >* {
+                    font-weight: bold;
+                }
+            }
+        }
+    }
 }

@@ -1,5 +1,6 @@
 import { _cs } from '@togglecorp/fujs';
 
+import Footer from '#components/Footer';
 import Header from '#components/Header';
 import { type Props as HeadingProps } from '#components/Heading';
 
@@ -25,6 +26,15 @@ interface Props {
     headingDescriptionContainerClassName?: string;
     headerDescriptionContainerClassName?: string;
     childrenContainerClassName?: string;
+
+    footerActions?: React.ReactNode;
+    footerActionsContainerClassName?: string;
+    footerClassName?: string;
+    footerContent?: React.ReactNode;
+    footerContentClassName?: string;
+    footerIcons?: React.ReactNode;
+    withFooterBorder?: boolean;
+
 }
 
 function Container(props: Props) {
@@ -48,7 +58,17 @@ function Container(props: Props) {
         icons,
         childrenContainerClassName,
         iconsContainerClassName,
+
+        footerActions,
+        footerActionsContainerClassName,
+        footerClassName,
+        footerContent,
+        footerContentClassName,
+        withFooterBorder,
+        footerIcons,
     } = props;
+
+    const showFooter = footerIcons || footerContent || footerActions;
 
     if (!children) {
         return null;
@@ -83,6 +103,21 @@ function Container(props: Props) {
             <div className={childrenContainerClassName}>
                 {children}
             </div>
+            {showFooter && withFooterBorder && <div className={styles.border} />}
+            {showFooter && (
+                <Footer
+                    actions={footerActions}
+                    icons={footerIcons}
+                    childrenContainerClassName={footerContentClassName}
+                    className={_cs(
+                        styles.footer,
+                        footerClassName,
+                    )}
+                    actionsContainerClassName={footerActionsContainerClassName}
+                >
+                    {footerContent}
+                </Footer>
+            )}
         </div>
     );
 }
