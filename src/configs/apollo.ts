@@ -5,7 +5,7 @@ import {
     NormalizedCacheObject,
 } from '@apollo/client';
 
-const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT as string;
+const GRAPHQL_ENDPOINT = import.meta.env.APP_GRAPHQL_ENDPOINT;
 
 const link = new HttpLink({
     uri: GRAPHQL_ENDPOINT,
@@ -28,5 +28,4 @@ const apolloOptions: ApolloClientOptions<NormalizedCacheObject> = {
     },
 };
 
-/** @knipignore */
 export default apolloOptions;

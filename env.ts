@@ -4,6 +4,9 @@ import {
 } from '@julr/vite-plugin-validate-env';
 
 export default defineConfig({
-    APP_TITLE: Schema.string.optional(),
-    GRAPHQL_ENDPOINT: Schema.string.optional(),
+    // NOTE: We need to replace with URL
+    APP_GRAPHQL_ENDPOINT: Schema.string(),
+
+    // NOTE: It is not used for now
+    APP_TITLE: Schema.string(),
 });
