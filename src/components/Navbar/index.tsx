@@ -57,7 +57,8 @@ function Navbar(props: Props) {
 
                 const {
                     ok,
-                    errors,
+                    // FIXME Use errors message in alert
+                    // errors,
                 } = logoutRes;
 
                 if (ok) {

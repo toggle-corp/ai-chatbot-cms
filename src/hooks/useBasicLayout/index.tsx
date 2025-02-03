@@ -5,7 +5,7 @@ import {
 
 import styles from './styles.module.css';
 
-export interface Props {
+interface Props {
     className?: string;
     icons?: React.ReactNode;
     children: React.ReactNode;

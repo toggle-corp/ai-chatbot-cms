@@ -270,7 +270,6 @@ export function unwrapRoute<K extends object>(
         (item) => item,
     );
 
-
     wrappedRoutes.forEach((route) => {
         if (route.parent) {
             const parentId = route.parent.id;

@@ -2,6 +2,7 @@
     "$schema": "https://unpkg.com/knip@5/schema.json",
     /* NOTE: It is ignored because some of the files and types inside the generated will not be used but needed. */
     "ignore": ["generated/**/*.ts"],
+    "ignoreDependencies": ["dotenv"],
     "entry": [
         "src/index.tsx!",
         "src/**/*.test.ts",
