@@ -3,6 +3,7 @@
     align-items: center;
     justify-content: space-between;
     z-index: 1;
+    /* FIXME Use Css variables */
     box-shadow: 0px 4px 4px 0px rgba(227, 227, 227, 0.25);
     background-color: var(--cms-ui-color-white-card);
     padding: var(--cms-ui-spacing-sm) var(--cms-ui-spacing-md);

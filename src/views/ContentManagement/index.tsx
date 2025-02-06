@@ -1,5 +1,4 @@
 import {
-    useCallback,
     useMemo,
     useState,
 } from 'react';
@@ -99,10 +98,6 @@ export function Component() {
         ),
     ]), []);
 
-    const handleActivePageChange = useCallback((e: number) => {
-        setPage(e);
-    }, []);
-
     return (
         <Container
             className={styles.container}
@@ -112,6 +107,8 @@ export function Component() {
                 <Button
                     name="Add Content"
                     variant="primary"
+                    onClick={() => {}}
+                    disabled
                 >
                     Add
                 </Button>
@@ -123,7 +120,7 @@ export function Component() {
                     activePage={page}
                     itemsCount={contentResult?.private.content.count ?? 0}
                     maxItemsPerPage={PAGE_SIZE}
-                    onActivePageChange={handleActivePageChange}
+                    onActivePageChange={setPage}
                 />
             )}
         >

@@ -11,7 +11,7 @@ import {
 const homeLayout = customWrapRoute({
     parent: rootLayout,
     path: '/',
-    forwardPath: 'contentManagement',
+    forwardPath: 'content-management',
     component: {
         render: () => import('#views/Home'),
         props: {},

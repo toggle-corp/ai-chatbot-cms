@@ -1,7 +1,4 @@
-import {
-    useCallback,
-    useContext,
-} from 'react';
+import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
     gql,
@@ -68,10 +65,6 @@ function Navbar(props: Props) {
         },
     );
 
-    const handleLogoutClick = useCallback(() => {
-        logout();
-    }, [logout]);
-
     return (
         <nav className={_cs(styles.navbar, className)}>
             <Heading level={5}>
@@ -87,8 +80,8 @@ function Navbar(props: Props) {
                 )}
                 {isDefined(userAuth) && (
                     <Button
-                        name="logout"
-                        onClick={handleLogoutClick}
+                        name={undefined}
+                        onClick={logout}
                         disabled={loading}
                     >
                         Logout
