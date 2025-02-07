@@ -9,10 +9,9 @@ import { _cs } from '@togglecorp/fujs';
 import { Button } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
+import { AlertType } from '#contexts/alert';
 
 import styles from './styles.module.css';
-
-export type AlertType = 'success' | 'warning' | 'danger' | 'info';
 
 export interface Props<N> {
     name: N;
@@ -22,7 +21,6 @@ export interface Props<N> {
     description?: React.ReactNode;
     nonDismissable?: boolean;
     onCloseButtonClick?: (name: N) => void;
-    debugMessage:string;
 }
 
 const alertTypeToClassNameMap: Record<AlertType, string> = {
@@ -47,7 +45,6 @@ function Alert<N extends string>(props: Props<N>) {
         description,
         nonDismissable,
         onCloseButtonClick,
-        debugMessage,
         name,
     } = props;
 
@@ -58,14 +55,6 @@ function Alert<N extends string>(props: Props<N>) {
             }
         },
         [onCloseButtonClick, name],
-    );
-    const handleCopyDebugMessageButtonClick = useCallback(
-        () => {
-            if (debugMessage) {
-                navigator.clipboard.writeText(debugMessage);
-            }
-        },
-        [debugMessage],
     );
 
     return (
@@ -88,17 +77,6 @@ function Alert<N extends string>(props: Props<N>) {
                 >
                     <IoCloseOutline className={styles.closeIcon} />
                 </Button>
-            )}
-            footerActions={debugMessage && (
-                <div>
-                    <Button
-                        name={undefined}
-                        onClick={handleCopyDebugMessageButtonClick}
-                        variant="default"
-                    >
-                        Copy error details
-                    </Button>
-                </div>
             )}
         >
             {description}
