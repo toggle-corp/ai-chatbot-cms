@@ -1,0 +1,39 @@
+.alert {
+    display: flex;
+    border-radius: var(--cms-ui-border-radius-md);
+     /* FIXME: use token for box shadow. */
+    box-shadow: 0 4pt 16pt -6pt rgb(0 0 0 / 1);
+    width: calc(14rem + 16vw);
+    color: var(--cms-ui-primary-text-color);
+}
+.icon {
+    font-size: var(--cms-ui-font-size-xl); 
+}
+
+.closeIcon {
+    font-size: var(--cms-ui-font-size-xl); 
+}
+
+.info {
+    /* FIXME: use token for box shadow. */
+    box-shadow: 0 4px  #114A84;
+    background-color: var(--cms-ui-color-faded-white);
+}
+
+.success {
+    /* FIXME: use token for box shadow. */
+    box-shadow: 0 4px #37AD00;
+    background-color: var(--cms-ui-color-faded-white);
+}
+
+.danger {
+    /* FIXME: use token for box shadow. */
+    box-shadow: 0 4px  #FF0000 ;
+    background-color: var(--cms-ui-color-faded-white);
+}
+
+.warning {
+    /* FIXME: use token for box shadow. */
+    box-shadow: 0 4px #FFA732 ;
+    background-color: var(--cms-ui-color-faded-white);
+}
