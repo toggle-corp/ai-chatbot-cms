@@ -11,7 +11,7 @@
 }
 
 .closeIcon {
-    font-size: var(--cms-ui-font-size-xl); 
+    font-size: var(--cms-ui-font-size-md); 
 }
 
 .info {

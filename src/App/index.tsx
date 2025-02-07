@@ -14,7 +14,12 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
+import { unique } from '@togglecorp/fujs';
 
+import AlertContext, {
+    AlertContextProps,
+    AlertParams,
+} from '#contexts/alert';
 import RouteContext from '#contexts/route';
 import UserContext, {
     UserAuth,
@@ -45,6 +50,57 @@ const router = createBrowserRouter(unwrappedRoutes);
 
 function App() {
     const [userAuth, setUserAuth] = useState<UserAuth>();
+
+    // ALERTS
+
+    const [alerts, setAlerts] = useState<AlertParams[]>([]);
+
+    const addAlert = useCallback((alert: AlertParams) => {
+        setAlerts((prevAlerts) => unique(
+            [...prevAlerts, alert],
+            (a) => a.name,
+        ) ?? prevAlerts);
+    }, [setAlerts]);
+
+    const removeAlert = useCallback((name: AlertParams['name']) => {
+        setAlerts((prevAlerts) => {
+            const i = prevAlerts.findIndex((a) => a.name === name);
+            if (i === -1) {
+                return prevAlerts;
+            }
+
+            const newAlerts = [...prevAlerts];
+            newAlerts.splice(i, 1);
+
+            return newAlerts;
+        });
+    }, [setAlerts]);
+
+    const updateAlert = useCallback((name: AlertParams['name'], paramsWithoutName: Omit<AlertParams, 'name'>) => {
+        setAlerts((prevAlerts) => {
+            const i = prevAlerts.findIndex((a) => a.name === name);
+            if (i === -1) {
+                return prevAlerts;
+            }
+
+            const updatedAlert = {
+                ...prevAlerts[i],
+                ...paramsWithoutName,
+            };
+
+            const newAlerts = [...prevAlerts];
+            newAlerts.splice(i, 1, updatedAlert);
+
+            return newAlerts;
+        });
+    }, [setAlerts]);
+
+    const alertContextValue: AlertContextProps = useMemo(() => ({
+        alerts,
+        addAlert,
+        updateAlert,
+        removeAlert,
+    }), [alerts, addAlert, updateAlert, removeAlert]);
 
     const {
         loading,
@@ -83,7 +139,9 @@ function App() {
     return (
         <RouteContext.Provider value={wrappedRoutes}>
             <UserContext.Provider value={userContextValue}>
-                <RouterProvider router={router} />
+                <AlertContext.Provider value={alertContextValue}>
+                    <RouterProvider router={router} />
+                </AlertContext.Provider>
             </UserContext.Provider>
         </RouteContext.Provider>
     );
