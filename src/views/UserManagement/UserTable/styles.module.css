@@ -1,0 +1,21 @@
+.container {
+    padding: var(--cms-ui-spacing-lg) var(--cms-ui-spacing-md);
+    
+    .actions{
+        display:flex;
+        gap: var(--cms-ui-spacing-xl);
+
+    }
+    .table {
+        .header-row {
+            .header-cell {
+                >* {
+                    font-weight: bold;
+                }
+            }
+        }
+        .email{
+            min-width:15rem;
+        }
+    } 
+}
