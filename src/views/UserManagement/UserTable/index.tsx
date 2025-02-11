@@ -1,4 +1,5 @@
 import {
+    useCallback,
     useMemo,
     useState,
 } from 'react';
@@ -18,6 +19,7 @@ import {
 
 import Container from '#components/Container';
 
+import AddUserFormModal from './AddUserModal';
 import UserActions from './UserActions';
 
 import styles from './styles.module.css';
@@ -79,6 +81,14 @@ const statusLabelSelector = (option: { key: string }) => option.key;
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
     const [page, setPage] = useState<number>(1);
+    const [showAddModal, setShowAddModal] = useState(false);
+
+    const handleAddUserFormModalClose = useCallback(
+        () => {
+            setShowAddModal(false);
+        },
+        [],
+    );
 
     const columns = useMemo(() => ([
         // FIXME : Add Element Column
@@ -153,7 +163,7 @@ export function Component() {
                     <Button
                         name="Add Content"
                         variant="primary"
-                        onClick={() => { }}
+                        onClick={() => setShowAddModal(true)}
                         icons={<IoAddCircleOutline />}
                     >
                         Add user
@@ -179,6 +189,9 @@ export function Component() {
                 columns={columns}
                 keySelector={userKeySelector}
             />
+            {showAddModal && (
+                <AddUserFormModal onClose={handleAddUserFormModalClose} />
+            )}
         </Container>
     );
 }
