@@ -5,7 +5,6 @@ import { Component as UserTable } from './UserTable';
 export function Component() {
     return (
         <UserTable />
-
     );
 }
 

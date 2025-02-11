@@ -4,9 +4,10 @@ import {
     useState,
 } from 'react';
 import {
-    IoAddCircleOutline,
+    IoAddCircleSharp,
     IoSearchOutline,
 } from 'react-icons/io5';
+import { PartialForm } from '@togglecorp/toggle-form';
 import {
     Button,
     Checkbox,
@@ -19,12 +20,10 @@ import {
 
 import Container from '#components/Container';
 
-import AddUserFormModal from './AddUserModal';
 import UserActions from './UserActions';
+import UserModal from './UserModal';
 
 import styles from './styles.module.css';
-
-const userKeySelector = (option: UserListTable) => option.id;
 
 const PAGE_SIZE = 5;
 
@@ -33,47 +32,55 @@ type UserListTable = {
     firstName: string;
     lastName: string;
     email: string;
+    department?: string;
 }
 
-const usersData: UserListTable[] = [
+const initialUsersData: UserListTable[] = [
     {
         id: '1',
         email: 'subrina.sharma@gmail.com',
         firstName: 'Subina',
         lastName: 'Sharma',
+        department: 'HR',
     },
     {
         id: '2',
         email: 'userishere@gmail.com',
         firstName: 'User',
         lastName: 'Ishere',
+        department: 'Engineering',
     },
     {
         id: '3',
         email: 'Sadikshya@togglecorp.com',
         firstName: 'Sadikshya',
         lastName: 'Hamal',
+        department: 'Marketing',
     },
     {
         id: '4',
         email: 'smriti123@gmail.com',
         firstName: 'Smriti',
         lastName: 'Kafle',
+        department: 'HR',
     },
     {
         id: '5',
         email: 'babin.karmacharya@togglecorp.com',
         firstName: 'Babin',
         lastName: 'Karmacharya',
+        department: 'Engineering',
     },
     {
         id: '6',
         email: 'aditya@togglecorp.com',
         firstName: 'Aditya',
         lastName: 'Khatri',
+        department: 'Marketing',
     },
 ];
 
+const userKeySelector = (option: UserListTable) => option.id;
 const statusKeySelector = (option: { key: string }) => option.key;
 const statusLabelSelector = (option: { key: string }) => option.key;
 
@@ -81,17 +88,36 @@ const statusLabelSelector = (option: { key: string }) => option.key;
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
     const [page, setPage] = useState<number>(1);
+    const [users, setUsers] = useState<UserListTable[]>(initialUsersData);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [editingUser, setEditingUser] = useState<UserListTable | undefined>(undefined);
 
     const handleAddUserFormModalClose = useCallback(
         () => {
             setShowAddModal(false);
+            setEditingUser(undefined);
         },
         [],
     );
 
+    const handleAddUser = useCallback((user: PartialForm<UserListTable>) => {
+        setUsers((prevUsers) => [
+            ...prevUsers,
+            { ...user, id: String(prevUsers.length + 1) } as UserListTable,
+        ]);
+    }, []);
+
+    const handleEditUser = useCallback((user: PartialForm<UserListTable>) => {
+        setUsers((prevUsers) => prevUsers.map((u) => (u.id === user.id ? { ...u, ...user } : u)));
+    }, []);
+
+    const handleEdit = useCallback((userId: string) => {
+        const user = users.find((u) => u.id === userId);
+        setEditingUser(user);
+        setShowAddModal(true);
+    }, [users]);
+
     const columns = useMemo(() => ([
-        // FIXME : Add Element Column
         createStringColumn<UserListTable, string>(
             'checkbox',
             '',
@@ -126,14 +152,19 @@ export function Component() {
             (item) => item.lastName,
             { columnClassName: styles.email },
         ),
-        // FIXME : Add Element Column
         createStringColumn<UserListTable, string>(
             'actions',
             'Actions',
-            UserActions,
+            ({ id }) => (
+                <UserActions
+                    userId={id}
+                    onEdit={handleEdit}
+                    onSubmit={handleEditUser}
+                />
+            ),
             { columnClassName: styles.email },
         ),
-    ]), []);
+    ]), [handleEdit, handleEditUser]);
 
     return (
         <Container
@@ -159,12 +190,15 @@ export function Component() {
                         value={undefined}
                         onChange={() => {}}
                     />
-                    <div>154 Users</div>
+                    <div>
+                        {users.length}
+                        Users
+                    </div>
                     <Button
                         name="Add Content"
                         variant="primary"
                         onClick={() => setShowAddModal(true)}
-                        icons={<IoAddCircleOutline />}
+                        icons={<IoAddCircleSharp />}
                     >
                         Add user
                     </Button>
@@ -175,7 +209,7 @@ export function Component() {
                     infoHidden
                     itemsPerPageControlHidden
                     activePage={page}
-                    itemsCount={usersData.length}
+                    itemsCount={users.length}
                     maxItemsPerPage={PAGE_SIZE}
                     onActivePageChange={setPage}
                 />
@@ -185,12 +219,21 @@ export function Component() {
                 className={styles.table}
                 headerCellClassName={styles.headerCell}
                 headerRowClassName={styles.headerRow}
-                data={usersData}
+                data={users}
                 columns={columns}
                 keySelector={userKeySelector}
             />
             {showAddModal && (
-                <AddUserFormModal onClose={handleAddUserFormModalClose} />
+                <UserModal
+                    title={
+                        editingUser ? 'Edit User' : 'Add User'
+                    }
+                    onClose={handleAddUserFormModalClose}
+                    onSubmit={
+                        editingUser ? handleEditUser : handleAddUser
+                    }
+                    initialValue={editingUser}
+                />
             )}
         </Container>
     );

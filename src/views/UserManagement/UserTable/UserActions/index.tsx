@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import {
     IoEllipsisVertical,
     IoPencil,
@@ -7,29 +6,35 @@ import { Button } from '@togglecorp/toggle-ui';
 
 import styles from './styles.module.css';
 
-function UserActions() {
-    const handleClick = useCallback(() => {
-    }, []);
+interface Props {
+    userId: string;
+    onEdit: (userId: string) => void;
+}
+
+function UserActions({
+    userId, onEdit,
+}: Props) {
+    const handleEditClick = () => {
+        onEdit(userId);
+    };
 
     return (
         <div className={styles.userActions}>
             <Button
-                className={styles.actionButton}
                 name={undefined}
-                onClick={handleClick}
+                onClick={handleEditClick}
                 title="Edit"
                 transparent
             >
-                <IoPencil className={styles.icons} />
+                <IoPencil />
             </Button>
             <Button
-                className={styles.actionButton}
                 name={undefined}
-                onClick={handleClick}
+                onClick={() => {}}
                 title="More"
                 transparent
             >
-                <IoEllipsisVertical className={styles.icons} />
+                <IoEllipsisVertical />
             </Button>
         </div>
     );
