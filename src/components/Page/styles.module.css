@@ -1,0 +1,14 @@
+.page {
+    display: flex;
+    flex-grow: 1;
+
+    .leftPane {
+        display: flex;
+        flex-direction: column;
+        /* FIXME Use Css variables */
+        box-shadow: 0px 4px 4px 0px rgba(227, 227, 227, 0.25);
+        background-color: var(--cms-ui-color-white-card);
+        padding: var(--cms-ui-spacing-lg) var(--cms-ui-spacing-md);
+        gap: var(--cms-ui-spacing-md);
+    }
+}

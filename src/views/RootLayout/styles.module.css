@@ -1,0 +1,14 @@
+.root {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    height: 100vh;
+    overflow: auto;
+
+    .page-content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        overflow: auto;
+    }
+}

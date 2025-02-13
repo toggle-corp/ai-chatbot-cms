@@ -1,3 +1,5 @@
+import '@togglecorp/toggle-ui/build/index.css';
+
 import {
     useCallback,
     useEffect,
@@ -13,16 +15,17 @@ import {
     useQuery,
 } from '@apollo/client';
 
+import RouteContext from '#contexts/route';
+import UserContext, {
+    UserAuth,
+    UserContextProps,
+} from '#contexts/user';
 import {
     MeQuery,
     MeQueryVariables,
 } from '#generated/types/graphql';
 
-import UserContext, {
-    UserAuth,
-    UserContextProps,
-} from '../contexts/user';
-import { unwrappedRoutes } from './routes';
+import wrappedRoutes, { unwrappedRoutes } from './routes';
 
 const ME_QUERY = gql`
     query Me {
@@ -78,9 +81,11 @@ function App() {
     }
 
     return (
-        <UserContext.Provider value={userContextValue}>
-            <RouterProvider router={router} />
-        </UserContext.Provider>
+        <RouteContext.Provider value={wrappedRoutes}>
+            <UserContext.Provider value={userContextValue}>
+                <RouterProvider router={router} />
+            </UserContext.Provider>
+        </RouteContext.Provider>
     );
 }
 
