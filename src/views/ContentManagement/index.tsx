@@ -19,6 +19,9 @@ import {
     ContentListQuery,
     ContentListQueryVariables,
 } from '#generated/types/graphql';
+import useBooleanState from '#hooks/useBooleanState';
+
+import AddContentModal from './AddContentModal';
 
 import styles from './styles.module.css';
 
@@ -56,6 +59,15 @@ const CONTENT_QUERY = gql`
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
     const [page, setPage] = useState<number>(1);
+
+    const [
+        showAddModal,
+        {
+            setTrue: setShowAddModalTrue,
+            setFalse: setShowAddModalFalse,
+        },
+    ] = useBooleanState(false);
+
     const {
         data: contentResult,
     } = useQuery<ContentListQuery, ContentListQueryVariables>(
@@ -99,40 +111,47 @@ export function Component() {
     ]), []);
 
     return (
-        <Container
-            className={styles.container}
-            showHeader
-            heading="Content"
-            actions={(
-                <Button
-                    name="Add Content"
-                    variant="primary"
-                    onClick={() => {}}
-                    disabled
-                >
-                    Add
-                </Button>
-            )}
-            footerActions={(
-                <Pager
-                    infoHidden
-                    itemsPerPageControlHidden
-                    activePage={page}
-                    itemsCount={contentResult?.private.content.count ?? 0}
-                    maxItemsPerPage={PAGE_SIZE}
-                    onActivePageChange={setPage}
+        <>
+            <Container
+                className={styles.container}
+                showHeader
+                heading="Content"
+                actions={(
+                    <Button
+                        name="Add Content"
+                        variant="primary"
+                        onClick={setShowAddModalTrue}
+                    >
+                        Add
+                    </Button>
+                )}
+                footerActions={(
+                    <Pager
+                        infoHidden
+                        itemsPerPageControlHidden
+                        activePage={page}
+                        itemsCount={contentResult?.private.content.count ?? 0}
+                        maxItemsPerPage={PAGE_SIZE}
+                        onActivePageChange={setPage}
+                    />
+                )}
+            >
+                <Table
+                    className={styles.table}
+                    headerCellClassName={styles.headerCell}
+                    headerRowClassName={styles.headerRow}
+                    cellClassName={styles.tableCell}
+                    data={contentResult?.private.content.items}
+                    columns={columns}
+                    keySelector={contentKeySelector}
+                />
+            </Container>
+            {showAddModal && (
+                <AddContentModal
+                    onClose={setShowAddModalFalse}
                 />
             )}
-        >
-            <Table
-                className={styles.table}
-                headerCellClassName={styles.headerCell}
-                headerRowClassName={styles.headerRow}
-                data={contentResult?.private.content.items}
-                columns={columns}
-                keySelector={contentKeySelector}
-            />
-        </Container>
+        </>
     );
 }
 

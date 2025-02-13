@@ -1,15 +1,24 @@
 .container {
+    border: var(--cms-ui-width-separator-sm) solid var(--cms-ui-color-gray-20);
     padding: var(--cms-ui-spacing-lg) var(--cms-ui-spacing-md);
 
     .table {
+        border: var(--cms-ui-width-separator-sm) solid var(--cms-ui-color-gray-20);
         background-color: var(--cms-ui-color-white-card);
+        min-width: 100%;
 
         .header-row {
             .header-cell {
+                background-color: var(--cms-ui-color-blue-50);
+                padding: var(--cms-ui-spacing-md);
                 >* {
-                    font-weight: bold;
+                    font-weight: var(--cms-ui-font-weight-bold);
                 }
             }
+        }
+        .table-cell {
+            border: none;
+            padding: var(--cms-ui-spacing-md);
         }
     }
 }

@@ -5,6 +5,7 @@
     "type": "module",
     "scripts": {
         "generate:type": "graphql-codegen --require dotenv/config --config codegen.ts",
+        "generate:type:debug": "graphql-codegen --debug --require dotenv/config --config codegen.ts",
         "prestart": "pnpm generate:type",
         "start": "vite",
         "prebuild": "pnpm generate:type",

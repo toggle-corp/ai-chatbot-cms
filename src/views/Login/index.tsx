@@ -69,7 +69,7 @@ const LoginSchema: FormSchema = ({
             required: true,
             requiredValidation: requiredStringCondition,
             validations: [
-                lengthGreaterThanCondition(3),
+                lengthGreaterThanCondition(1),
                 lengthSmallerThanCondition(129),
             ],
         },
