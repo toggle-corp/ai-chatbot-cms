@@ -95,6 +95,19 @@ const login = customWrapRoute({
         visibility: 'is-not-authenticated',
     },
 });
+const editProfile = customWrapRoute({
+    parent: homeLayout,
+    path: 'edit-url',
+    component: {
+        render: () => import('#views/EditProfile'),
+        props: {},
+    },
+    wrapperComponent: Auth,
+    context: {
+        title: 'Edit Url',
+        visibility: 'anything',
+    },
+});
 
 const userActivation = customWrapRoute({
     parent: rootLayout,
@@ -119,6 +132,7 @@ const wrappedRoutes = {
     userManagement,
     login,
     userActivation,
+    editProfile,
 };
 
 export const unwrappedRoutes = unwrapRoute(Object.values(wrappedRoutes));
