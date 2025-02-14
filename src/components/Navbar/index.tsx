@@ -1,4 +1,8 @@
-import { useContext } from 'react';
+import {
+    useCallback,
+    useContext,
+} from 'react';
+import { IoPersonCircleSharp } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
 import {
     gql,
@@ -9,8 +13,9 @@ import {
     isDefined,
     isNotDefined,
 } from '@togglecorp/fujs';
-import { Button } from '@togglecorp/toggle-ui';
 
+import DropdownMenu from '#components/DropdownMenu';
+import DropdownMenuItem from '#components/DropdownMenuItem';
 import Heading from '#components/Heading';
 import UserContext from '#contexts/user';
 import {
@@ -64,30 +69,47 @@ function Navbar(props: Props) {
             },
         },
     );
+    const handleLogoutClick = useCallback(() => {
+        logout();
+    }, [logout]);
 
     return (
         <nav className={_cs(styles.navbar, className)}>
             <Heading level={5}>
                 ToggTalkie
             </Heading>
-            <div>
+            <DropdownMenu
+                className={styles.dropdown}
+                label="User" // FIXME :Change the User label after server side is ready
+                icons={<IoPersonCircleSharp className={styles.icons} />}
+            >
                 {isNotDefined(userAuth) && (
                     <Link
+                        type="link"
                         to="login"
                     >
                         Login
                     </Link>
                 )}
+                <DropdownMenuItem
+                    className={styles.editProfile}
+                    type="link"
+                    to="edit-url"
+                >
+                    Edit Profile
+                </DropdownMenuItem>
                 {isDefined(userAuth) && (
-                    <Button
-                        name={undefined}
-                        onClick={logout}
+                    <DropdownMenuItem
+                        className={styles.logoutButton}
+                        type="button"
+                        name="logout"
+                        onClick={handleLogoutClick}
                         disabled={loading}
                     >
                         Logout
-                    </Button>
+                    </DropdownMenuItem>
                 )}
-            </div>
+            </DropdownMenu>
         </nav>
     );
 }

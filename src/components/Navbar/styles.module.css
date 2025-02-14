@@ -8,3 +8,28 @@
     background-color: var(--cms-ui-color-white-card);
     padding: var(--cms-ui-spacing-sm) var(--cms-ui-spacing-md);
 }
+
+.dropdown {
+    max-width: 32rem;
+    gap: var(--cms-ui-spacing-md);
+    overflow: auto
+}
+
+.icons{
+    font-size:var(--cms-ui-font-size-4xl)
+}
+.edit-profile{
+    padding: var(--cms-ui-spacing-sm);
+    text-decoration: none;
+    color: var(--cms-ui-primary-text-color);
+    font-weight: var(--cms-ui-font-weight-bold);
+    &:hover {
+        background-color: var(--cms-ui-color-background);
+    }
+}
+.logout-button{
+    width: 100%;
+    &:hover {
+        background-color: var(--cms-ui-color-background);
+    }
+}

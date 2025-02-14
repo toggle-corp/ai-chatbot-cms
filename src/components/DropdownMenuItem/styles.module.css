@@ -1,0 +1,19 @@
+.menuItem {
+    --color-background: transparent;
+    --border-color: transparent;
+
+    display: flex;
+    border: var(--cms-ui-width-separator-sm) solid var(--border-color);
+    border-radius: var(--cms-ui-radius-sm);
+    background-color: var(--color-background);
+    cursor: pointer;
+    padding: var(--cms-ui-spacing-sm);
+    font-family: inherit;
+    font-size: var(--cms-ui-font-size-md);
+    font-weight: var(--cms-ui-font-weight-bold);
+}
+.link {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    width: fit-content;
+}
