@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {
     useCallback,
     useMemo,
@@ -61,9 +62,62 @@ const userKeySelector = (option:UserListTable) => option.id;
 const statusKeySelector = (option: { key: string }) => option.key;
 const statusLabelSelector = (option: { key: string }) => option.key;
 
+||||||| parent of 8cc3101 (Add DropdownMenu component)
+import { useCallback } from 'react';
+import {
+    emailCondition,
+    getErrorObject,
+    ObjectSchema,
+    PartialForm,
+    requiredStringCondition,
+    useForm,
+} from '@togglecorp/toggle-form';
+import {
+    Button,
+    TextInput,
+} from '@togglecorp/toggle-ui';
+
+import displayImage from '#assets/displayImage.svg';
+import Container from '#components/Container';
+import Page from '#components/Page';
+
+import styles from './styles.module.css';
+
+type PartialFormType = PartialForm<{
+    email: string;
+    firstName: string;
+    lastName: string;
+}>;
+
+type FormSchema = ObjectSchema<PartialFormType>;
+type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
+const EditFormSchema: FormSchema = {
+    fields: (): FormSchemaFields => ({
+        email: {
+            required: true,
+            requiredValidation: requiredStringCondition,
+            validations: [emailCondition],
+        },
+        firstName: {
+            required: true,
+            requiredValidation: requiredStringCondition,
+        },
+        lastName: {
+            required: true,
+            requiredValidation: requiredStringCondition,
+        },
+    }),
+};
+
+const defaultFormValues: PartialFormType = {};
+
+=======
+>>>>>>> 8cc3101 (Add DropdownMenu component)
 /** @knipignore */
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
+<<<<<<< HEAD
     const [page, setPage] = useState<number>(1);
     const [
         showAddModal,
@@ -121,7 +175,21 @@ export function Component() {
         ),
     ]), []);
 
+||||||| parent of 8cc3101 (Add DropdownMenu component)
+    const {
+        value,
+        error: formError,
+        setFieldValue,
+    } = useForm(EditFormSchema, { value: defaultFormValues });
+
+    const handleFormSubmit = useCallback(() => {}, []);
+
+    const error = getErrorObject(formError);
+
+=======
+>>>>>>> 8cc3101 (Add DropdownMenu component)
     return (
+<<<<<<< HEAD
         <Container
             className={styles.container}
             showHeader
@@ -190,6 +258,91 @@ export function Component() {
                 />
             )}
         </Container>
+||||||| parent of 8cc3101 (Add DropdownMenu component)
+        <Page
+            className={styles.mainContent}
+        >
+            <Container
+                className={styles.editUrl}
+            >
+                <div
+                    className={styles.displayProfile}
+                >
+                    <div>
+                        <img
+                            src={displayImage}
+                            alt="display"
+                        />
+                        {/* FIxME: Add Display name after server side ready */}
+                        <div className={styles.displayContent}>
+                            <h1>Display Name</h1>
+                            <p> HR</p>
+                        </div>
+                    </div>
+                </div>
+
+                <Container
+                    className={styles.formContent}
+                    footerContent={(
+                        <div className={styles.actions}>
+                            <Button
+                                className={styles.loginButton}
+                                disabled={false}
+                                type="button"
+                                variant="default"
+                                name="cancel"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                className={styles.loginButton}
+                                disabled={false}
+                                type="button"
+                                variant="primary"
+                                name="save"
+                            >
+                                Save
+                            </Button>
+                        </div>
+                    )}
+                >
+                    <form
+                        className={styles.form}
+                        onSubmit={handleFormSubmit}
+                    >
+                        <TextInput
+                            className={styles.fullSizeInput}
+                            label="Email"
+                            name="email"
+                            autoFocus
+                            onChange={setFieldValue}
+                            value={value?.email}
+                            error={error?.email}
+                        />
+                        <TextInput
+                            name="firstName"
+                            label="First Name"
+                            value={value?.firstName}
+                            error={error?.firstName}
+                            onChange={setFieldValue}
+                        />
+                        <TextInput
+                            name="lastName"
+                            value={value?.lastName}
+                            label="Last Name"
+                            error={error?.lastName}
+                            onChange={setFieldValue}
+                        />
+
+                    </form>
+                </Container>
+            </Container>
+        </Page>
+=======
+        <div>
+            User Management
+        </div>
+>>>>>>> 8cc3101 (Add DropdownMenu component)
     );
 }
 

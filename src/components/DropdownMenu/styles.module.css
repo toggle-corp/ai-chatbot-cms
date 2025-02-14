@@ -1,0 +1,18 @@
+.dropdown-menu {
+    align-items: center;
+    .icons,
+    .content,
+    .actions {
+        pointer-events: none;
+    }
+
+    .dropdown-icon {
+        margin-inline-start: -0.3em;
+        font-size: var(--cms-ui-font-size-xs);
+    }
+}
+
+.dropdown-content {
+    display: flex;
+    padding: var(--cms-ui-spacing-sm);
+}
