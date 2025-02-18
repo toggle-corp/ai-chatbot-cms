@@ -98,7 +98,7 @@ function Navbar(props: Props) {
                         className={styles.logoutButton}
                         type="button"
                         name="logout"
-                        onClick={logout}
+                        onClick={() => logout}
                         disabled={loading}
                     >
                         Logout

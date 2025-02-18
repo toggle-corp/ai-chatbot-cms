@@ -10,16 +10,11 @@
 }
 
 .dropdown {
-    gap: var(--cms-ui-spacing-sm);
-    overflow: auto
+    overflow: auto;
 }
 
 .icons{
-    font-size:var(--cms-ui-font-size-4xl);
-
-    &:hover {
-        background-color: var(--cms-ui-color-background);
-    }
+    font-size:var(--cms-ui-font-size-5xl);
 }
 .edit-profile{
     padding: var(--cms-ui-spacing-sm);
