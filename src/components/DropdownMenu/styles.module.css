@@ -7,7 +7,6 @@
     }
 
     .dropdown-icon {
-        margin-inline-start: -0.3em;
         font-size: var(--cms-ui-font-size-xs);
     }
 }

@@ -19,11 +19,6 @@ import DropdownMenuContext from '#contexts/DropdownMenuContext';
 
 import styles from './styles.module.css';
 
-type CommonProp = {
-    persist?: boolean;
-    children?: React.ReactNode;
-}
-
 type CustomButtonProps<NAME extends string | number | undefined> = {
     name?: string | undefined;
     onClick?: (name: NAME, e: React.MouseEvent<HTMLButtonElement>) => void;
@@ -31,7 +26,6 @@ type CustomButtonProps<NAME extends string | number | undefined> = {
     disabled?: boolean;
     children?: React.ReactNode;
     type: 'button';
-    persist?: boolean;
 }
 
 type LinkTypeProps = LinkProps & {
@@ -42,44 +36,37 @@ type ConfirmButtonTypeProps<NAME extends string | number | undefined> = Omit<Con
     type: 'confirm-button',
 }
 
-type Props<N extends string | number | undefined> = CommonProp & (
-    CustomButtonProps<N> | LinkTypeProps | ConfirmButtonTypeProps<N>);
+type Props<N extends
+ string | number | undefined> = CustomButtonProps<N> | LinkTypeProps | ConfirmButtonTypeProps<N>;
 
 function DropdownMenuItem<NAME extends string | number | undefined>(props: Props<NAME>) {
     const {
         type,
         onClick,
-        persist = false,
     } = props;
     const { setShowDropdown } = useContext(DropdownMenuContext);
 
     const handleLinkClick = useCallback(
         () => {
-            if (!persist) {
-                setShowDropdown(false);
-            }
+            setShowDropdown(false);
         },
-        [setShowDropdown, persist],
+        [setShowDropdown],
     );
 
     const handleButtonClick = useCallback(
         (name: NAME, e: React.MouseEvent<HTMLButtonElement>) => {
-            if (!persist) {
-                setShowDropdown(false);
-            }
+            setShowDropdown(false);
             if (isDefined(onClick) && type !== 'link') {
                 onClick(name, e);
             }
         },
-        [setShowDropdown, type, onClick, persist],
+        [setShowDropdown, type, onClick],
     );
 
     if (type === 'link') {
         const {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             type: _,
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            persist: __,
             ...otherProps
         } = props;
 
@@ -97,8 +84,6 @@ function DropdownMenuItem<NAME extends string | number | undefined>(props: Props
         const {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             type: _,
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            persist: __,
             ...otherProps
         } = props as CustomButtonProps<NAME>;
 
@@ -114,13 +99,10 @@ function DropdownMenuItem<NAME extends string | number | undefined>(props: Props
             </button>
         );
     }
-
     if (type === 'confirm-button') {
         const {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             type: _,
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            persist: __,
             ...otherProps
         } = props;
 
