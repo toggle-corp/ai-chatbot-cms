@@ -1,0 +1,28 @@
+.file-input {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--cms-ui-font-size-sm);
+
+    .icon {
+        display: flex;
+        align-items: center;
+        gap: var(--cms-ui-spacing-sm);
+        color: var(--cms-ui-color-blue-700);
+
+        .upload-text {
+            color: var(--cms-ui-color-gray-100);
+        }
+    }
+
+    .browse-button {
+        border-radius: var(--cms-ui-radius-md);
+        background-color: var(--cms-ui-color-white-card);
+        padding: var(--cms-ui-spacing-2xs) var(--cms-ui-spacing-sm);
+
+        .input {
+            visibility: hidden;
+            width: 0;
+            height: 0;
+        }
+    }
+}

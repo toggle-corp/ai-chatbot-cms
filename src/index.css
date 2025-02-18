@@ -8,7 +8,7 @@
 
     --base-font-size: 1rem;
     --base-spacing: 1rem;
-    --base-radius: 0.5rem;
+    --base-radius: 1rem;
 
     --cms-ui-font-size-xs: calc(var(--base-font-size) * 0.694);
     --cms-ui-font-size-sm: calc(var(--base-font-size) * 0.833);
