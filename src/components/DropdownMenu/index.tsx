@@ -112,6 +112,7 @@ function DropdownMenu(props: Props) {
                     showDropdown && activeClassName,
                     className,
                 )}
+                transparent
                 elementRef={buttonRef}
                 onClick={handleMenuClick}
                 variant={variant}

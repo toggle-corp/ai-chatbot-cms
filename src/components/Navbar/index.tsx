@@ -1,7 +1,4 @@
-import {
-    useCallback,
-    useContext,
-} from 'react';
+import { useContext } from 'react';
 import { IoPersonCircleSharp } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
 import {
@@ -69,9 +66,6 @@ function Navbar(props: Props) {
             },
         },
     );
-    const handleLogoutClick = useCallback(() => {
-        logout();
-    }, [logout]);
 
     return (
         <nav className={_cs(styles.navbar, className)}>
@@ -82,6 +76,7 @@ function Navbar(props: Props) {
                 className={styles.dropdown}
                 label="User" // FIXME :Change the User label after server side is ready
                 icons={<IoPersonCircleSharp className={styles.icons} />}
+
             >
                 {isNotDefined(userAuth) && (
                     <Link
@@ -94,7 +89,7 @@ function Navbar(props: Props) {
                 <DropdownMenuItem
                     className={styles.editProfile}
                     type="link"
-                    to="edit-url"
+                    to="edit-profile"
                 >
                     Edit Profile
                 </DropdownMenuItem>
@@ -103,7 +98,7 @@ function Navbar(props: Props) {
                         className={styles.logoutButton}
                         type="button"
                         name="logout"
-                        onClick={handleLogoutClick}
+                        onClick={logout}
                         disabled={loading}
                     >
                         Logout
