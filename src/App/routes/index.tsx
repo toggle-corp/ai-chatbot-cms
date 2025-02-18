@@ -97,14 +97,14 @@ const login = customWrapRoute({
 });
 const editProfile = customWrapRoute({
     parent: homeLayout,
-    path: 'edit-url',
+    path: 'edit-profile',
     component: {
         render: () => import('#views/EditProfile'),
         props: {},
     },
     wrapperComponent: Auth,
     context: {
-        title: 'Edit Url',
+        title: 'Edit Profile',
         visibility: 'anything',
     },
 });

@@ -27,7 +27,7 @@ type PartialFormType = PartialForm<{
 type FormSchema = ObjectSchema<PartialFormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
-const EditFormSchema: FormSchema = {
+const EditProfileSchema: FormSchema = {
     fields: (): FormSchemaFields => ({
         email: {
             required: true,
@@ -54,8 +54,9 @@ export function Component() {
         value,
         error: formError,
         setFieldValue,
-    } = useForm(EditFormSchema, { value: defaultFormValues });
+    } = useForm(EditProfileSchema, { value: defaultFormValues });
 
+    // FIXME: Implement form submission logic here
     const handleFormSubmit = useCallback(() => {}, []);
 
     const error = getErrorObject(formError);
@@ -74,7 +75,7 @@ export function Component() {
                         src={displayImage}
                         alt="display"
                     />
-                    {/* FIxME: Add Display name after server side ready */}
+                    {/* FIXME: Add Display name after server side ready */}
                     <div className={styles.displayContent}>
                         <h1>Display Name</h1>
                         <p> HR</p>
