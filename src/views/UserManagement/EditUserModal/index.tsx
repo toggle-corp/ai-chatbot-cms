@@ -10,7 +10,6 @@ import {
 import {
     Button,
     Modal,
-    SelectInput,
     TextInput,
 } from '@togglecorp/toggle-ui';
 
@@ -28,13 +27,12 @@ type PartialFormType = PartialForm<{
     email: string;
     firstName: string;
     lastName: string;
-    department: string;
 }>;
 
 type FormSchema = ObjectSchema<PartialFormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
-const UserFormSchema: FormSchema = {
+const EditUserFormSchema: FormSchema = {
     fields: (): FormSchemaFields => ({
         email: {
             required: true,
@@ -49,37 +47,12 @@ const UserFormSchema: FormSchema = {
             required: true,
             requiredValidation: requiredStringCondition,
         },
-        department: {
-            required: true,
-            requiredValidation: requiredStringCondition,
-        },
     }),
 };
-// FIXME: Remove the dummy data after server side is ready
-const departmentOption = [
-    {
-        value: 'HR',
-        label: 'HR',
-    },
-    {
-        value: 'Operations',
-        label: 'Operations',
-    },
-    {
-        value: 'Development',
-        label: 'Development',
-    },
-    {
-        value: 'Analysis',
-        label: 'Analysis',
-    },
-];
 
 const defaultFormValues: PartialFormType = {};
-const keySelector = (option: { value: string; label: string }) => option.value;
-const labelSelector = (option: { value: string; label: string }) => option.label;
 
-function UserModal(props: Props) {
+function EditUserModal(props: Props) {
     const {
         onClose,
         title,
@@ -91,7 +64,7 @@ function UserModal(props: Props) {
         value,
         error: formError,
         setFieldValue,
-    } = useForm(UserFormSchema, { value: initialValue });
+    } = useForm(EditUserFormSchema, { value: initialValue });
 
     const handleFormSubmit = useCallback(() => {
         onSubmit(value);
@@ -104,24 +77,6 @@ function UserModal(props: Props) {
         <Modal
             heading={title}
             onClose={onClose}
-            footer={(
-                <div className={styles.footerContent}>
-                    <Button
-                        name="cancel"
-                        variant="default"
-                        onClick={onClose}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        name="save"
-                        variant="primary"
-                        onClick={handleFormSubmit}
-                    >
-                        Save
-                    </Button>
-                </div>
-            )}
         >
             <form
                 className={styles.form}
@@ -150,19 +105,25 @@ function UserModal(props: Props) {
                     error={error?.lastName}
                     onChange={setFieldValue}
                 />
-                <SelectInput
-                    className={styles.fullSizeInput}
-                    name="department"
-                    label="Department"
-                    options={departmentOption}
-                    keySelector={keySelector}
-                    labelSelector={labelSelector}
-                    value={value?.department}
-                    onChange={setFieldValue}
-                />
+                <div className={styles.footerContent}>
+                    <Button
+                        name="cancel"
+                        variant="default"
+                        onClick={onClose}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        name="save"
+                        variant="primary"
+                        onClick={handleFormSubmit}
+                    >
+                        Save
+                    </Button>
+                </div>
             </form>
         </Modal>
     );
 }
 
-export default UserModal;
+export default EditUserModal;

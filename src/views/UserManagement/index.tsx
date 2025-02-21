@@ -20,8 +20,9 @@ import {
 import Container from '#components/Container';
 import { createElementColumn } from '#components/CreateElementColumn';
 
+import AddUserModal from './AddUserModal';
+import EditUserModal from './EditUserModal';
 import UserActions from './UserActions';
-import UserModal from './UserModal';
 
 import styles from './styles.module.css';
 
@@ -32,51 +33,44 @@ type UserListTable = {
     firstName: string;
     lastName: string;
     email: string;
-    department?: string;
 }
-
+// FIXME :Remove the dummy data after thwe server side is ready
 const initialUsersData: UserListTable[] = [
     {
         id: '1',
         email: 'subrina.sharma@gmail.com',
         firstName: 'Subina',
         lastName: 'Sharma',
-        department: 'HR',
     },
     {
         id: '2',
         email: 'userishere@gmail.com',
         firstName: 'User',
         lastName: 'Ishere',
-        department: 'Engineering',
     },
     {
         id: '3',
         email: 'Sadikshya@togglecorp.com',
         firstName: 'Sadikshya',
         lastName: 'Hamal',
-        department: 'Marketing',
     },
     {
         id: '4',
         email: 'smriti123@gmail.com',
         firstName: 'Smriti',
         lastName: 'Kafle',
-        department: 'HR',
     },
     {
         id: '5',
         email: 'babin.karmacharya@togglecorp.com',
         firstName: 'Babin',
         lastName: 'Karmacharya',
-        department: 'Engineering',
     },
     {
         id: '6',
         email: 'aditya@togglecorp.com',
         firstName: 'Aditya',
         lastName: 'Khatri',
-        department: 'Marketing',
     },
 ];
 
@@ -90,11 +84,19 @@ export function Component() {
     const [page, setPage] = useState<number>(1);
     const [users, setUsers] = useState<UserListTable[]>(initialUsersData);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
     const [editingUser, setEditingUser] = useState<UserListTable | undefined>(undefined);
 
     const handleAddUserFormModalClose = useCallback(
         () => {
             setShowAddModal(false);
+        },
+        [],
+    );
+
+    const handleEditUserFormModalClose = useCallback(
+        () => {
+            setShowEditModal(false);
             setEditingUser(undefined);
         },
         [],
@@ -114,7 +116,7 @@ export function Component() {
     const handleEdit = useCallback((userId: string) => {
         const user = users.find((u) => u.id === userId);
         setEditingUser(user);
-        setShowAddModal(true);
+        setShowEditModal(true);
     }, [users]);
 
     const columns = useMemo(() => ([
@@ -159,10 +161,9 @@ export function Component() {
             className={styles.container}
             showHeader
             actionsContainerClassName={styles.actions}
-            actions={(
+            headingDescription={(
                 <div className={styles.actions}>
                     <TextInput
-                        className={styles.search}
                         placeholder="Enter First Name Last Name"
                         onChange={() => {}}
                         value={undefined}
@@ -178,6 +179,10 @@ export function Component() {
                         value={undefined}
                         onChange={() => {}}
                     />
+                </div>
+            )}
+            actions={(
+                <>
                     <div>
                         {users.length}
                         Users
@@ -190,7 +195,8 @@ export function Component() {
                     >
                         Add user
                     </Button>
-                </div>
+                </>
+
             )}
             footerActions={(
                 <Pager
@@ -212,14 +218,17 @@ export function Component() {
                 keySelector={userKeySelector}
             />
             {showAddModal && (
-                <UserModal
-                    title={
-                        editingUser ? 'Edit User' : 'Add User'
-                    }
+                <AddUserModal
+                    title="Add User"
                     onClose={handleAddUserFormModalClose}
-                    onSubmit={
-                        editingUser ? handleEditUser : handleAddUser
-                    }
+                    onSubmit={handleAddUser}
+                />
+            )}
+            {showEditModal && (
+                <EditUserModal
+                    title="Edit User"
+                    onClose={handleEditUserFormModalClose}
+                    onSubmit={handleEditUser}
                     initialValue={editingUser}
                 />
             )}
