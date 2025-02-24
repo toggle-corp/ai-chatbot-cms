@@ -11,6 +11,7 @@ import {
 } from '@togglecorp/fujs';
 import { Button } from '@togglecorp/toggle-ui';
 
+import organizationName from '#assets/organizationProfile.svg';
 import Heading from '#components/Heading';
 import UserContext from '#contexts/user';
 import {
@@ -67,9 +68,18 @@ function Navbar(props: Props) {
 
     return (
         <nav className={_cs(styles.navbar, className)}>
-            <Heading level={5}>
-                ToggTalkie
-            </Heading>
+            <Link
+                className={styles.headingLink}
+                to="edit-profile-organization"
+            >
+                <Heading level={5}>
+                    <img
+                        src={organizationName}
+                        alt=""
+                    />
+                </Heading>
+            </Link>
+
             <div>
                 {isNotDefined(userAuth) && (
                     <Link

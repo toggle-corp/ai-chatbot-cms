@@ -8,3 +8,9 @@
     background-color: var(--cms-ui-color-white-card);
     padding: var(--cms-ui-spacing-sm) var(--cms-ui-spacing-md);
 }
+.heading-link{
+    padding: var(--cms-ui-spacing-sm);
+    text-decoration: none;
+    color: var(--cms-ui-primary-text-color);
+    font-weight: var(--cms-ui-font-weight-bold);
+}

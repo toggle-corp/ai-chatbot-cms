@@ -95,6 +95,19 @@ const login = customWrapRoute({
         visibility: 'is-not-authenticated',
     },
 });
+const EditOrganizationProfile = customWrapRoute({
+    parent: homeLayout,
+    path: 'edit-profile-organization',
+    component: {
+        render: () => import('#views/EditProfileOrganization'),
+        props: {},
+    },
+    wrapperComponent: Auth,
+    context: {
+        title: 'Edit Profile Organization',
+        visibility: 'anything',
+    },
+});
 
 const wrappedRoutes = {
     rootLayout,
@@ -104,6 +117,7 @@ const wrappedRoutes = {
     contentManagement,
     userManagement,
     login,
+    EditOrganizationProfile,
 };
 
 export const unwrappedRoutes = unwrapRoute(Object.values(wrappedRoutes));
