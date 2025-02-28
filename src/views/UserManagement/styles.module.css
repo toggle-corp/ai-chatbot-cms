@@ -3,7 +3,7 @@
     
     .actions{
         display:flex;
-        gap: var(--cms-ui-spacing-xl);
+        gap: var(--cms-ui-spacing-md);
 
     }
     .table {

@@ -66,6 +66,7 @@ function AddUserModal(props: Props) {
         <Modal
             heading={title}
             onClose={onClose}
+            size="extraSmall"
         >
             <form
                 className={styles.form}
