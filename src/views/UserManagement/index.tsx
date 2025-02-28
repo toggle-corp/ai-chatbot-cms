@@ -10,6 +10,7 @@ import {
 import { PartialForm } from '@togglecorp/toggle-form';
 import {
     Button,
+    Chip,
     createStringColumn,
     Pager,
     SelectInput,
@@ -21,7 +22,6 @@ import Container from '#components/Container';
 import { createElementColumn } from '#components/CreateElementColumn';
 
 import AddUserModal from './AddUserModal';
-import EditUserModal from './EditUserModal';
 import UserActions from './UserActions';
 
 import styles from './styles.module.css';
@@ -34,7 +34,7 @@ type UserListTable = {
     lastName: string;
     email: string;
 }
-// FIXME :Remove the dummy data after thwe server side is ready
+// FIXME :Remove the dummy data after the server side is ready
 const initialUsersData: UserListTable[] = [
     {
         id: '1',
@@ -84,20 +84,9 @@ export function Component() {
     const [page, setPage] = useState<number>(1);
     const [users, setUsers] = useState<UserListTable[]>(initialUsersData);
     const [showAddModal, setShowAddModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [editingUser, setEditingUser] = useState<UserListTable | undefined>(undefined);
-
     const handleAddUserFormModalClose = useCallback(
         () => {
             setShowAddModal(false);
-        },
-        [],
-    );
-
-    const handleEditUserFormModalClose = useCallback(
-        () => {
-            setShowEditModal(false);
-            setEditingUser(undefined);
         },
         [],
     );
@@ -108,16 +97,6 @@ export function Component() {
             { ...user, id: String(prevUsers.length + 1) } as UserListTable,
         ]);
     }, []);
-
-    const handleEditUser = useCallback((user: PartialForm<UserListTable>) => {
-        setUsers((prevUsers) => prevUsers.map((u) => (u.id === user.id ? { ...u, ...user } : u)));
-    }, []);
-
-    const handleEdit = useCallback((userId: string) => {
-        const user = users.find((u) => u.id === userId);
-        setEditingUser(user);
-        setShowEditModal(true);
-    }, [users]);
 
     const columns = useMemo(() => ([
         createStringColumn<UserListTable, string>(
@@ -146,15 +125,10 @@ export function Component() {
         createElementColumn<UserListTable, string, { id: string }>(
             'actions',
             'Actions',
-            ({ id }) => (
-                <UserActions
-                    userId={id}
-                    onEdit={handleEdit}
-                />
-            ),
+            UserActions,
             (_key, datum) => ({ id: datum.id }),
         ),
-    ]), [handleEdit]);
+    ]), []);
 
     return (
         <Container
@@ -183,10 +157,10 @@ export function Component() {
             )}
             actions={(
                 <>
-                    <div>
+                    <Chip>
                         {users.length}
                         Users
-                    </div>
+                    </Chip>
                     <Button
                         name="Add Content"
                         variant="primary"
@@ -195,17 +169,18 @@ export function Component() {
                     >
                         Add user
                     </Button>
+
                 </>
 
             )}
             footerActions={(
                 <Pager
-                    infoHidden
-                    itemsPerPageControlHidden
                     activePage={page}
                     itemsCount={users.length}
                     maxItemsPerPage={PAGE_SIZE}
                     onActivePageChange={setPage}
+                    itemsPerPageControlHidden
+                    infoHidden
                 />
             )}
         >
@@ -222,14 +197,6 @@ export function Component() {
                     title="Add User"
                     onClose={handleAddUserFormModalClose}
                     onSubmit={handleAddUser}
-                />
-            )}
-            {showEditModal && (
-                <EditUserModal
-                    title="Edit User"
-                    onClose={handleEditUserFormModalClose}
-                    onSubmit={handleEditUser}
-                    initialValue={editingUser}
                 />
             )}
         </Container>
