@@ -1,0 +1,24 @@
+.container {
+    padding: var(--cms-ui-spacing-lg) var(--cms-ui-spacing-md);
+    
+    .actions{
+        display:flex;
+        gap: var(--cms-ui-spacing-md);
+
+    }
+    .table {
+        background-color: var(--cms-ui-color-white-card);
+        .header-row {
+         
+            .header-cell {
+                background-color: var(--cms-ui-color-blue-100);
+                >* {
+                    font-weight: bold;
+                }
+            }
+        }
+        .email{
+            min-width:20rem;
+        }
+    } 
+}
