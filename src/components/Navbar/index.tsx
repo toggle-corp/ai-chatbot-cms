@@ -1,5 +1,4 @@
 import { useContext } from 'react';
-import { IoPersonCircleSharp } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
 import {
     gql,
@@ -10,6 +9,7 @@ import {
     isDefined,
     isNotDefined,
 } from '@togglecorp/fujs';
+import { Avatar } from '@togglecorp/toggle-ui';
 
 import DropdownMenu from '#components/DropdownMenu';
 import DropdownMenuItem from '#components/DropdownMenuItem';
@@ -75,7 +75,12 @@ function Navbar(props: Props) {
             <DropdownMenu
                 className={styles.dropdown}
                 label="User" // FIXME :Change the User label after server side is ready
-                icons={<IoPersonCircleSharp className={styles.icons} />}
+                icons={(
+                    <Avatar
+                        className={styles.icons}
+                        alt="User Name"
+                    />
+                )}
 
             >
                 {isNotDefined(userAuth) && (
@@ -98,7 +103,7 @@ function Navbar(props: Props) {
                         className={styles.logoutButton}
                         type="button"
                         name="logout"
-                        onClick={() => logout}
+                        onClick={() => logout()}
                         disabled={loading}
                     >
                         Logout
