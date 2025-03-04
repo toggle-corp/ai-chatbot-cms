@@ -25,14 +25,14 @@ interface Props {
 }
 
 const LOGOUT_MUTATION = gql`
-    mutation logout {
-        private {
-            logout {
-                ok
-                errors
-            }
-        }
+  mutation Logout {
+    private {
+      logout {
+        ok
+        errors
+      }
     }
+  }
 `;
 
 function Navbar(props: Props) {

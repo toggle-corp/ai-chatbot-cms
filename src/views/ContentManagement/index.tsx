@@ -3,10 +3,6 @@ import {
     useState,
 } from 'react';
 import {
-    gql,
-    useQuery,
-} from '@apollo/client';
-import {
     Button,
     createDateColumn,
     createStringColumn,
@@ -15,60 +11,28 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
-import {
-    ContentListQuery,
-    ContentListQueryVariables,
-} from '#generated/types/graphql';
 
 import styles from './styles.module.css';
 
-type ContentListTable = NonNullable<NonNullable<NonNullable<ContentListQuery['private']>['content']>['items']>[number];
+type ContentListTable = {
+    id: string;
+    title: string;
+    createdAt: string;
+    documentTypeDisplay: string;
+    documentStatusDisplay: string;
+    tag: { name: string; id: string }[];
+};
 
 const contentKeySelector = (option: ContentListTable) => option.id;
 
 const PAGE_SIZE = 5;
 
-const CONTENT_QUERY = gql`
-    query ContentList(
-        $input: OffsetPaginationInput
-    ) {
-        private {
-            content(pagination: $input) {
-                count
-                items {
-                    id
-                    title
-                    createdAt
-                    modifiedAt
-                    documentTypeDisplay
-                    documentStatusDisplay
-                    tag {
-                        name
-                        id
-                    }
-                }
-            }
-        }
-    }
-`;
+const contentData: ContentListTable[] = [];
 
 /** @knipignore */
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
     const [page, setPage] = useState<number>(1);
-    const {
-        data: contentResult,
-    } = useQuery<ContentListQuery, ContentListQueryVariables>(
-        CONTENT_QUERY,
-        {
-            variables: {
-                input: {
-                    limit: PAGE_SIZE,
-                    offset: page,
-                },
-            },
-        },
-    );
 
     const columns = useMemo(() => ([
         createStringColumn<ContentListTable, string>(
@@ -118,7 +82,7 @@ export function Component() {
                     infoHidden
                     itemsPerPageControlHidden
                     activePage={page}
-                    itemsCount={contentResult?.private.content.count ?? 0}
+                    itemsCount={contentData.length}
                     maxItemsPerPage={PAGE_SIZE}
                     onActivePageChange={setPage}
                 />
@@ -128,8 +92,8 @@ export function Component() {
                 className={styles.table}
                 headerCellClassName={styles.headerCell}
                 headerRowClassName={styles.headerRow}
-                data={contentResult?.private.content.items}
                 columns={columns}
+                data={contentData}
                 keySelector={contentKeySelector}
             />
         </Container>

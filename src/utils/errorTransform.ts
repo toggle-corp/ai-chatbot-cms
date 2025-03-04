@@ -5,13 +5,13 @@ import {
 } from '@togglecorp/fujs';
 import { nonFieldError } from '@togglecorp/toggle-form';
 
-export interface Error {
+ interface Error {
     [ nonFieldError]?: string | undefined;
     [key: string]: string | Error | undefined;
 }
-
+/** @knipignore */
 export interface ObjectError {
-    // clientId is sent by the server for bulk updates
+
     clientId: string | undefined;
 
     field: string;
