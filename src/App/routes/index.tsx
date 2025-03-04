@@ -96,6 +96,20 @@ const login = customWrapRoute({
     },
 });
 
+const userActivation = customWrapRoute({
+    parent: rootLayout,
+    path: 'user-activation/:userId/:token',
+    component: {
+        render: () => import('#views/UserActivation'),
+        props: {},
+    },
+    wrapperComponent: Auth,
+    context: {
+        title: 'Activation',
+        visibility: 'anything',
+    },
+});
+
 const wrappedRoutes = {
     rootLayout,
     homeLayout,
@@ -104,6 +118,7 @@ const wrappedRoutes = {
     contentManagement,
     userManagement,
     login,
+    userActivation,
 };
 
 export const unwrappedRoutes = unwrapRoute(Object.values(wrappedRoutes));
