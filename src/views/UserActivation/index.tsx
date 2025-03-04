@@ -12,21 +12,22 @@ import {
 } from '@apollo/client';
 import { Message } from '@togglecorp/toggle-ui';
 
-import Page from '#components/Page';
+import Container from '#components/Container';
 
 import styles from './styles.module.css';
 
 const ACCOUNT_ACTIVATION_MUTATION = gql`
-    mutation AccountActivation($data: UserActivationInput!) {
-        public {
-            accountActivation(data: $data) {
-                errors
-                ok
-            }
-        }
+  mutation AccountActivation($data: UserActivationInput!) {
+    public {
+      accountActivation(data: $data) {
+        ok
+        errors
+      }
     }
+  }
 `;
 
+/** @knipignore */
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
     const { userId, token } = useParams<{ userId?: string, token?: string }>();
@@ -69,28 +70,35 @@ export function Component() {
 
     if (isSubmitted) {
         return (
-            <Page>
+            <Container
+                className={styles.userActivation}
+            >
                 <Message
                     message="Your account has been successfully activated!"
                 />
                 <div className={styles.activation}>
                     <Link
+                        className={styles.register}
                         to="/" // FIXME:Add register link here
                     >
                         Go to Register
                     </Link>
                 </div>
 
-            </Page>
+            </Container>
         );
     }
     if (isErrored) {
         return (
-            <Page>
+            <Container
+                className={styles.userActivation}
+            >
                 <Message
                     message="'This account has already been activated.'"
                 />
-            </Page>
+
+            </Container>
+
         );
     }
     return null;

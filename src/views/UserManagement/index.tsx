@@ -37,12 +37,14 @@ type UserListTable = NonNullable<NonNullable<NonNullable<UserType>>>;
 
 const PAGE_SIZE = 5;
 
-const USER_QUERY = gql`
-    query UserList(
-        $input: OffsetPaginationInput
+const USERS_QUERY = gql`
+    query Users(
+        $pagination: OffsetPaginationInput
     ) {
         private {
-            users(pagination: $input) {
+            users(pagination: $pagination) {
+                limit
+                offset
                 count
                 items {
                     email
@@ -70,7 +72,7 @@ export function Component() {
     const {
         data: userResult,
     } = useQuery<UserTypeCountList>(
-        USER_QUERY,
+        USERS_QUERY,
         {
             variables: {
                 input: {

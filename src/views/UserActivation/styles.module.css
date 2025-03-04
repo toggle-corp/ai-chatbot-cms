@@ -1,8 +1,23 @@
-.activation {
+.user-activation{
     display: flex;
-    align-items: center;
-    flex-direction: column;
-    gap: var(--cms-ui-spacing-xs);
-    text-align: center;
-   
+    justify-content: center;
+
+    .activation {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        gap: var(--cms-ui-spacing-xs);
+        text-align: center;
+
+        .register{
+            padding: var(--cms-ui-spacing-sm);
+            text-decoration: none;
+            color: var(--cms-ui-primary-text-color);
+            font-weight: var(--cms-ui-font-weight-bold);
+            &:hover {
+                background-color: var(--cms-ui-color-blue-50);
+            }
+        }
+       
+    }
 }
