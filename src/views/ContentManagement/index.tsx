@@ -3,36 +3,68 @@ import {
     useState,
 } from 'react';
 import {
+    gql,
+    useQuery,
+} from '@apollo/client';
+import {
     Button,
-    createDateColumn,
     createStringColumn,
     Pager,
     Table,
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
+import {
+    ContentListQuery,
+    ContentListQueryVariables,
+} from '#generated/types/graphql';
 
 import styles from './styles.module.css';
 
-type ContentListTable = {
-    id: string;
-    title: string;
-    createdAt: string;
-    documentTypeDisplay: string;
-    documentStatusDisplay: string;
-    tag: { name: string; id: string }[];
-};
+type ContentListTable = NonNullable<NonNullable<NonNullable<ContentListQuery['private']>['content']>['items']>[number];
 
 const contentKeySelector = (option: ContentListTable) => option.id;
 
 const PAGE_SIZE = 5;
 
-const contentData: ContentListTable[] = [];
+const CREATE_CONTENT_QUERY = gql`
+    query ContentList(
+        $input: OffsetPaginationInput
+    ) {
+        private {
+            content(pagination: $input) {
+                count
+                items {
+                    id
+                    title
+                    documentType
+                    documentStatus
+                    tag {
+                        name
+                    }
+                }
+            }
+        }
+    }
+`;
 
 /** @knipignore */
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
     const [page, setPage] = useState<number>(1);
+    const {
+        data: contentResult,
+    } = useQuery<ContentListQuery, ContentListQueryVariables>(
+        CREATE_CONTENT_QUERY,
+        {
+            variables: {
+                input: {
+                    limit: PAGE_SIZE,
+                    offset: page,
+                },
+            },
+        },
+    );
 
     const columns = useMemo(() => ([
         createStringColumn<ContentListTable, string>(
@@ -40,15 +72,11 @@ export function Component() {
             'Title',
             (item) => item.title,
         ),
-        createDateColumn<ContentListTable, string>(
-            'createdAt',
-            'Created Date',
-            (item) => item.createdAt,
-        ),
+        // FIXME: Add CreateDAte after added in server side
         createStringColumn<ContentListTable, string>(
             'documentTypeDisplay',
             'File Type',
-            (item) => item.documentTypeDisplay,
+            (item) => item.documentType,
         ),
         createStringColumn<ContentListTable, string>(
             'tag',
@@ -58,7 +86,7 @@ export function Component() {
         createStringColumn<ContentListTable, string>(
             'documentStatusDisplay',
             'Status',
-            (item) => item.documentStatusDisplay,
+            (item) => item.documentStatus,
         ),
     ]), []);
 
@@ -82,7 +110,7 @@ export function Component() {
                     infoHidden
                     itemsPerPageControlHidden
                     activePage={page}
-                    itemsCount={contentData.length}
+                    itemsCount={contentResult?.private.content.count ?? 0}
                     maxItemsPerPage={PAGE_SIZE}
                     onActivePageChange={setPage}
                 />
@@ -92,8 +120,8 @@ export function Component() {
                 className={styles.table}
                 headerCellClassName={styles.headerCell}
                 headerRowClassName={styles.headerRow}
+                data={contentResult?.private.content.items}
                 columns={columns}
-                data={contentData}
                 keySelector={contentKeySelector}
             />
         </Container>
