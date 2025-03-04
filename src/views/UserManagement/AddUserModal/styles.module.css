@@ -3,7 +3,3 @@
     justify-content: flex-end;
     gap: var(--cms-ui-spacing-md);
 }
-.form {
-    display: grid;
-    gap: var(--cms-ui-spacing-lg);
-}

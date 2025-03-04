@@ -7,7 +7,10 @@ import {
     IoAddCircleSharp,
     IoSearchOutline,
 } from 'react-icons/io5';
-import { PartialForm } from '@togglecorp/toggle-form';
+import {
+    gql,
+    useQuery,
+} from '@apollo/client';
 import {
     Button,
     Chip,
@@ -20,61 +23,39 @@ import {
 
 import Container from '#components/Container';
 import { createElementColumn } from '#components/CreateElementColumn';
+import {
+    UserType,
+    UserTypeCountList,
+} from '#generated/types/graphql';
 
 import AddUserModal from './AddUserModal';
 import UserActions from './UserActions';
 
 import styles from './styles.module.css';
 
+type UserListTable = NonNullable<NonNullable<NonNullable<UserType>>>;
+
 const PAGE_SIZE = 5;
 
-type UserListTable = {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-}
-// FIXME :Remove the dummy data after the server side is ready
-const initialUsersData: UserListTable[] = [
-    {
-        id: '1',
-        email: 'subrina.sharma@gmail.com',
-        firstName: 'Subina',
-        lastName: 'Sharma',
-    },
-    {
-        id: '2',
-        email: 'userishere@gmail.com',
-        firstName: 'User',
-        lastName: 'Ishere',
-    },
-    {
-        id: '3',
-        email: 'Sadikshya@togglecorp.com',
-        firstName: 'Sadikshya',
-        lastName: 'Hamal',
-    },
-    {
-        id: '4',
-        email: 'smriti123@gmail.com',
-        firstName: 'Smriti',
-        lastName: 'Kafle',
-    },
-    {
-        id: '5',
-        email: 'babin.karmacharya@togglecorp.com',
-        firstName: 'Babin',
-        lastName: 'Karmacharya',
-    },
-    {
-        id: '6',
-        email: 'aditya@togglecorp.com',
-        firstName: 'Aditya',
-        lastName: 'Khatri',
-    },
-];
+const USER_QUERY = gql`
+    query UserList(
+        $input: OffsetPaginationInput
+    ) {
+        private {
+            users(pagination: $input) {
+                count
+                items {
+                    email
+                    firstName
+                    lastName
+                    id
+                }
+            }
+        }
+    }
+`;
 
-const userKeySelector = (option: UserListTable) => option.id;
+const userKeySelector = (option:UserListTable) => option.id;
 const statusKeySelector = (option: { key: string }) => option.key;
 const statusLabelSelector = (option: { key: string }) => option.key;
 
@@ -82,21 +63,29 @@ const statusLabelSelector = (option: { key: string }) => option.key;
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
     const [page, setPage] = useState<number>(1);
-    const [users, setUsers] = useState<UserListTable[]>(initialUsersData);
-    const [showAddModal, setShowAddModal] = useState(false);
+    const [
+        showAddModal,
+        setShowAddModal,
+    ] = useState(false);
+    const {
+        data: userResult,
+    } = useQuery<UserTypeCountList>(
+        USER_QUERY,
+        {
+            variables: {
+                input: {
+                    limit: PAGE_SIZE,
+                    offset: page,
+                },
+            },
+        },
+    );
     const handleAddUserFormModalClose = useCallback(
         () => {
             setShowAddModal(false);
         },
         [],
     );
-
-    const handleAddUser = useCallback((user: PartialForm<UserListTable>) => {
-        setUsers((prevUsers) => [
-            ...prevUsers,
-            { ...user, id: String(prevUsers.length + 1) } as UserListTable,
-        ]);
-    }, []);
 
     const columns = useMemo(() => ([
         createStringColumn<UserListTable, string>(
@@ -138,7 +127,7 @@ export function Component() {
             headingDescription={(
                 <div className={styles.actions}>
                     <TextInput
-                        placeholder="Enter First Name Last Name"
+                        placeholder="Enter Name"
                         onChange={() => {}}
                         value={undefined}
                         name="search"
@@ -158,7 +147,7 @@ export function Component() {
             actions={(
                 <>
                     <Chip>
-                        {users.length}
+                        {userResult?.count}
                         Users
                     </Chip>
                     <Button
@@ -175,12 +164,12 @@ export function Component() {
             )}
             footerActions={(
                 <Pager
+                    infoHidden
+                    itemsPerPageControlHidden
                     activePage={page}
-                    itemsCount={users.length}
+                    itemsCount={userResult?.count ?? 0}
                     maxItemsPerPage={PAGE_SIZE}
                     onActivePageChange={setPage}
-                    itemsPerPageControlHidden
-                    infoHidden
                 />
             )}
         >
@@ -189,14 +178,12 @@ export function Component() {
                 className={styles.table}
                 headerCellClassName={styles.headerCell}
                 headerRowClassName={styles.headerRow}
-                data={users}
+                data={userResult?.items}
                 keySelector={userKeySelector}
             />
             {showAddModal && (
                 <AddUserModal
-                    title="Add User"
                     onClose={handleAddUserFormModalClose}
-                    onSubmit={handleAddUser}
                 />
             )}
         </Container>
