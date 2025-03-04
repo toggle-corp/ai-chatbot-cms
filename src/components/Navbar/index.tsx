@@ -26,7 +26,7 @@ interface Props {
 
 const LOGOUT_MUTATION = gql`
     mutation logout {
-        public {
+        private {
             logout {
                 ok
                 errors
@@ -47,7 +47,7 @@ function Navbar(props: Props) {
         LOGOUT_MUTATION,
         {
             onCompleted: (response) => {
-                const { logout: logoutRes } = response.public;
+                const { logout: logoutRes } = response.private;
                 if (!logoutRes) {
                     return;
                 }

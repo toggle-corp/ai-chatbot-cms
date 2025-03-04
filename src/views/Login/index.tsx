@@ -43,7 +43,6 @@ const LOGIN = gql`
                 ok
                 errors
                 result {
-                    displayName
                     email
                     firstName
                     id

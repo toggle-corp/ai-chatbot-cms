@@ -1,9 +1,15 @@
 import { useCallback } from 'react';
 import {
+    gql,
+    useMutation,
+} from '@apollo/client';
+import {
+    createSubmitHandler,
     emailCondition,
     getErrorObject,
+    nonFieldError,
     ObjectSchema,
-    PartialForm,
+    removeNull,
     requiredStringCondition,
     useForm,
 } from '@togglecorp/toggle-form';
@@ -13,25 +19,33 @@ import {
     TextInput,
 } from '@togglecorp/toggle-ui';
 
+import {
+    AddUserInput,
+    AddUsersMutation,
+    AddUsersMutationVariables,
+} from '#generated/types/graphql';
+import { transformToFormError } from '#utils/errorTransform';
+
 import styles from './styles.module.css';
 
-interface Props {
-    onClose: () => void;
-    title: string;
-    initialValue?: PartialFormType;
-    onSubmit: (value: PartialFormType) => void;
-}
-
-type PartialFormType = PartialForm<{
-    email: string;
-}>;
+const ADD_USERS = gql`
+    mutation AddUsers($input: AddUserInput!) {
+        public {
+            addUser(data: $input) {
+                errors
+                ok
+            }
+        }
+    }
+`;
+type PartialFormType = Partial<AddUserInput>
 
 type FormSchema = ObjectSchema<PartialFormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const AddUserFormSchema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        email: {
+        emails: {
             required: true,
             requiredValidation: requiredStringCondition,
             validations: [emailCondition],
@@ -40,64 +54,112 @@ const AddUserFormSchema: FormSchema = {
 };
 
 const defaultFormValues: PartialFormType = {};
+
+interface Props {
+    onClose: () => void;
+}
+
 /** @knipignore */
 function AddUserModal(props: Props) {
     const {
         onClose,
-        title,
-        initialValue = defaultFormValues,
-        onSubmit,
     } = props;
 
     const {
+        pristine,
         value,
         error: formError,
         setFieldValue,
-    } = useForm(AddUserFormSchema, { value: initialValue });
-
-    const handleFormSubmit = useCallback(() => {
-        onSubmit(value);
-        onClose();
-    }, [onSubmit, value, onClose]);
+        validate,
+        setError,
+    } = useForm(AddUserFormSchema, { value: defaultFormValues });
 
     const error = getErrorObject(formError);
+    const [
+        addUser,
+        { loading },
+    ] = useMutation<AddUsersMutation, AddUsersMutationVariables>(
+        ADD_USERS,
+        {
+            onCompleted: (response) => {
+                const { public: publicRes } = response;
+                if (!publicRes) return;
+                const { addUser: addUserRes } = publicRes;
+                if (!addUserRes) return;
+                const { errors, ok } = addUserRes;
+
+                if (errors) {
+                    const formErrors = transformToFormError(removeNull(errors));
+                    setError(formErrors);
+                    const errorMessages = errors
+                        ?.map((message: { messages: string; }) => message.messages)
+                        .filter((msg: string) => msg)
+                        .join(', ');
+                    // eslint-disable-next-line no-alert
+                    window.alert(errorMessages); // FIXME: add alert.show ,
+                } else if (ok) {
+                    onClose();
+                    // eslint-disable-next-line no-alert
+                    window.alert('User Activation Link is sent to your email'); // FIXME: add alert.show ,
+                }
+            },
+            onError: (emailError) => {
+                setError({ [nonFieldError]: emailError.message });
+                // eslint-disable-next-line no-alert
+                window.alert('User addition failed'); // FIXME: add alert.show ,
+            },
+        },
+    );
+    const handleAddUserSubmit = useCallback((finalValue: PartialFormType) => {
+        addUser({
+            variables: {
+                input: finalValue as AddUserInput,
+            },
+        });
+    }, [addUser]);
+
+    const handleSubmit = (_name: 'save', e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        createSubmitHandler(validate, setError, handleAddUserSubmit)();
+    };
 
     return (
         <Modal
-            heading={title}
+            heading="Add User"
             onClose={onClose}
             size="extraSmall"
-        >
-            <form
-                className={styles.form}
-                onSubmit={handleFormSubmit}
-            >
-                <TextInput
-                    className={styles.fullSizeInput}
-                    label="Email"
-                    name="email"
-                    autoFocus
-                    onChange={setFieldValue}
-                    value={value?.email}
-                    error={error?.email}
-                />
+            footer={(
                 <div className={styles.footerContent}>
                     <Button
                         name="cancel"
                         variant="default"
                         onClick={onClose}
+                        disabled={pristine || loading}
                     >
                         Cancel
                     </Button>
                     <Button
                         name="save"
+                        disabled={pristine || loading}
                         variant="primary"
-                        onClick={handleFormSubmit}
+                        onClick={handleSubmit}
                     >
                         Save
                     </Button>
                 </div>
-            </form>
+            )}
+        >
+
+            <TextInput
+                className={styles.fullSizeInput}
+                label="Email"
+                name="emails"
+                autoFocus
+                onChange={setFieldValue}
+                value={value?.emails}
+                error={error?.emails}
+            />
+
         </Modal>
     );
 }
