@@ -127,6 +127,7 @@ export function Component() {
             showHeader
             actionsContainerClassName={styles.actions}
             headingDescription={(
+                // FIXME: Implement OnChange options once server-side filters are added.
                 <div className={styles.actions}>
                     <TextInput
                         placeholder="Enter Name"

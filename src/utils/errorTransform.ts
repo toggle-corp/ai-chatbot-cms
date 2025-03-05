@@ -11,9 +11,7 @@ import { nonFieldError } from '@togglecorp/toggle-form';
 }
 /** @knipignore */
 export interface ObjectError {
-
     clientId: string | undefined;
-
     field: string;
     messages?: string;
     objectErrors?: ObjectError[];
