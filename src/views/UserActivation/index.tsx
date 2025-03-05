@@ -34,7 +34,7 @@ export function Component() {
     const [isErrored, setIsError] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [
-        activate,
+        activateTrigger,,
     ] = useMutation(ACCOUNT_ACTIVATION_MUTATION, {
         onCompleted: (response) => {
             const activateRes = response?.public?.accountActivation;
@@ -50,14 +50,14 @@ export function Component() {
         onError: () => {
             // eslint-disable-next-line no-alert
             window.alert(
-                'This account has already been activated.',
+                'This account has already been activated.', // FIXME:Add alert,
             );
         },
     });
 
     useEffect(() => {
         if (userId && token) {
-            activate({
+            activateTrigger({
                 variables: {
                     data: {
                         uuid: userId,
@@ -66,7 +66,7 @@ export function Component() {
                 },
             });
         }
-    }, [token, activate, userId]);
+    }, [token, activateTrigger, userId]);
 
     if (isSubmitted) {
         return (
