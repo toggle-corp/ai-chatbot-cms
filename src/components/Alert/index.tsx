@@ -13,7 +13,7 @@ import { AlertType } from '#contexts/alert';
 
 import styles from './styles.module.css';
 
-export interface Props<N> {
+interface Props<N> {
     name: N;
     className?: string;
     type?: AlertType;
