@@ -1,0 +1,22 @@
+.alert-container {
+    isolation: isolate;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    z-index: 1;
+
+    padding: var(--cms-ui-spacing-2xl) 0;
+    max-height: calc(100vh - 2 * var(--cms-ui-spacing-2xl));
+    overflow: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    .alert {
+        margin: var(--cms-ui-spacing-sm) 0;
+    }
+}

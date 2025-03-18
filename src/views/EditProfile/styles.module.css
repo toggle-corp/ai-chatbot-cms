@@ -8,21 +8,22 @@
 
         .display-profile{
             display:flex;
-            gap: var(--cms-ui-spacing-lg);
+            gap: var(--cms-ui-spacing-lg);          
         }
         .display-content{
             display: flex;
             flex-direction: column;
             gap: var(--cms-ui-spacing-sm);
         }
-
+    
         .form-content {
             width: 35rem;
         }
-
+    
         .form {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+            width: 100%;
             gap: var(--cms-ui-spacing-lg);
 
             .full-size-input {

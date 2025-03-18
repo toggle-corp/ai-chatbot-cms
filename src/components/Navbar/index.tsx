@@ -1,4 +1,7 @@
-import { useContext } from 'react';
+import {
+    useCallback,
+    useContext,
+} from 'react';
 import { Link } from 'react-router-dom';
 import {
     gql,
@@ -66,6 +69,9 @@ function Navbar(props: Props) {
             },
         },
     );
+    const handleLogoutClick = useCallback(() => {
+        logout();
+    }, [logout]);
 
     return (
         <nav className={_cs(styles.navbar, className)}>
@@ -74,11 +80,11 @@ function Navbar(props: Props) {
             </Heading>
             <DropdownMenu
                 className={styles.dropdown}
-                label="User" // FIXME :Change the User label after server side is ready
+                label={userAuth?.firstName}
                 icons={(
                     <Avatar
                         className={styles.icons}
-                        alt="User Name"
+                        alt={userAuth?.firstName || ''}
                     />
                 )}
 
@@ -103,7 +109,7 @@ function Navbar(props: Props) {
                         className={styles.logoutButton}
                         type="button"
                         name="logout"
-                        onClick={() => logout()}
+                        onClick={handleLogoutClick}
                         disabled={loading}
                     >
                         Logout

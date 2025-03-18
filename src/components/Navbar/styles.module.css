@@ -13,10 +13,10 @@
     overflow: auto;
 }
 
-.icons{
+.icons {
     font-size:var(--cms-ui-font-size-5xl);
 }
-.edit-profile{
+.edit-profile {
     padding: var(--cms-ui-spacing-sm);
     text-decoration: none;
     color: var(--cms-ui-primary-text-color);
@@ -25,7 +25,7 @@
         background-color: var(--cms-ui-color-background);
     }
 }
-.logout-button{
+.logout-button {
     width: 100%;
     &:hover {
         background-color: var(--cms-ui-color-background);
