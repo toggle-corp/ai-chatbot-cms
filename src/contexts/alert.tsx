@@ -1,7 +1,6 @@
 import { createContext } from 'react';
 
 export type AlertType = 'success' | 'warning' | 'danger' | 'info';
-// export type AlertVariant = 'primary' | 'secondary';
 
 export interface AlertParams {
     name: string;

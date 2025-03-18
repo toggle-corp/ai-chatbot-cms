@@ -1,6 +1,13 @@
-import { useCallback } from 'react';
 import {
-    emailCondition,
+    useCallback,
+    useContext,
+} from 'react';
+import {
+    gql,
+    useMutation,
+} from '@apollo/client';
+import {
+    createSubmitHandler,
     getErrorObject,
     ObjectSchema,
     PartialForm,
@@ -15,25 +22,39 @@ import {
 import displayImage from '#assets/displayImage.svg';
 import Container from '#components/Container';
 import Page from '#components/Page';
+import UserContext from '#contexts/user';
+import {
+    UpdateMeMutation,
+    UpdateMeMutationVariables,
+    UserMeInput,
+} from '#generated/types/graphql';
+import useAlert from '#hooks/useAlert';
 
 import styles from './styles.module.css';
 
-type PartialFormType = PartialForm<{
-    email: string;
-    firstName: string;
-    lastName: string;
-}>;
+const UPDATE_ME = gql`
+    mutation UpdateMe($input: UserMeInput!) {
+        private {
+            updateMe(data: $input) {
+                errors
+                ok
+                result {
+                    email
+                    firstName
+                    lastName
+                }
+            }
+        }
+    }
+`;
+
+type PartialFormType = PartialForm<UserMeInput> & { email: string };
 
 type FormSchema = ObjectSchema<PartialFormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const EditProfileSchema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        email: {
-            required: true,
-            requiredValidation: requiredStringCondition,
-            validations: [emailCondition],
-        },
         firstName: {
             required: true,
             requiredValidation: requiredStringCondition,
@@ -42,60 +63,114 @@ const EditProfileSchema: FormSchema = {
             required: true,
             requiredValidation: requiredStringCondition,
         },
+        email: {
+            required: true,
+            requiredValidation: requiredStringCondition,
+        },
     }),
 };
-
-const defaultFormValues: PartialFormType = {};
 
 /** @knipignore */
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
+    const { userAuth } = useContext(UserContext);
+    const alert = useAlert();
+    const defaultFormValues: PartialFormType = {
+        email: userAuth?.email || '',
+    };
+
     const {
+        pristine,
         value,
         error: formError,
         setFieldValue,
+        validate,
+        setError,
+        setValue,
     } = useForm(EditProfileSchema, { value: defaultFormValues });
 
-    // FIXME: Implement form submission logic here
-    const handleFormSubmit = useCallback(() => {}, []);
+    const [
+        triggerUpdateMe,
+        { loading },
+    ] = useMutation<UpdateMeMutation, UpdateMeMutationVariables>(
+        UPDATE_ME,
+        {
+            onCompleted: (projectResponse) => {
+                const response = projectResponse?.private?.updateMe;
+                if (!response) {
+                    return;
+                }
+                if (response.ok) {
+                    setValue((prevValue) => ({
+                        ...prevValue,
+                        email: response.result?.email ?? '',
+                    }));
+                    alert.show(
+                        'Updated Successfully',
+                        { variant: 'success' },
+                    );
+                } else {
+                    const errorMessages = response?.errors
+                        ?.map((error: { messages: string; }) => error.messages)
+                        .filter((message: string) => message)
+                        .join(', ');
+                    alert.show(errorMessages);
+                }
+            },
+            onError: () => {
+                // eslint-disable-next-line no-alert
+                alert.show(
+                    'Failed to Update',
+                    { variant: 'danger' },
+                );
+            },
+        },
+    );
+
+    const handleUpdateUserSubmit = useCallback((finalValue: PartialFormType) => {
+        triggerUpdateMe({
+            variables: {
+                input: finalValue as UserMeInput,
+            },
+        });
+    }, [triggerUpdateMe]);
+
+    const handleSubmit = (_name: 'save', e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        createSubmitHandler(validate, setError, handleUpdateUserSubmit)();
+    };
 
     const error = getErrorObject(formError);
 
     return (
-        <Page
-            className={styles.mainContent}
-        >
-            <Container
-                className={styles.editUrl}
-            >
-                <div
-                    className={styles.displayProfile}
-                >
+        <Page className={styles.mainContent}>
+            <Container className={styles.editUrl}>
+                <div className={styles.displayProfile}>
                     <img
                         src={displayImage}
                         alt="display"
                     />
                     {/* FIXME: Add Display name after server side ready */}
                     <div className={styles.displayContent}>
-                        <h1>Display Name</h1>
-                        <p> HR</p>
+                        <h1>
+                            {userAuth?.firstName}
+                            {' '}
+                            {userAuth?.lastName}
+                        </h1>
+                        <p>Hr</p>
                     </div>
                 </div>
-                <Container
-                    className={styles.formContent}
-                >
-                    <form
-                        className={styles.form}
-                        onSubmit={handleFormSubmit}
-                    >
+
+                <Container className={styles.formContent}>
+                    <form className={styles.form}>
                         <TextInput
                             className={styles.fullSizeInput}
                             label="Email"
                             name="email"
                             autoFocus
-                            onChange={setFieldValue}
                             value={value?.email}
                             error={error?.email}
+                            readOnly
                         />
                         <TextInput
                             name="firstName"
@@ -123,15 +198,15 @@ export function Component() {
                             </Button>
                             <Button
                                 className={styles.loginButton}
-                                disabled={false}
+                                disabled={pristine || loading}
                                 type="button"
                                 variant="primary"
                                 name="save"
+                                onClick={handleSubmit}
                             >
                                 Save
                             </Button>
                         </div>
-
                     </form>
                 </Container>
             </Container>
