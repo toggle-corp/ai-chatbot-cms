@@ -24,6 +24,7 @@ import {
     AddUsersMutation,
     AddUsersMutationVariables,
 } from '#generated/types/graphql';
+import useAlert from '#hooks/useAlert';
 import { transformToFormError } from '#utils/errorTransform';
 
 import styles from './styles.module.css';
@@ -61,6 +62,7 @@ interface Props {
 
 /** @knipignore */
 function AddUserModal(props: Props) {
+    const alert = useAlert();
     const {
         onClose,
     } = props;
@@ -95,18 +97,21 @@ function AddUserModal(props: Props) {
                         ?.map((message: { messages: string; }) => message.messages)
                         .filter((msg: string) => msg)
                         .join(', ');
-                    // eslint-disable-next-line no-alert
-                    window.alert(errorMessages); // FIXME: add alert.show ,
+                    alert.show(errorMessages);
                 } else if (ok) {
                     onClose();
-                    // eslint-disable-next-line no-alert
-                    window.alert('User Activation Link is sent to your email'); // FIXME: add alert.show ,
+                    alert.show(
+                        'User Activation Link is sent to your email',
+                        { variant: 'success' },
+                    );
                 }
             },
             onError: (emailError) => {
                 setError({ [nonFieldError]: emailError.message });
-                // eslint-disable-next-line no-alert
-                window.alert('User addition failed'); // FIXME: add alert.show ,
+                alert.show(
+                    'User addition failed',
+                    { variant: 'success' },
+                );
             },
         },
     );

@@ -13,6 +13,7 @@ import {
 import { Message } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
+import useAlert from '#hooks/useAlert';
 
 import styles from './styles.module.css';
 
@@ -33,6 +34,7 @@ export function Component() {
     const { userId, token } = useParams<{ userId?: string, token?: string }>();
     const [isErrored, setIsError] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const alert = useAlert();
     const [
         activateTrigger,,
     ] = useMutation(ACCOUNT_ACTIVATION_MUTATION, {
@@ -49,8 +51,9 @@ export function Component() {
         },
         onError: () => {
             // eslint-disable-next-line no-alert
-            window.alert(
-                'This account has already been activated.', // FIXME:Add alert,
+            alert.show(
+                'This account has already been activated.',
+                { variant: 'danger' },
             );
         },
     });
