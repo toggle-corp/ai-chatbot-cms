@@ -50,8 +50,9 @@ export function Component() {
             }
         },
         onError: () => {
+            // eslint-disable-next-line no-alert
             alert.show(
-                'This account has already been activated.',
+                'This account has already been activated.', // FIXME:Add alert.show,
             );
         },
     });
@@ -71,21 +72,18 @@ export function Component() {
 
     if (isSubmitted) {
         return (
-            <Container
-                className={styles.userActivation}
-            >
+            <Container className={styles.userActivation}>
                 <Message
                     message="Your account has been successfully activated!"
                 />
                 <div className={styles.activation}>
                     <Link
                         className={styles.register}
-                        to="/" // FIXME:Add register link here
+                        to={`/register/${userId}/${token}`}
                     >
                         Go to Register
                     </Link>
                 </div>
-
             </Container>
         );
     }

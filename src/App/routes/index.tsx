@@ -118,8 +118,49 @@ const userActivation = customWrapRoute({
     },
     wrapperComponent: Auth,
     context: {
-        title: 'Activation',
+        title: 'User Activation',
         visibility: 'anything',
+    },
+});
+const activationRedirect = customWrapRoute({
+    parent: rootLayout,
+    path: 'user-activation/:userId/:token',
+    component: {
+        render: () => import('../redirects/ActivationRedirect'),
+        props: {},
+    },
+    wrapperComponent: Auth,
+    context: {
+        title: 'Activation Redirect',
+        visibility: 'is-not-authenticated',
+    },
+});
+
+const register = customWrapRoute({
+    parent: rootLayout,
+    path: 'register/:userId/:registerToken',
+    component: {
+        render: () => import('#views/Register'),
+        props: {},
+    },
+    wrapperComponent: Auth,
+    context: {
+        title: 'Register',
+        visibility: 'is-not-authenticated',
+    },
+});
+
+const registerRedirect = customWrapRoute({
+    parent: rootLayout,
+    path: 'user-activation/:userId/:registerToken',
+    component: {
+        render: () => import('../redirects/RegisterRedirect'),
+        props: {},
+    },
+    wrapperComponent: Auth,
+    context: {
+        title: 'Register Redirect',
+        visibility: 'is-not-authenticated',
     },
 });
 
@@ -176,6 +217,9 @@ const wrappedRoutes = {
     forgotPassword,
     forgotPasswordConfirm,
     resetPasswordRedirect,
+    register,
+    registerRedirect,
+    activationRedirect,
 };
 
 export const unwrappedRoutes = unwrapRoute(Object.values(wrappedRoutes));

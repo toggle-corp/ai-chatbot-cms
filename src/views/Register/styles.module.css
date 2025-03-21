@@ -1,0 +1,48 @@
+.banner {
+    justify-content: space-between;
+    background-color: var(--cms-ui-color-blue-700);
+    padding: var(--cms-ui-spacing-2xl) 0 0 var(--cms-ui-spacing-2xl);
+    color: var(--cms-ui-color-faded-white);
+
+    .cover-image {
+        display: flex;
+        align-self: flex-end;
+        height: 35rem;
+    }
+}
+
+.form-container {
+    justify-content: center;
+    background-color: var(--cms-ui-color-white-card);
+    padding: var(--cms-ui-spacing-2xl);
+    gap: var(--cms-ui-spacing-lg);
+
+    .form-content {
+        width: 35rem;
+    }
+
+    .form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--cms-ui-spacing-md);
+    }
+    .action{
+        padding: var(--cms-ui-spacing-md); 
+        .sign-up {
+            width: 100%;
+        }
+        .login{
+            display: flex;
+            justify-content: center;
+            .login-link {
+                text-decoration: none;
+                color: var(--cms-ui-color-blue-500);
+                &:hover {
+                    text-decoration:underline;
+                }
+            }
+        }
+      
+
+    }
+}
