@@ -1,4 +1,4 @@
-import {
+import React, {
     useCallback,
     useContext,
 } from 'react';
@@ -107,18 +107,20 @@ export function Component() {
                     }));
                     alert.show(
                         'Updated Successfully',
-                        { variant: 'success' },
+                        {
+                            description: 'description',
+                            variant: 'success',
+                        },
                     );
                 } else {
                     const errorMessages = response?.errors
                         ?.map((error: { messages: string; }) => error.messages)
                         .filter((message: string) => message)
                         .join(', ');
-                    alert.show(errorMessages);
+                    alert.show(errorMessages, { variant: 'danger' });
                 }
             },
             onError: () => {
-                // eslint-disable-next-line no-alert
                 alert.show(
                     'Failed to Update',
                     { variant: 'danger' },

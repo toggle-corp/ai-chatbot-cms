@@ -70,7 +70,11 @@ function Container(props: Props) {
 
     const showFooter = footerIcons || footerContent || footerActions;
 
-    if (!children) {
+    if (
+        !children
+        && !showHeader
+        && !showFooter
+    ) {
         return null;
     }
 
