@@ -14,7 +14,7 @@
 }
 
 .icons {
-    font-size:var(--cms-ui-font-size-5xl);
+    font-size:var(--cms-ui-font-size-3xl);
 }
 .edit-profile {
     padding: var(--cms-ui-spacing-sm);

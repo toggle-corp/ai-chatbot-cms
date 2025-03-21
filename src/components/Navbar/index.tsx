@@ -87,7 +87,6 @@ function Navbar(props: Props) {
                         alt={userAuth?.firstName || ''}
                     />
                 )}
-
             >
                 {isNotDefined(userAuth) && (
                     <Link

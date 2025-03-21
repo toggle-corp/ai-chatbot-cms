@@ -14,17 +14,14 @@ interface AddAlertOption {
     description?: React.ReactNode;
     nonDismissable?: boolean;
 }
-/** @knipignore */
+
 function useAlert() {
-    const {
-        addAlert,
-    } = useContext(AlertContext);
+    const { addAlert } = useContext(AlertContext);
 
     const DURATION_DEFAULT_ALERT_DISMISS = 4500;
 
     const show = useCallback((title: React.ReactNode, options?: AddAlertOption) => {
         const name = options?.name ?? randomString(16);
-
         addAlert({
             variant: options?.variant ?? 'info',
             duration: options?.duration ?? DURATION_DEFAULT_ALERT_DISMISS,
