@@ -24,8 +24,9 @@ import {
 import Container from '#components/Container';
 import { createElementColumn } from '#components/CreateElementColumn';
 import {
+    UsersQuery,
+    UsersQueryVariables,
     UserType,
-    UserTypeCountList,
 } from '#generated/types/graphql';
 
 import AddUserModal from './AddUserModal';
@@ -35,7 +36,7 @@ import styles from './styles.module.css';
 
 type UserListTable = NonNullable<NonNullable<NonNullable<UserType>>>;
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 
 const USERS_QUERY = gql`
     query Users(
@@ -50,6 +51,8 @@ const USERS_QUERY = gql`
                     email
                     firstName
                     lastName
+                    department
+                    isActive
                     id
                 }
             }
@@ -57,7 +60,7 @@ const USERS_QUERY = gql`
     }
 `;
 
-const userKeySelector = (option:UserListTable) => option.id;
+const userKeySelector = (option: UserListTable) => option.id;
 const statusKeySelector = (option: { key: string }) => option.key;
 const statusLabelSelector = (option: { key: string }) => option.key;
 
@@ -65,23 +68,19 @@ const statusLabelSelector = (option: { key: string }) => option.key;
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
     const [page, setPage] = useState<number>(1);
-    const [
-        showAddModal,
-        setShowAddModal,
-    ] = useState(false);
-    const {
-        data: userResult,
-    } = useQuery<UserTypeCountList>(
+    const [showAddModal, setShowAddModal] = useState(false);
+    const { data: userResult } = useQuery<UsersQuery, UsersQueryVariables>(
         USERS_QUERY,
         {
             variables: {
-                input: {
+                pagination: {
                     limit: PAGE_SIZE,
-                    offset: page,
+                    offset: (page - 1) * PAGE_SIZE,
                 },
             },
         },
     );
+
     const handleAddUserFormModalClose = useCallback(
         () => {
             setShowAddModal(false);
@@ -93,7 +92,7 @@ export function Component() {
         createStringColumn<UserListTable, string>(
             'sn',
             'S.N',
-            (item: UserListTable) => String(item.id),
+            (item) => String(item.id),
         ),
         createStringColumn<UserListTable, string>(
             'email',
@@ -113,13 +112,15 @@ export function Component() {
             (item) => item.lastName,
             { columnClassName: styles.email },
         ),
-        createElementColumn<UserListTable, string, { id: string }>(
+        createElementColumn<UserListTable, string, { userName: string}>(
             'actions',
             'Actions',
             UserActions,
-            (_key, datum) => ({ id: datum.id }),
+            (_key, datum) => ({ userName: datum.firstName }),
         ),
     ]), []);
+
+    const Users = userResult?.private.users.items as UserType[];
 
     return (
         <Container
@@ -127,7 +128,6 @@ export function Component() {
             showHeader
             actionsContainerClassName={styles.actions}
             headingDescription={(
-                // FIXME: Implement OnChange options once server-side filters are added.
                 <div className={styles.actions}>
                     <TextInput
                         placeholder="Enter Name"
@@ -150,11 +150,11 @@ export function Component() {
             actions={(
                 <>
                     <Chip>
-                        {userResult?.count}
+                        {userResult?.private?.users?.count}
                         Users
                     </Chip>
                     <Button
-                        name="Add Content"
+                        name="Add User"
                         variant="primary"
                         onClick={() => setShowAddModal(true)}
                         icons={<IoAddCircleSharp />}
@@ -162,14 +162,13 @@ export function Component() {
                         Add user
                     </Button>
                 </>
-
             )}
             footerActions={(
                 <Pager
                     infoHidden
                     itemsPerPageControlHidden
                     activePage={page}
-                    itemsCount={userResult?.count ?? 0}
+                    itemsCount={userResult?.private?.users?.count ?? 0}
                     maxItemsPerPage={PAGE_SIZE}
                     onActivePageChange={setPage}
                 />
@@ -180,7 +179,7 @@ export function Component() {
                 className={styles.table}
                 headerCellClassName={styles.headerCell}
                 headerRowClassName={styles.headerRow}
-                data={userResult?.items}
+                data={Users}
                 keySelector={userKeySelector}
             />
             {showAddModal && (
