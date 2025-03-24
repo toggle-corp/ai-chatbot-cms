@@ -108,7 +108,6 @@ export function Component() {
                     alert.show(
                         'Updated Successfully',
                         {
-                            description: 'description',
                             variant: 'success',
                         },
                     );

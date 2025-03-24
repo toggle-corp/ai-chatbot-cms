@@ -37,6 +37,7 @@ import {
     RegisterUserMutation,
     RegisterUserMutationVariables,
 } from '#generated/types/graphql';
+import useAlert from '#hooks/useAlert';
 
 import styles from './styles.module.css';
 
@@ -108,6 +109,7 @@ const RegisterSchema: FormSchema = ({
 /** @knipignore */
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
+    const alert = useAlert();
     const [defaultFormValues] = useState<PartialFormFields>({});
     const { userId, registerToken } = useParams<{ userId?: string, registerToken?: string }>();
     const {
@@ -125,57 +127,60 @@ export function Component() {
         {
             loading: registerPending,
         },
-    ] = useMutation<RegisterUserMutation, RegisterUserMutationVariables>(REGISTER_MUTATION, {
-        onCompleted: (response) => {
-            const { public: publicRes } = response;
-            if (!publicRes) {
-                return;
-            }
-            const { registerUser: registerRes } = publicRes;
-            if (!registerRes) {
-                return;
-            }
-            const { errors, ok } = registerRes;
+    ] = useMutation<
+            RegisterUserMutation,
+            RegisterUserMutationVariables
+        >(REGISTER_MUTATION, {
+            onCompleted: (response) => {
+                const { public: publicRes } = response;
+                if (!publicRes) {
+                    return;
+                }
+                const { registerUser: registerRes } = publicRes;
+                if (!registerRes) {
+                    return;
+                }
+                const { errors, ok } = registerRes;
 
-            if (errors) {
-                setError(fieldError);
-                const errorMessages = errors
-                    ?.map((message: { messages: string; }) => message.messages)
-                    .filter((message: string) => message)
-                    .join(', ');
-                // eslint-disable-next-line no-alert
-                window.alert(errorMessages);
-            } else if (ok) {
-                // eslint-disable-next-line no-alert
-                window.alert(
-                    'Successfully created a user!',
+                if (errors) {
+                    setError(fieldError);
+                    const errorMessages = errors
+                        ?.map((message: { messages: string; }) => message.messages)
+                        .filter((message: string) => message)
+                        .join(', ');
+                    alert.show(errorMessages);
+                } else if (ok) {
+                    alert.show(
+                        'Successfully created a user!',
+                        { variant: 'success' },
+                    );
+                }
+            },
+            onError: (errors) => {
+                setError({
+                    [nonFieldError]: errors.message,
+                });
+                alert.show(
+                    'Sorry, could not register new user right now!',
+                    { variant: 'danger' },
                 );
-            }
-        },
-        onError: (errors) => {
-            setError({
-                [nonFieldError]: errors.message,
-            });
-            // eslint-disable-next-line no-alert
-            window.alert(
-                'Sorry, could not register new user right now!',
-            );
-        },
-    });
+            },
+        });
 
     const handleFormSubmit = useCallback(
         (finalValues: PartialFormFields) => {
             if (!userId) {
-                // eslint-disable-next-line no-alert
-                window.alert(
+                alert.show(
                     'UUID is missing',
+                    { variant: 'danger' },
                 );
                 return;
             }
             if (!registerToken) {
                 // eslint-disable-next-line no-alert
-                window.alert(
+                alert.show(
                     'Token is missing',
+                    { variant: 'danger' },
                 );
                 return;
             }
@@ -189,7 +194,7 @@ export function Component() {
                 },
             });
         },
-        [userId, registerToken, triggerRegisterUser],
+        [userId, registerToken, triggerRegisterUser, alert],
     );
 
     const handleSubmit = (_name: 'save', e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {

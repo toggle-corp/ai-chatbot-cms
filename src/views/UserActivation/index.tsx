@@ -50,9 +50,8 @@ export function Component() {
             }
         },
         onError: () => {
-            // eslint-disable-next-line no-alert
             alert.show(
-                'This account has already been activated.', // FIXME:Add alert.show,
+                'This account has already been activated.',
             );
         },
     });
