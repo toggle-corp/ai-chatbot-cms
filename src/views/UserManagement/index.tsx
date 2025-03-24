@@ -75,7 +75,7 @@ export function Component() {
             variables: {
                 pagination: {
                     limit: PAGE_SIZE,
-                    offset: page,
+                    offset: (page - 1) * PAGE_SIZE,
                 },
             },
         },
@@ -112,13 +112,15 @@ export function Component() {
             (item) => item.lastName,
             { columnClassName: styles.email },
         ),
-        createElementColumn<UserListTable, string, { id: string }>(
+
+        createElementColumn<UserListTable, string, { userName: string}>(
             'actions',
             'Actions',
             UserActions,
-            (_key, datum) => ({ id: datum.id }),
+            (_key, datum) => ({ userName: datum.firstName }),
         ),
     ]), []);
+
     const Users = userResult?.private.users.items as UserType[];
 
     return (
@@ -127,7 +129,6 @@ export function Component() {
             showHeader
             actionsContainerClassName={styles.actions}
             headingDescription={(
-                // FIXME: Implement OnChange options once server-side filters are added.
                 <div className={styles.actions}>
                     <TextInput
                         placeholder="Enter Name"
@@ -139,7 +140,10 @@ export function Component() {
                     <SelectInput
                         placeholder="Active Status"
                         name="status"
-                        options={[]}
+                        options={[
+                            { key: 'Active', label: 'Active' },
+                            { key: 'Inactive', label: 'Inactive' },
+                        ]}
                         keySelector={statusKeySelector}
                         labelSelector={statusLabelSelector}
                         value={undefined}
@@ -154,7 +158,7 @@ export function Component() {
                         Users
                     </Chip>
                     <Button
-                        name="Add Content"
+                        name="Add User"
                         variant="primary"
                         onClick={() => setShowAddModal(true)}
                         icons={<IoAddCircleSharp />}
