@@ -10,7 +10,6 @@ import DropdownMenuItem from '#components/DropdownMenuItem';
 import {
     PasswordResetTriggerMutation,
     PasswordResetTriggerMutationVariables,
-    UserPasswordResetInput,
 } from '#generated/types/graphql';
 import useAlert from '#hooks/useAlert';
 
@@ -18,6 +17,7 @@ import styles from './styles.module.css';
 
 interface UserActionsProps {
   userName: string;
+  isActivated:boolean;
 }
 
 const USER_RESET_PASSWORD_MUTATION = gql`
@@ -31,7 +31,7 @@ const USER_RESET_PASSWORD_MUTATION = gql`
   }
 `;
 
-function UserActions({ userName }: UserActionsProps) {
+function UserActions({ userName, isActivated }: UserActionsProps) {
     const alert = useAlert();
     const [triggerResetPassword] = useMutation<
       PasswordResetTriggerMutation,
@@ -47,7 +47,10 @@ function UserActions({ userName }: UserActionsProps) {
                         { variant: 'danger' },
                     );
                 } else if (ok) {
-                    alert.show('Password reset link sent', { variant: 'success' });
+                    alert.show(
+                        'Password reset link sent',
+                        { variant: 'success' },
+                    );
                 }
             },
             onError: () => {
@@ -59,12 +62,12 @@ function UserActions({ userName }: UserActionsProps) {
         },
     );
 
-    const handleResetPassword = useCallback((
-        name: 'resetPassword',
-    ) => {
+    const handleResetPassword = useCallback(() => {
         triggerResetPassword({
             variables: {
-                input: name as unknown as UserPasswordResetInput,
+                input: {
+                    email: '',
+                },
             },
         });
     }, [triggerResetPassword]);
@@ -77,6 +80,48 @@ function UserActions({ userName }: UserActionsProps) {
                     <IoEllipsisVertical />
                 )}
             >
+                {isActivated ? (
+                    <DropdownMenuItem
+                        type="confirm-button"
+                        name="deactivation"
+                        confirmationHeader="Deactivate User"
+                        confirmationMessage={`Are you sure you want to deactivate ${userName}'s account?`}
+                        confirmLabel="Yes"
+                        cancelLabel="No"
+                        onCancel={() => {}}
+                        onConfirm={() => {}}
+                        transparent
+                    >
+                        Deactivate account
+                    </DropdownMenuItem>
+                ) : (
+                    <DropdownMenuItem
+                        type="confirm-button"
+                        name="activation"
+                        confirmationHeader="Activate User"
+                        confirmationMessage={`Are you sure you want to activate ${userName}'s account?`}
+                        confirmLabel="Yes"
+                        cancelLabel="No"
+                        onCancel={() => {}}
+                        onConfirm={() => {}}
+                        transparent
+                    >
+                        Activate account
+                    </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                    type="confirm-button"
+                    name="resendInvite"
+                    confirmationHeader="Resend Invite"
+                    confirmationMessage={`Resend Invite to ${userName}?`}
+                    confirmLabel="Yes"
+                    cancelLabel="No"
+                    onCancel={() => {}}
+                    onConfirm={() => {}}
+                    transparent
+                >
+                    Resend invite
+                </DropdownMenuItem>
                 <DropdownMenuItem
                     type="confirm-button"
                     name="resetPassword"
