@@ -203,7 +203,7 @@ export function Component() {
                         <p> Dont have an account?</p>
                         <Link
                             className={styles.link}
-                            to="/" // FIXME: add register
+                            to="/register"
                         >
                             Sign up now
                         </Link>
