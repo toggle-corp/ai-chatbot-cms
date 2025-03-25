@@ -112,12 +112,18 @@ export function Component() {
             (item) => item.lastName,
             { columnClassName: styles.email },
         ),
-        createElementColumn<UserListTable, string, { userName: string}>(
-            'actions',
-            'Actions',
-            UserActions,
-            (_key, datum) => ({ userName: datum.firstName }),
-        ),
+        createElementColumn<UserListTable, string, {
+            userName: string,
+            isActive: boolean,
+         }>(
+             'actions',
+             'Actions',
+             UserActions,
+             (_key, datum) => ({
+                 userName: datum.firstName,
+                 isActive: datum.isActive,
+             }),
+         ),
     ]), []);
 
     const Users = userResult?.private.users.items as UserType[];
