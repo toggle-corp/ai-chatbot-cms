@@ -10,6 +10,10 @@
         height: 35rem;
     }
 }
+.user-forgot-password{
+    display: flex;
+    justify-content: center;
+}
 
 .form-container {
     justify-content: center;
@@ -21,10 +25,10 @@
         width: 35rem;
     }
 
-    .form {
+   .form {
         display: flex;
         flex-direction: column;
-        gap: var(--cms-ui-spacing-md);
+        gap: var(--cms-ui-spacing-lg);
     }
     .link{
         text-decoration: none;
@@ -32,10 +36,6 @@
         &:hover {
             text-decoration:underline;
         }
-    }
-
-    .login-button {
-        width: 100%;
     }
     .signup{
         display: flex;
