@@ -123,6 +123,46 @@ const userActivation = customWrapRoute({
     },
 });
 
+const forgotPassword = customWrapRoute({
+    parent: rootLayout,
+    path: 'forgot-password',
+    component: {
+        render: () => import('#views/ForgotPassword'),
+        props: {},
+    },
+    wrapperComponent: Auth,
+    context: {
+        title: 'Forgot Password',
+        visibility: 'is-not-authenticated',
+    },
+});
+const forgotPasswordConfirm = customWrapRoute({
+    parent: rootLayout,
+    path: 'user-password-reset/:userId/:resetToken',
+    component: {
+        render: () => import('#views/ForgotPasswordConfirm'),
+        props: {},
+    },
+    wrapperComponent: Auth,
+    context: {
+        title: 'Forgot Password Confirm',
+        visibility: 'is-not-authenticated',
+    },
+});
+const resetPasswordRedirect = customWrapRoute({
+    parent: rootLayout,
+    path: 'user-password-reset/:userId/:resetToken/redirect',
+    component: {
+        render: () => import('../redirects/ResetPasswordRedirect'),
+        props: {},
+    },
+    wrapperComponent: Auth,
+    context: {
+        title: 'Reset Password Redirect',
+        visibility: 'is-not-authenticated',
+    },
+});
+
 const wrappedRoutes = {
     rootLayout,
     homeLayout,
@@ -133,6 +173,9 @@ const wrappedRoutes = {
     login,
     userActivation,
     editProfile,
+    forgotPassword,
+    forgotPasswordConfirm,
+    resetPasswordRedirect,
 };
 
 export const unwrappedRoutes = unwrapRoute(Object.values(wrappedRoutes));

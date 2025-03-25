@@ -1,6 +1,6 @@
 import {
-    useCallback,
-    useContext,
+    useMemo,
+    useState,
 } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -11,18 +11,15 @@ import {
     createSubmitHandler,
     emailCondition,
     getErrorObject,
-    lengthGreaterThanCondition,
-    lengthSmallerThanCondition,
     nonFieldError,
     ObjectSchema,
     PartialForm,
-    removeNull,
     requiredStringCondition,
     useForm,
 } from '@togglecorp/toggle-form';
 import {
     Button,
-    PasswordInput,
+    Message,
     TextInput,
 } from '@togglecorp/toggle-ui';
 
@@ -30,49 +27,36 @@ import loginCover from '#assets/loginCover.png';
 import organizationName from '#assets/organizationName.svg';
 import Container from '#components/Container';
 import Page from '#components/Page';
-import UserContext from '#contexts/user';
 import {
-    LoginMutation,
-    LoginMutationVariables,
+    PasswordResetTriggerMutation,
+    PasswordResetTriggerMutationVariables,
+    UserPasswordResetInput,
 } from '#generated/types/graphql';
+import useAlert from '#hooks/useAlert';
+import { transformToFormError } from '#utils/errorTransform';
 
 import styles from './styles.module.css';
 
-const LOGIN = gql`
-    mutation Login($input: LoginInput!){
-        public {
-            login(data: $input) {
-                ok
-                errors
-                result {
-                    email
-                    firstName
-                    id
-                    lastName
-                }
-            }
-        }
+const FORGOT_PASSWORD = gql`
+  mutation passwordResetTrigger($input: UserPasswordResetInput!) {
+    public {
+      passwordResetTrigger(data: $input) {
+        errors
+        ok
+      }
     }
+  }
 `;
-
-type PartialFormType = PartialForm<LoginMutationVariables['input']>
+type PartialFormType = PartialForm<PasswordResetTriggerMutationVariables['input']>
 type FormSchema = ObjectSchema<PartialFormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
-const LoginSchema: FormSchema = ({
+const ForgotPasswordSchema: FormSchema = ({
     fields: (): FormSchemaFields => ({
         email: {
             required: true,
             requiredValidation: requiredStringCondition,
             validations: [emailCondition],
-        },
-        password: {
-            required: true,
-            requiredValidation: requiredStringCondition,
-            validations: [
-                lengthGreaterThanCondition(3),
-                lengthSmallerThanCondition(129),
-            ],
         },
     }),
 });
@@ -82,6 +66,8 @@ const defaultFormValues: PartialFormType = {};
 /** @knipignore */
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const alert = useAlert();
     const {
         pristine,
         value,
@@ -89,53 +75,66 @@ export function Component() {
         setFieldValue,
         validate,
         setError,
-    } = useForm(LoginSchema, { value: defaultFormValues });
+    } = useForm(ForgotPasswordSchema, { value: defaultFormValues });
 
     const error = getErrorObject(riskyError);
 
-    const { setUserAuth } = useContext(UserContext);
-
     const [
-        login,
+        requestPasswordRecovery,
         { loading },
-    ] = useMutation<LoginMutation, LoginMutationVariables>(
-        LOGIN,
+    ] = useMutation< PasswordResetTriggerMutation, PasswordResetTriggerMutationVariables>(
+        FORGOT_PASSWORD,
         {
             onCompleted: (response) => {
-                const { login: loginRes } = response.public;
-                if (!loginRes) {
-                    return;
-                }
-
                 const {
-                    errors,
-                    result,
-                    ok,
-                } = loginRes;
-
-                if (errors) {
-                    // const formError = transformToFormError(removeNull(errors) as ObjectError[]);
-                    setError(error);
-                } else if (ok) {
-                    const safeUser = removeNull(result);
-                    setUserAuth(safeUser);
+                    public: { passwordResetTrigger },
+                } = response;
+                if (passwordResetTrigger?.ok) {
+                    setIsSubmitted(true);
+                } else if (passwordResetTrigger.errors) {
+                    const formErrors = transformToFormError(passwordResetTrigger.errors);
+                    setError(formErrors);
+                    alert.show(
+                        'Could not recover account!',
+                        { variant: 'danger' },
+                    );
                 }
             },
-            onError: (errors) => {
-                setError({
-                    [nonFieldError]: errors.message,
-                });
+            onError: (passwordError) => {
+                setError({ [nonFieldError]: passwordError.message });
+                alert.show(
+                    'Could not recover account!',
+                    { variant: 'danger' },
+                );
             },
         },
     );
 
-    const handleSubmit = useCallback((finalValue: PartialFormType) => {
-        login({
-            variables: {
-                input: finalValue as LoginMutationVariables['input'],
+    const handleSubmit = useMemo(
+        () => createSubmitHandler(
+            validate,
+            setError,
+            (formValues: PartialFormType) => {
+                requestPasswordRecovery({
+                    variables: {
+                        input: {
+                            email: formValues.email,
+                        } as UserPasswordResetInput,
+                    },
+                });
             },
-        });
-    }, [login]);
+        ),
+        [validate, setError, requestPasswordRecovery],
+    );
+    if (isSubmitted) {
+        return (
+            <Container className={styles.userForgotPassword}>
+                <Message
+                    message=" Account recovery submitted! Please check your email for further action!"
+                />
+            </Container>
+        );
+    }
 
     return (
         <Page>
@@ -160,12 +159,13 @@ export function Component() {
             <Container
                 showHeader
                 className={styles.formContainer}
-                heading="Welcome back"
+                heading="Forgot Your Password?"
+                headingDescription="Enter your email to  reset it"
                 childrenContainerClassName={styles.formContent}
             >
                 <form
                     className={styles.form}
-                    onSubmit={createSubmitHandler(validate, setError, handleSubmit)}
+                    onSubmit={handleSubmit}
                 >
                     <TextInput
                         name="email"
@@ -176,20 +176,6 @@ export function Component() {
                         error={error?.email}
                         autoFocus
                     />
-                    <PasswordInput
-                        name="password"
-                        label="Password*"
-                        placeholder="Enter password"
-                        onChange={setFieldValue}
-                        value={value?.password}
-                        error={error?.password}
-                    />
-                    <Link
-                        className={styles.link}
-                        to="/forgot-password"
-                    >
-                        Forgot your password?
-                    </Link>
                     <Button
                         className={styles.loginButton}
                         disabled={pristine || loading}
@@ -197,15 +183,15 @@ export function Component() {
                         variant="primary"
                         name="login"
                     >
-                        Submit
+                        Confirm
                     </Button>
                     <div className={styles.signup}>
-                        <p> Dont have an account?</p>
+                        <p>  Return back to</p>
                         <Link
                             className={styles.link}
-                            to="/" // FIXME: add register
+                            to="/login"
                         >
-                            Sign up now
+                            Login
                         </Link>
                     </div>
                 </form>
@@ -214,4 +200,4 @@ export function Component() {
     );
 }
 
-Component.displayName = 'Login';
+Component.displayName = 'ForgotPassword';

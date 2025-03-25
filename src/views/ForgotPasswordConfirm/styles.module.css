@@ -34,9 +34,6 @@
         }
     }
 
-    .login-button {
-        width: 100%;
-    }
     .signup{
         display: flex;
         justify-content: center;
