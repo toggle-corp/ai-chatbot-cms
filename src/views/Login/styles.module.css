@@ -26,8 +26,20 @@
         flex-direction: column;
         gap: var(--cms-ui-spacing-md);
     }
+    .link{
+        text-decoration: none;
+        color: var(--cms-ui-color-blue-500);
+        &:hover {
+            text-decoration:underline;
+        }
+    }
 
     .login-button {
         width: 100%;
     }
+    .signup{
+        display: flex;
+        justify-content: center;
+    }
+
 }

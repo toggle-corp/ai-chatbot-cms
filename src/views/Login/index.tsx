@@ -2,6 +2,7 @@ import {
     useCallback,
     useContext,
 } from 'react';
+import { Link } from 'react-router-dom';
 import {
     gql,
     useMutation,
@@ -177,6 +178,12 @@ export function Component() {
                         value={value?.password}
                         error={error?.password}
                     />
+                    <Link
+                        className={styles.link}
+                        to="forgot password"
+                    >
+                        Forgot your password?
+                    </Link>
                     <Button
                         className={styles.loginButton}
                         disabled={pristine || loading}
@@ -186,6 +193,15 @@ export function Component() {
                     >
                         Submit
                     </Button>
+                    <div className={styles.signup}>
+                        Dont have an account?
+                        <Link
+                            className={styles.link}
+                            to="/" // FIXME: add register
+                        >
+                            Sign up now
+                        </Link>
+                    </div>
                 </form>
             </Container>
         </Page>
