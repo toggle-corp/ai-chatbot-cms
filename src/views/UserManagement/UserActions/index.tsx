@@ -9,10 +9,9 @@ import {
 import DropdownMenu from '#components/DropdownMenu';
 import DropdownMenuItem from '#components/DropdownMenuItem';
 import {
-    AccountActivationMutation,
-    AccountActivationMutationVariables,
-    AccountDeactivationMutation,
-    AccountDeactivationMutationVariables,
+    PasswordResetTriggerMutation,
+    PasswordResetTriggerMutationVariables,
+    UserPasswordResetTriggerInput,
 } from '#generated/types/graphql';
 import useAlert from '#hooks/useAlert';
 
@@ -23,21 +22,10 @@ interface UserActionsProps {
   isActive: boolean;
 }
 
-const ACCOUNT_DEACTIVATION_MUTATION = gql`
-  mutation AccountDeactivation($data: UserDeactivationInput!) {
+const PASSWORD_RESET = gql`
+  mutation PasswordResetTrigger($input: UserPasswordResetTriggerInput!) {
     public {
-      accountDeactivation(data: $data) {
-        ok
-        errors
-      }
-    }
-  }
-`;
-
-const ACCOUNT_ACTIVATION_MUTATION = gql`
-  mutation AccountActivation($data: UserActivationInput!) {
-    public {
-      accountActivation(data: $data) {
+      passwordResetTrigger(data: $input) {
         ok
         errors
       }
@@ -47,105 +35,56 @@ const ACCOUNT_ACTIVATION_MUTATION = gql`
 
 function UserActions(props: UserActionsProps) {
     const { userName, isActive } = props;
-    const { userId, token } = useParams<{ userId?: string, token:string }>();
+    const { userId } = useParams<{
+        userId?: string,
+    }>();
     const alert = useAlert();
 
-    const [
-        triggerDeactivation,
-    ] = useMutation<
-        AccountDeactivationMutation,
-        AccountDeactivationMutationVariables
+    const [triggerPasswordReset] = useMutation<
+        PasswordResetTriggerMutation,
+        PasswordResetTriggerMutationVariables
     >(
-        ACCOUNT_DEACTIVATION_MUTATION,
+        PASSWORD_RESET,
         {
             onCompleted: (response) => {
-                const { errors, ok } = response.public.accountDeactivation;
+                const { errors, ok } = response.public.passwordResetTrigger;
                 if (errors) {
                     alert.show(
-                        'Account deactivation failed',
+                        'Password reset failed',
                         { variant: 'danger' },
                     );
                 } else if (ok) {
                     alert.show(
-                        'Account deactivated successfully',
+                        'Password reset email sent successfully',
                         { variant: 'success' },
                     );
                 }
             },
             onError: () => {
                 alert.show(
-                    'Account deactivation failed',
+                    'Password reset failed',
                     { variant: 'danger' },
                 );
             },
         },
     );
 
-    const [
-        triggerActivation,
-    ] = useMutation<
-        AccountActivationMutation,
-        AccountActivationMutationVariables
-    >(
-        ACCOUNT_ACTIVATION_MUTATION,
-        {
-            onCompleted: (response) => {
-                const { errors, ok } = response.public.accountActivation;
-                if (errors) {
-                    alert.show(
-                        'Account activation failed',
-                        { variant: 'danger' },
-                    );
-                } else if (ok) {
-                    alert.show(
-                        'Account activated successfully',
-                        { variant: 'success' },
-                    );
-                }
-            },
-            onError: () => {
-                alert.show(
-                    'Account activation failed',
-                    { variant: 'danger' },
-                );
-            },
-        },
-    );
-
-    const handleDeactivation = useCallback(() => {
+    const handlePasswordReset = useCallback(() => {
         if (userId) {
-            triggerDeactivation({
+            triggerPasswordReset({
                 variables: {
-                    data: {
+                    input: {
                         userId,
-                    },
+                    } as UserPasswordResetTriggerInput,
                 },
             });
         } else {
             alert.show(
-                'User ID is required to deactivate account',
+                'User ID is required to reset password',
                 { variant: 'danger' },
             );
         }
-    }, [triggerDeactivation, userId, alert]);
-
-    const handleActivation = useCallback(() => {
-        if (userId && token) {
-            triggerActivation({
-                variables: {
-                    data: {
-                        uuid: userId,
-                        token,
-                    },
-                },
-            });
-        } else {
-            alert.show(
-                'User ID is required to activate account',
-                { variant: 'danger' },
-            );
-        }
-    }, [userId, token, triggerActivation, alert]);
+    }, [userId, triggerPasswordReset, alert]);
 
     return (
         <div className={styles.userActions}>
@@ -160,32 +99,57 @@ function UserActions(props: UserActionsProps) {
                         type="confirm-button"
                         name="deactivation"
                         confirmationHeader="Deactivate User"
-                        confirmationMessage={
-                            `Are you sure you want to deactivate ${userName}'s account?`
-                        }
+                        confirmationMessage={`Are you sure you want to deactivate ${userName}'s account?`}
                         confirmLabel="Yes"
                         cancelLabel="No"
                         onCancel={() => {}}
-                        onConfirm={handleDeactivation}
+                        onConfirm={() => {}}
                         transparent
                     >
                         Deactivate account
                     </DropdownMenuItem>
                 ) : (
-                    <DropdownMenuItem
-                        type="confirm-button"
-                        name="activation"
-                        confirmationHeader="Activate User"
-                        confirmationMessage={`Are you sure you want to activate ${userName}'s account?`}
-                        confirmLabel="Yes"
-                        cancelLabel="No"
-                        onCancel={() => {}}
-                        onConfirm={handleActivation}
-                        transparent
-                    >
-                        Activate account
-                    </DropdownMenuItem>
+                    <>
+                        <DropdownMenuItem
+                            type="confirm-button"
+                            name="activation"
+                            confirmationHeader="Activate User"
+                            confirmationMessage={`Are you sure you want to activate ${userName}'s account?`}
+                            confirmLabel="Yes"
+                            cancelLabel="No"
+                            onCancel={() => {}}
+                            onConfirm={() => {}}
+                            transparent
+                        >
+                            Activate account
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            type="confirm-button"
+                            name="resendInvite"
+                            confirmationHeader="Resend Invite"
+                            confirmationMessage={`Resend invite to ${userName}?`}
+                            confirmLabel="Yes"
+                            cancelLabel="No"
+                            onCancel={() => {}}
+                            onConfirm={() => {}}
+                            transparent
+                        >
+                            Resend Invite
+                        </DropdownMenuItem>
+                    </>
                 )}
+                <DropdownMenuItem
+                    type="confirm-button"
+                    name="resetPassword"
+                    confirmationHeader="Reset Password"
+                    confirmationMessage={`Reset Password for ${userName}?`}
+                    confirmLabel="Yes"
+                    cancelLabel="No"
+                    onConfirm={handlePasswordReset}
+                    transparent
+                >
+                    Reset Password
+                </DropdownMenuItem>
             </DropdownMenu>
         </div>
     );

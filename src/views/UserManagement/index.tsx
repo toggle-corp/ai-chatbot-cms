@@ -115,6 +115,7 @@ export function Component() {
         createElementColumn<UserListTable, string, {
             userName: string,
             isActive: boolean,
+            userMail: string,
          }>(
              'actions',
              'Actions',
@@ -122,6 +123,7 @@ export function Component() {
              (_key, datum) => ({
                  userName: datum.firstName,
                  isActive: datum.isActive,
+                 userMail: datum.email,
              }),
          ),
     ]), []);

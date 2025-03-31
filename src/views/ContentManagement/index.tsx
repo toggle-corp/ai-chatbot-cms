@@ -21,7 +21,7 @@ import {
 
 import styles from './styles.module.css';
 
-type ContentListTable = NonNullable<NonNullable<NonNullable<ContentListQuery['private']>['content']>['items']>[number];
+type ContentListTable = NonNullable<NonNullable<NonNullable<ContentListQuery['private']>['contents']>['items']>[number];
 
 const contentKeySelector = (option: ContentListTable) => option.id;
 
@@ -32,9 +32,10 @@ const CREATE_CONTENT_QUERY = gql`
         $input: OffsetPaginationInput
     ) {
         private {
-            content(pagination: $input) {
+            contents(pagination: $input) {
                 count
                 items {
+                    createdAt
                     id
                     title
                     documentType
@@ -81,7 +82,7 @@ export function Component() {
         createStringColumn<ContentListTable, string>(
             'tag',
             'Tag',
-            (item) => item.tag.map((tag) => tag.name).join(','),
+            (item) => item.tag.map((tag: { name: string; }) => tag.name).join(','),
         ),
         createStringColumn<ContentListTable, string>(
             'documentStatusDisplay',
@@ -110,7 +111,7 @@ export function Component() {
                     infoHidden
                     itemsPerPageControlHidden
                     activePage={page}
-                    itemsCount={contentResult?.private.content.count ?? 0}
+                    itemsCount={contentResult?.private.contents.count ?? 0}
                     maxItemsPerPage={PAGE_SIZE}
                     onActivePageChange={setPage}
                 />
@@ -120,7 +121,7 @@ export function Component() {
                 className={styles.table}
                 headerCellClassName={styles.headerCell}
                 headerRowClassName={styles.headerRow}
-                data={contentResult?.private.content.items}
+                data={contentResult?.private.contents.items}
                 columns={columns}
                 keySelector={contentKeySelector}
             />
