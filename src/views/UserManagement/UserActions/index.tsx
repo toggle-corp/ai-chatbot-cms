@@ -1,10 +1,17 @@
-import { useCallback } from 'react';
-import { IoEllipsisVertical } from 'react-icons/io5';
+import {
+    useCallback,
+    useState,
+} from 'react';
+import {
+    IoEllipsisVertical,
+    IoPencil,
+} from 'react-icons/io5';
 import { useParams } from 'react-router-dom';
 import {
     gql,
     useMutation,
 } from '@apollo/client';
+import { Button } from '@togglecorp/toggle-ui';
 
 import DropdownMenu from '#components/DropdownMenu';
 import DropdownMenuItem from '#components/DropdownMenuItem';
@@ -14,6 +21,8 @@ import {
     UserPasswordResetTriggerInput,
 } from '#generated/types/graphql';
 import useAlert from '#hooks/useAlert';
+
+import EditUserModal from '../EditUserModal';
 
 import styles from './styles.module.css';
 
@@ -35,10 +44,18 @@ const PASSWORD_RESET = gql`
 
 function UserActions(props: UserActionsProps) {
     const { userName, isActive } = props;
+    const [showEditModal, setShowEditModal] = useState(false);
     const { userId } = useParams<{
         userId?: string,
     }>();
     const alert = useAlert();
+
+    const handleUserFormModalClose = useCallback(
+        () => {
+            setShowEditModal(false);
+        },
+        [],
+    );
 
     const [triggerPasswordReset] = useMutation<
         PasswordResetTriggerMutation,
@@ -88,6 +105,14 @@ function UserActions(props: UserActionsProps) {
 
     return (
         <div className={styles.userActions}>
+            <Button
+                name={undefined}
+                onClick={() => setShowEditModal(true)}
+                title="Edit"
+                transparent
+            >
+                <IoPencil />
+            </Button>
             <DropdownMenu
                 withoutDropdownIcon
                 icons={(
@@ -151,6 +176,11 @@ function UserActions(props: UserActionsProps) {
                     Reset Password
                 </DropdownMenuItem>
             </DropdownMenu>
+            {showEditModal && (
+                <EditUserModal
+                    onClose={handleUserFormModalClose}
+                />
+            )}
         </div>
     );
 }
