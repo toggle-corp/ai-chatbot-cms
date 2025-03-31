@@ -6,19 +6,24 @@ import {
     IoEllipsisVertical,
     IoPencil,
 } from 'react-icons/io5';
-import { useParams } from 'react-router-dom';
 import {
     gql,
     useMutation,
 } from '@apollo/client';
-import { Button } from '@togglecorp/toggle-ui';
+import {
+    Button,
+    ConfirmButton,
+} from '@togglecorp/toggle-ui';
 
 import DropdownMenu from '#components/DropdownMenu';
 import DropdownMenuItem from '#components/DropdownMenuItem';
 import {
     PasswordResetTriggerMutation,
     PasswordResetTriggerMutationVariables,
+    ResendInviteMutation,
+    ResendInviteMutationVariables,
     UserPasswordResetTriggerInput,
+    UserResendInviteInput,
 } from '#generated/types/graphql';
 import useAlert from '#hooks/useAlert';
 
@@ -27,8 +32,9 @@ import EditUserModal from '../EditUserModal';
 import styles from './styles.module.css';
 
 interface UserActionsProps {
-  userName: string;
-  isActive: boolean;
+    userId: string;
+    userName: string;
+    isActive: boolean;
 }
 
 const PASSWORD_RESET = gql`
@@ -41,13 +47,20 @@ const PASSWORD_RESET = gql`
     }
   }
 `;
+const RESEND_INVITE = gql`
+  mutation ResendInvite($data: UserResendInviteInput!) {
+    public {
+      resendInvite(data: $data) {
+        ok
+        errors
+      }
+    }
+  }
+`;
 
 function UserActions(props: UserActionsProps) {
-    const { userName, isActive } = props;
+    const { userId, userName, isActive } = props;
     const [showEditModal, setShowEditModal] = useState(false);
-    const { userId } = useParams<{
-        userId?: string,
-    }>();
     const alert = useAlert();
 
     const handleUserFormModalClose = useCallback(
@@ -86,22 +99,69 @@ function UserActions(props: UserActionsProps) {
         },
     );
 
+    const [
+        triggerResendInvite,
+    ] = useMutation<ResendInviteMutation, ResendInviteMutationVariables>(
+        RESEND_INVITE,
+        {
+            onCompleted: (response) => {
+                const { errors, ok } = response.public.resendInvite;
+                if (errors) {
+                    alert.show(
+                        'Resend Invite failed',
+                        { variant: 'danger' },
+                    );
+                } else if (ok) {
+                    alert.show(
+                        'Resend Invite  email sent successfully',
+                        { variant: 'success' },
+                    );
+                }
+            },
+            onError: () => {
+                alert.show(
+                    'Resend Invite failed',
+                    { variant: 'danger' },
+                );
+            },
+        },
+    );
+
     const handlePasswordReset = useCallback(() => {
         if (userId) {
-            triggerPasswordReset({
-                variables: {
-                    input: {
-                        userId,
-                    } as UserPasswordResetTriggerInput,
-                },
-            });
-        } else {
             alert.show(
                 'User ID is required to reset password',
                 { variant: 'danger' },
             );
+            return;
         }
+
+        triggerPasswordReset({
+            variables: {
+                input: {
+                    userId,
+                } as UserPasswordResetTriggerInput,
+            },
+        });
     }, [userId, triggerPasswordReset, alert]);
+
+    const handleResendInvite = useCallback(() => {
+        if (userId) {
+            alert.show(
+                'User ID is required to resend invite',
+                { variant: 'danger' },
+            );
+            return;
+        }
+
+        triggerResendInvite({
+            variables: {
+                data: {
+                    userId,
+                } as UserResendInviteInput,
+            },
+        });
+    }, [alert, triggerResendInvite, userId]);
 
     return (
         <div className={styles.userActions}>
@@ -148,19 +208,18 @@ function UserActions(props: UserActionsProps) {
                         >
                             Activate account
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                            type="confirm-button"
+                        <ConfirmButton
                             name="resendInvite"
                             confirmationHeader="Resend Invite"
                             confirmationMessage={`Resend invite to ${userName}?`}
                             confirmLabel="Yes"
                             cancelLabel="No"
                             onCancel={() => {}}
-                            onConfirm={() => {}}
+                            onConfirm={handleResendInvite}
                             transparent
                         >
                             Resend Invite
-                        </DropdownMenuItem>
+                        </ConfirmButton>
                     </>
                 )}
                 <DropdownMenuItem

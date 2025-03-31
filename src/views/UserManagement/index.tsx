@@ -40,10 +40,14 @@ const PAGE_SIZE = 10;
 
 const USERS_QUERY = gql`
     query Users(
-        $pagination: OffsetPaginationInput
+        $pagination: OffsetPaginationInput,
+        $filters: UserFilter
     ) {
         private {
-            users(pagination: $pagination) {
+            users(
+                pagination: $pagination,
+                filters: $filters
+                ) {
                 limit
                 offset
                 count
@@ -61,8 +65,8 @@ const USERS_QUERY = gql`
 `;
 
 const userKeySelector = (option: UserListTable) => option.id;
-const statusKeySelector = (option: { key: string }) => option.key;
-const statusLabelSelector = (option: { key: string }) => option.key;
+const statusKeySelector = (option: { label: string }) => option.label;
+const statusLabelSelector = (option: { label: string }) => option.label;
 
 /** @knipignore */
 // eslint-disable-next-line import/prefer-default-export
@@ -115,7 +119,7 @@ export function Component() {
         createElementColumn<UserListTable, string, {
             userName: string,
             isActive: boolean,
-            userMail: string,
+            userId: string,
          }>(
              'actions',
              'Actions',
@@ -123,7 +127,7 @@ export function Component() {
              (_key, datum) => ({
                  userName: datum.firstName,
                  isActive: datum.isActive,
-                 userMail: datum.email,
+                 userId: datum.id,
              }),
          ),
     ]), []);
