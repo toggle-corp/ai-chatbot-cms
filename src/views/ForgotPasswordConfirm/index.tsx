@@ -10,13 +10,11 @@ import {
 } from '@apollo/client';
 import { isTruthyString } from '@togglecorp/fujs';
 import {
-    addCondition,
     createSubmitHandler,
     getErrorObject,
     ObjectSchema,
     PartialForm,
     requiredStringCondition,
-    undefinedValue,
     useForm,
 } from '@togglecorp/toggle-form';
 import {
@@ -40,7 +38,7 @@ import styles from './styles.module.css';
 
 interface FormFields {
     newPassword?: string;
-    confirmPassword?: string;
+    confirmNewPassword?: string;
 }
 const PASSWORD_RESET_MUTATION = gql`
     mutation PasswordReset($data: UserPasswordReset!) {
@@ -52,7 +50,7 @@ const PASSWORD_RESET_MUTATION = gql`
         }
     }
 `;
-type FormType = Partial<UserPasswordReset & { confirmPassword: string }>;
+type FormType = Partial<UserPasswordReset & { confirmNewPassword: string }>;
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
@@ -67,31 +65,17 @@ function getPasswordMatchCondition(referenceVal: string | undefined) {
 
 const formSchema: FormSchema = {
     fields: (value): FormSchemaFields => {
-        let baseSchema = {
+        const baseSchema = {
             newPassword: {
                 required: true,
                 requiredValidation: requiredStringCondition,
             },
-            confirmPassword: {
+            confirmNewPassword: {
                 required: true,
                 requiredValidation: requiredStringCondition,
+                validations: [getPasswordMatchCondition(value?.newPassword)],
             },
         } as FormSchemaFields;
-
-        baseSchema = addCondition(
-            baseSchema,
-            value,
-            ['newPassword'],
-            ['confirmPassword'],
-            (val) => ({
-                confirmPassword: {
-                    required: true,
-                    requiredValidation: requiredStringCondition,
-                    forceValue: undefinedValue,
-                    validations: [getPasswordMatchCondition(val?.newPassword)],
-                },
-            }),
-        );
 
         return baseSchema;
     },
@@ -102,7 +86,10 @@ const defaultFormValues: PartialForm<FormFields> = {};
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
     const navigate = useNavigate();
-    const { userId, resetToken } = useParams<{ userId?: string, resetToken?: string }>();
+    const { userId, resetToken } = useParams<{
+        userId?: string,
+        resetToken?: string,
+         }>();
     const alert = useAlert();
     const {
         pristine,
@@ -155,17 +142,19 @@ export function Component() {
             }
             if (!resetToken) {
                 alert.show(
-                    'tokenMissingMessage',
+                    'Token is missing',
                     { variant: 'warning' },
                 );
                 return;
             }
+            const { confirmNewPassword, ...mutationData } = formValues;
             passwordResetConfirm({
                 variables: {
                     data: {
-                        newPassword: formValues.newPassword,
+                        ...mutationData,
                         token: resetToken,
                         uuid: userId,
+                        confirmNewPassword,
                     } as UserPasswordReset,
                 },
             });
@@ -216,11 +205,11 @@ export function Component() {
                         autoFocus
                     />
                     <PasswordInput
-                        name="confirmPassword"
+                        name="confirmNewPassword"
                         label="Confirm new Password"
-                        value={formValue.confirmPassword}
+                        value={formValue.confirmNewPassword}
                         onChange={setFieldValue}
-                        error={fieldError?.confirmPassword}
+                        error={fieldError?.confirmNewPassword}
                         disabled={loading}
                     />
                     <Button
