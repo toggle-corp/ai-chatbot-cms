@@ -28,9 +28,9 @@ import organizationName from '#assets/organizationName.svg';
 import Container from '#components/Container';
 import Page from '#components/Page';
 import {
-    PasswordResetTriggerMutation,
-    PasswordResetTriggerMutationVariables,
-    UserPasswordResetInput,
+    ForgotPasswordMutation,
+    ForgotPasswordMutationVariables,
+    ResetUserPassword,
 } from '#generated/types/graphql';
 import useAlert from '#hooks/useAlert';
 import { transformToFormError } from '#utils/errorTransform';
@@ -38,16 +38,16 @@ import { transformToFormError } from '#utils/errorTransform';
 import styles from './styles.module.css';
 
 const FORGOT_PASSWORD = gql`
-  mutation passwordResetTrigger($input: UserPasswordResetInput!) {
+  mutation forgotPassword($input: ResetUserPassword!) {
     public {
-      passwordResetTrigger(data: $input) {
+        forgotPassword(data: $input) {
         errors
         ok
       }
     }
   }
 `;
-type PartialFormType = PartialForm<PasswordResetTriggerMutationVariables['input']>
+type PartialFormType = PartialForm<ResetUserPassword>
 type FormSchema = ObjectSchema<PartialFormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
@@ -82,17 +82,17 @@ export function Component() {
     const [
         requestPasswordRecovery,
         { loading },
-    ] = useMutation< PasswordResetTriggerMutation, PasswordResetTriggerMutationVariables>(
+    ] = useMutation<ForgotPasswordMutation, ForgotPasswordMutationVariables>(
         FORGOT_PASSWORD,
         {
             onCompleted: (response) => {
                 const {
-                    public: { passwordResetTrigger },
+                    public: { forgotPassword },
                 } = response;
-                if (passwordResetTrigger?.ok) {
+                if (forgotPassword?.ok) {
                     setIsSubmitted(true);
-                } else if (passwordResetTrigger.errors) {
-                    const formErrors = transformToFormError(passwordResetTrigger.errors);
+                } else if (forgotPassword.errors) {
+                    const formErrors = transformToFormError(forgotPassword.errors);
                     setError(formErrors);
                     alert.show(
                         'Could not recover account!',
@@ -119,7 +119,7 @@ export function Component() {
                     variables: {
                         input: {
                             email: formValues.email,
-                        } as UserPasswordResetInput,
+                        } as ResetUserPassword,
                     },
                 });
             },

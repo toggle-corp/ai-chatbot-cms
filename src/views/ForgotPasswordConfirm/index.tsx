@@ -29,9 +29,9 @@ import organizationName from '#assets/organizationName.svg';
 import Container from '#components/Container';
 import Page from '#components/Page';
 import {
-    PasswordResetConfirmMutation,
-    PasswordResetConfirmMutationVariables,
-    UserPasswordResetConfirmInput,
+    PasswordResetMutation,
+    PasswordResetMutationVariables,
+    UserPasswordReset,
 } from '#generated/types/graphql';
 import useAlert from '#hooks/useAlert';
 import { transformToFormError } from '#utils/errorTransform';
@@ -42,17 +42,17 @@ interface FormFields {
     newPassword?: string;
     confirmPassword?: string;
 }
-const PASSWORD_RESET_CONFIRM_MUTATION = gql`
-    mutation PasswordResetConfirm($data: UserPasswordResetConfirmInput!) {
+const PASSWORD_RESET_MUTATION = gql`
+    mutation PasswordReset($data: UserPasswordReset!) {
         public {
-            passwordResetConfirm(data: $data) {
+            passwordReset(data: $data) {
                 errors
                 ok
             }
         }
     }
 `;
-type FormType = Partial<UserPasswordResetConfirmInput & { confirmPassword: string }>;
+type FormType = Partial<UserPasswordReset & { confirmPassword: string }>;
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
@@ -114,11 +114,11 @@ export function Component() {
     } = useForm(formSchema, { value: defaultFormValues });
 
     const [passwordResetConfirm, { loading }] = useMutation<
-        PasswordResetConfirmMutation,
-        PasswordResetConfirmMutationVariables
-    >(PASSWORD_RESET_CONFIRM_MUTATION, {
+        PasswordResetMutation,
+        PasswordResetMutationVariables
+    >(PASSWORD_RESET_MUTATION, {
         onCompleted: (data) => {
-            if (data.public.passwordResetConfirm.ok) {
+            if (data.public.passwordReset.ok) {
                 alert.show(
                     'Password Changed!',
                     {
@@ -128,9 +128,9 @@ export function Component() {
                 navigate('/login');
             } else {
                 setError(transformToFormError(
-                    data.public.passwordResetConfirm.errors,
+                    data.public.passwordReset.errors,
                 ));
-                const errorMessages = data.public.passwordResetConfirm?.errors
+                const errorMessages = data.public.passwordReset?.errors
                     ?.map((error: { messages: string; }) => error.messages)
                     .filter((message: string) => message)
                     .join(', ');
@@ -166,7 +166,7 @@ export function Component() {
                         newPassword: formValues.newPassword,
                         token: resetToken,
                         uuid: userId,
-                    } as UserPasswordResetConfirmInput,
+                    } as UserPasswordReset,
                 },
             });
         },
