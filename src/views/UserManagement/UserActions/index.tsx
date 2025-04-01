@@ -1,7 +1,4 @@
-import {
-    useCallback,
-    useState,
-} from 'react';
+import { useState } from 'react';
 import {
     IoEllipsisVertical,
     IoPencil,
@@ -10,10 +7,8 @@ import {
     gql,
     useMutation,
 } from '@apollo/client';
-import {
-    Button,
-    ConfirmButton,
-} from '@togglecorp/toggle-ui';
+import { isNotDefined } from '@togglecorp/fujs';
+import { Button } from '@togglecorp/toggle-ui';
 
 import DropdownMenu from '#components/DropdownMenu';
 import DropdownMenuItem from '#components/DropdownMenuItem';
@@ -28,6 +23,7 @@ import {
 import useAlert from '#hooks/useAlert';
 
 import EditUserModal from '../EditUserModal';
+import ConfirmationModal from './ConfirmationModal';
 
 import styles from './styles.module.css';
 
@@ -58,50 +54,48 @@ const RESEND_INVITE = gql`
   }
 `;
 
-function UserActions(props: UserActionsProps) {
-    const { userId, userName, isActive } = props;
+function UserActions({
+    userId, userName, isActive,
+}: UserActionsProps) {
+    // Note : We Have to replace useState  with useBooleanState
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
+    const [showResendInviteModal, setShowResendInviteModal] = useState(false);
+
     const alert = useAlert();
 
-    const handleUserFormModalClose = useCallback(
-        () => {
-            setShowEditModal(false);
-        },
-        [],
-    );
-
     const [triggerPasswordReset] = useMutation<
-        PasswordResetTriggerMutation,
-        PasswordResetTriggerMutationVariables
-    >(
-        PASSWORD_RESET,
-        {
-            onCompleted: (response) => {
-                const { errors, ok } = response.public.passwordResetTrigger;
-                if (errors) {
-                    alert.show(
-                        'Password reset failed',
-                        { variant: 'danger' },
-                    );
-                } else if (ok) {
-                    alert.show(
-                        'Password reset email sent successfully',
-                        { variant: 'success' },
-                    );
-                }
-            },
-            onError: () => {
+    PasswordResetTriggerMutation,
+    PasswordResetTriggerMutationVariables
+>(
+    PASSWORD_RESET,
+    {
+        onCompleted: (response) => {
+            const { errors, ok } = response.public.passwordResetTrigger;
+            if (errors) {
                 alert.show(
                     'Password reset failed',
                     { variant: 'danger' },
                 );
-            },
+            } else if (ok) {
+                alert.show(
+                    'Password reset email sent successfully',
+                    { variant: 'success' },
+                );
+            }
         },
-    );
-
-    const [
-        triggerResendInvite,
-    ] = useMutation<ResendInviteMutation, ResendInviteMutationVariables>(
+        onError: () => {
+            alert.show(
+                'Password reset failed',
+                { variant: 'danger' },
+            );
+        },
+    },
+);
+    const [triggerResendInvite] = useMutation<
+        ResendInviteMutation,
+        ResendInviteMutationVariables
+    >(
         RESEND_INVITE,
         {
             onCompleted: (response) => {
@@ -113,7 +107,7 @@ function UserActions(props: UserActionsProps) {
                     );
                 } else if (ok) {
                     alert.show(
-                        'Resend Invite  email sent successfully',
+                        'Resend invitation email sent successfully',
                         { variant: 'success' },
                     );
                 }
@@ -127,8 +121,8 @@ function UserActions(props: UserActionsProps) {
         },
     );
 
-    const handlePasswordReset = useCallback(() => {
-        if (userId) {
+    const handlePasswordReset = () => {
+        if (isNotDefined(userId)) {
             alert.show(
                 'User ID is required to reset password',
                 { variant: 'danger' },
@@ -138,30 +132,25 @@ function UserActions(props: UserActionsProps) {
 
         triggerPasswordReset({
             variables: {
-                input: {
-                    userId,
-                } as UserPasswordResetTriggerInput,
+                input: { userId } as UserPasswordResetTriggerInput,
             },
         });
-    }, [userId, triggerPasswordReset, alert]);
+    };
 
-    const handleResendInvite = useCallback(() => {
-        if (userId) {
+    const handleResendInvite = () => {
+        if (isNotDefined(userId)) {
             alert.show(
                 'User ID is required to resend invite',
                 { variant: 'danger' },
             );
             return;
         }
-
         triggerResendInvite({
             variables: {
-                data: {
-                    userId,
-                } as UserResendInviteInput,
+                data: { userId } as UserResendInviteInput,
             },
         });
-    }, [alert, triggerResendInvite, userId]);
+    };
 
     return (
         <div className={styles.userActions}>
@@ -175,69 +164,70 @@ function UserActions(props: UserActionsProps) {
             </Button>
             <DropdownMenu
                 withoutDropdownIcon
-                icons={(
-                    <IoEllipsisVertical />
-                )}
+                icons={<IoEllipsisVertical />}
             >
                 {isActive ? (
                     <DropdownMenuItem
-                        type="confirm-button"
+                        type="button"
                         name="deactivation"
-                        confirmationHeader="Deactivate User"
-                        confirmationMessage={`Are you sure you want to deactivate ${userName}'s account?`}
-                        confirmLabel="Yes"
-                        cancelLabel="No"
-                        onCancel={() => {}}
-                        onConfirm={() => {}}
-                        transparent
+                        onClick={() => {}}
                     >
                         Deactivate account
                     </DropdownMenuItem>
                 ) : (
                     <>
                         <DropdownMenuItem
-                            type="confirm-button"
-                            name="activation"
-                            confirmationHeader="Activate User"
-                            confirmationMessage={`Are you sure you want to activate ${userName}'s account?`}
-                            confirmLabel="Yes"
-                            cancelLabel="No"
-                            onCancel={() => {}}
-                            onConfirm={() => {}}
-                            transparent
-                        >
-                            Activate account
-                        </DropdownMenuItem>
-                        <ConfirmButton
+                            type="button"
                             name="resendInvite"
-                            confirmationHeader="Resend Invite"
-                            confirmationMessage={`Resend invite to ${userName}?`}
-                            confirmLabel="Yes"
-                            cancelLabel="No"
-                            onCancel={() => {}}
-                            onConfirm={handleResendInvite}
-                            transparent
+                            onClick={() => setShowResendInviteModal(true)}
                         >
                             Resend Invite
-                        </ConfirmButton>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            type="button"
+                            name="activation"
+                            onClick={() => {}}
+                        >
+                            Activate Account
+                        </DropdownMenuItem>
                     </>
                 )}
                 <DropdownMenuItem
-                    type="confirm-button"
+                    type="button"
                     name="resetPassword"
-                    confirmationHeader="Reset Password"
-                    confirmationMessage={`Reset Password for ${userName}?`}
-                    confirmLabel="Yes"
-                    cancelLabel="No"
-                    onConfirm={handlePasswordReset}
-                    transparent
+                    onClick={() => setShowResetPasswordModal(true)}
                 >
                     Reset Password
                 </DropdownMenuItem>
             </DropdownMenu>
+
             {showEditModal && (
                 <EditUserModal
-                    onClose={handleUserFormModalClose}
+                    onClose={() => setShowEditModal(false)}
+                />
+            )}
+
+            {showResetPasswordModal && (
+                <ConfirmationModal
+                    confirmationHeading="Reset Password"
+                    confirmationMessage={`Reset password for ${userName}?`}
+                    onClose={() => setShowResetPasswordModal(false)}
+                    onConfirm={() => {
+                        handlePasswordReset();
+                        setShowResetPasswordModal(false);
+                    }}
+                />
+            )}
+
+            {showResendInviteModal && (
+                <ConfirmationModal
+                    confirmationHeading="Resend Invite"
+                    confirmationMessage={`Resend invite to ${userName}?`}
+                    onClose={() => setShowResendInviteModal(false)}
+                    onConfirm={() => {
+                        handleResendInvite();
+                        setShowResendInviteModal(false);
+                    }}
                 />
             )}
         </div>

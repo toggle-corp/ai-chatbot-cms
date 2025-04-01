@@ -143,7 +143,7 @@ function DropdownMenuItem<NAME extends string | number | undefined>(props: Props
             <ConfirmButton
                 // eslint-disable-next-line react/jsx-props-no-spreading
                 {...otherProps}
-                onClick={handleConfirmButtonClick}
+                onConfirm={handleConfirmButtonClick}
             />
         );
     }
