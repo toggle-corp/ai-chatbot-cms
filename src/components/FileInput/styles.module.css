@@ -1,0 +1,31 @@
+.input-container {
+    .label {
+        color: var(--cms-ui-color-gray-500);
+        font-size: var(--cms-ui-font-size-xl);
+    }
+
+    .input-section {
+        border: 2px dashed var(--cms-ui-color-gray-50);
+        background-color: var(--cms-ui-color-gray-20);
+
+        .input-children {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            gap: var(--cms-ui-spacing-lg);
+
+            .header-children {
+                align-items: center;
+            }
+
+            .browse-button {
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+            }
+        }
+        .input {
+            visibility: hidden;
+        }
+    }
+}

@@ -20,13 +20,15 @@ import {
     ContentListQuery,
     ContentListQueryVariables,
 } from '#generated/types/graphql';
+import useBooleanState from '#hooks/useBooleanState';
 import useFilterState from '#hooks/useFilterState';
 
+import AddContentModal from './AddContentModal';
 import ContentActions from './ContentActions';
 
 import styles from './styles.module.css';
 
-type ContentListTable = NonNullable<NonNullable<NonNullable<ContentListQuery['private']>['contents']>['items']>[number] & {serialNumber: string; };
+type ContentListTable = NonNullable<NonNullable<NonNullable<ContentListQuery['private']>['contents']>['items']>[number] & { serialNumber: string; };
 
 const contentKeySelector = (option: ContentListTable) => option.id;
 
@@ -91,6 +93,15 @@ export function Component() {
         pageSize: PAGE_SIZE,
         filter: {},
     });
+
+    const [
+        showAddModal,
+        {
+            setTrue: setShowAddModalTrue,
+            setFalse: setShowAddModalFalse,
+        },
+    ] = useBooleanState(false);
+
     const {
         data: contentResult,
     } = useQuery<ContentListQuery, ContentListQueryVariables>(
@@ -156,28 +167,28 @@ export function Component() {
             { columnClassName: styles.actions },
         ),
         createElementColumn<ContentListTable, string,
-        { status: string | undefined; variant: string }>(
-            'documentStatusDisplay',
-            'Status',
-            ({ status, variant }) => (
-                <Chip
-                    label={status}
-                    variant={variant as ChipVariant}
-                />
+            { status: string | undefined; variant: string }>(
+                'documentStatusDisplay',
+                'Status',
+                ({ status, variant }) => (
+                    <Chip
+                        label={status}
+                        variant={variant as ChipVariant}
+                    />
+                ),
+                (_key, item) => {
+                    const statusLabel = documentStatus?.find(
+                        (status: { key: string; }) => status.key === item.documentStatus,
+                    )?.label;
+                    const variant = statusLabel ? statusVariant[statusLabel] : '';
+                    return {
+                        status: statusLabel,
+                        variant,
+                    };
+                },
+                { columnClassName: styles.actions },
             ),
-            (_key, item) => {
-                const statusLabel = documentStatus?.find(
-                    (status: { key: string; }) => status.key === item.documentStatus,
-                )?.label;
-                const variant = statusLabel ? statusVariant[statusLabel] : '';
-                return {
-                    status: statusLabel,
-                    variant,
-                };
-            },
-            { columnClassName: styles.actions },
-        ),
-        createElementColumn<ContentListTable, string, { id: number}>(
+        createElementColumn<ContentListTable, string, { id: number }>(
             'actions',
             'Actions',
             ContentActions,
@@ -189,40 +200,46 @@ export function Component() {
     ]), [documentType, documentStatus]);
 
     return (
-        <Container
-            className={styles.container}
-            showHeader
-            heading="Content"
-            actions={(
-                <Button
-                    name="Add Content"
-                    variant="primary"
-                    onClick={() => { }}
-                    disabled
-                >
-                    Add
-                </Button>
-            )}
-            footerActions={(
-                <Pager
-                    infoHidden
-                    itemsPerPageControlHidden
-                    activePage={page}
-                    itemsCount={contentResult?.private?.contents?.count ?? 0}
-                    maxItemsPerPage={PAGE_SIZE}
-                    onActivePageChange={setPage}
+        <>
+            <Container
+                className={styles.container}
+                showHeader
+                heading="Content"
+                actions={(
+                    <Button
+                        name="Add Content"
+                        variant="primary"
+                        onClick={setShowAddModalTrue}
+                    >
+                        Add
+                    </Button>
+                )}
+                footerActions={(
+                    <Pager
+                        infoHidden
+                        itemsPerPageControlHidden
+                        activePage={page}
+                        itemsCount={contentResult?.private.contents.count ?? 0}
+                        maxItemsPerPage={PAGE_SIZE}
+                        onActivePageChange={setPage}
+                    />
+                )}
+            >
+                <Table
+                    className={styles.table}
+                    headerCellClassName={styles.headerCell}
+                    headerRowClassName={styles.headerRow}
+                    data={data}
+                    columns={columns}
+                    keySelector={contentKeySelector}
+                />
+            </Container>
+            {showAddModal && (
+                <AddContentModal
+                    onClose={setShowAddModalFalse}
                 />
             )}
-        >
-            <Table
-                className={styles.table}
-                headerCellClassName={styles.headerCell}
-                headerRowClassName={styles.headerRow}
-                data={data}
-                columns={columns}
-                keySelector={contentKeySelector}
-            />
-        </Container>
+        </>
     );
 }
 
