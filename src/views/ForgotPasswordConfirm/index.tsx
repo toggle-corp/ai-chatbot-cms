@@ -132,7 +132,7 @@ export function Component() {
         },
     });
     const handleChangePassword = useCallback(
-        (formValues: FormFields) => {
+        () => {
             if (!userId) {
                 alert.show(
                     'Uuid is missing',
@@ -147,19 +147,24 @@ export function Component() {
                 );
                 return;
             }
-            const { confirmNewPassword, ...mutationData } = formValues;
+            if (!formValue.newPassword) {
+                alert.show(
+                    'New password is required',
+                    { variant: 'warning' },
+                );
+                return;
+            }
             passwordResetConfirm({
                 variables: {
                     data: {
-                        ...mutationData,
                         token: resetToken,
                         uuid: userId,
-                        confirmNewPassword,
+                        newPassword: formValue.newPassword,
                     } as UserPasswordReset,
                 },
             });
         },
-        [passwordResetConfirm, userId, resetToken, alert],
+        [passwordResetConfirm, userId, resetToken, formValue.newPassword, alert],
     );
     const handleSubmit = createSubmitHandler(validate, setError, handleChangePassword);
 
