@@ -1,5 +1,4 @@
 import {
-    useCallback,
     useMemo,
     useState,
 } from 'react';
@@ -28,6 +27,7 @@ import {
     UsersQueryVariables,
     UserType,
 } from '#generated/types/graphql';
+import useBooleanState from '#hooks/useBooleanState';
 
 import AddUserModal from './AddUserModal';
 import UserActions from './UserActions';
@@ -72,7 +72,11 @@ const statusLabelSelector = (option: { label: string }) => option.label;
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
     const [page, setPage] = useState<number>(1);
-    const [showAddModal, setShowAddModal] = useState(false);
+    const [showAddModal, {
+        setTrue: setShowAddModalTrue,
+        setFalse: setShowAddModalFalse,
+    }] = useBooleanState(false);
+
     const { data: userResult } = useQuery<UsersQuery, UsersQueryVariables>(
         USERS_QUERY,
         {
@@ -83,13 +87,6 @@ export function Component() {
                 },
             },
         },
-    );
-
-    const handleAddUserFormModalClose = useCallback(
-        () => {
-            setShowAddModal(false);
-        },
-        [],
     );
 
     const columns = useMemo(() => ([
@@ -168,7 +165,7 @@ export function Component() {
                     <Button
                         name="Add User"
                         variant="primary"
-                        onClick={() => setShowAddModal(true)}
+                        onClick={setShowAddModalTrue}
                         icons={<IoAddCircleSharp />}
                     >
                         Add user
@@ -196,7 +193,7 @@ export function Component() {
             />
             {showAddModal && (
                 <AddUserModal
-                    onClose={handleAddUserFormModalClose}
+                    onClose={setShowAddModalFalse}
                 />
             )}
         </Container>
