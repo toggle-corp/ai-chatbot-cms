@@ -15,11 +15,6 @@
             flex-direction: column;
             gap: var(--cms-ui-spacing-sm);
         }
-    
-        .form-content {
-            width: 35rem;
-        }
-    
         .form {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
