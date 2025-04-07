@@ -16,6 +16,7 @@ import {
 } from '@togglecorp/toggle-form';
 import {
     Button,
+    PasswordInput,
     TextInput,
 } from '@togglecorp/toggle-ui';
 
@@ -86,7 +87,6 @@ export function Component() {
         setFieldValue,
         validate,
         setError,
-        setValue,
     } = useForm(EditProfileSchema, { value: defaultFormValues });
 
     const [
@@ -101,10 +101,6 @@ export function Component() {
                     return;
                 }
                 if (response.ok) {
-                    setValue((prevValue) => ({
-                        ...prevValue,
-                        email: response.result?.email ?? '',
-                    }));
                     alert.show(
                         'Updated Successfully',
                         {
@@ -129,9 +125,11 @@ export function Component() {
     );
 
     const handleUpdateUserSubmit = useCallback((finalValue: PartialFormType) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { email, ...inputWithoutEmail } = finalValue;
         triggerUpdateMe({
             variables: {
-                input: finalValue as UserMeInput,
+                input: inputWithoutEmail as UserMeInput,
             },
         });
     }, [triggerUpdateMe]);
@@ -151,7 +149,6 @@ export function Component() {
                         src={displayImage}
                         alt="display"
                     />
-                    {/* FIXME: Add Display name after server side ready */}
                     <div className={styles.displayContent}>
                         <h1>
                             {userAuth?.firstName}
@@ -162,31 +159,38 @@ export function Component() {
                     </div>
                 </div>
 
-                <Container className={styles.formContent}>
-                    <form className={styles.form}>
-                        <TextInput
-                            className={styles.fullSizeInput}
-                            label="Email"
-                            name="email"
-                            autoFocus
-                            value={value?.email}
-                            error={error?.email}
-                            readOnly
-                        />
-                        <TextInput
-                            name="firstName"
-                            label="First Name"
-                            value={value?.firstName}
-                            error={error?.firstName}
-                            onChange={setFieldValue}
-                        />
-                        <TextInput
-                            name="lastName"
-                            value={value?.lastName}
-                            label="Last Name"
-                            error={error?.lastName}
-                            onChange={setFieldValue}
-                        />
+                <Container
+                    className={styles.formContent}
+                    showHeader
+                    headingDescription={(
+                        <div className={styles.form}>
+                            <TextInput
+                                className={styles.fullSizeInput}
+                                label="Email"
+                                name="email"
+                                autoFocus
+                                value={value?.email}
+                                error={error?.email}
+                                readOnly
+                            />
+                            <TextInput
+                                name="firstName"
+                                label="First Name"
+                                value={value?.firstName}
+                                error={error?.firstName}
+                                onChange={setFieldValue}
+                            />
+                            <TextInput
+                                name="lastName"
+                                value={value?.lastName}
+                                label="Last Name"
+                                error={error?.lastName}
+                                onChange={setFieldValue}
+                            />
+                        </div>
+                    )}
+                    withHeaderBorder
+                    footerContent={(
                         <div className={styles.actions}>
                             <Button
                                 className={styles.loginButton}
@@ -205,10 +209,37 @@ export function Component() {
                                 name="save"
                                 onClick={handleSubmit}
                             >
-                                Save
+                                Save Changes
                             </Button>
                         </div>
-                    </form>
+                    )}
+                >
+                    <div className={styles.form}>
+                        <PasswordInput
+                            name="oldPassword"
+                            label="Old Password"
+                            value={undefined}
+                            onChange={() => {}}
+                            error={undefined}
+                            disabled={false}
+                        />
+                        <PasswordInput
+                            name="newPassword"
+                            label="New Password"
+                            value={undefined}
+                            onChange={() => {}}
+                            error={undefined}
+                            disabled={false}
+                        />
+                        <PasswordInput
+                            name="confirmNewPassword"
+                            label="Confirm New Password"
+                            value={undefined}
+                            onChange={() => {}}
+                            error={undefined}
+                            disabled={false}
+                        />
+                    </div>
                 </Container>
             </Container>
         </Page>
