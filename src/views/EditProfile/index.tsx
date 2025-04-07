@@ -124,7 +124,7 @@ export function Component() {
                 } else if (ok) {
                     setPristine(true);
                     alert.show(
-                        'Successfully updated your profile!',
+                        'Successfully updated!',
                         { variant: 'success' },
                     );
                 }
@@ -132,7 +132,7 @@ export function Component() {
             onError: (errors) => {
                 setError({ [nonFieldError]: errors.message });
                 alert.show(
-                    'There was an error updating your profile!',
+                    'There was an error updating!',
                     { variant: 'danger' },
                 );
             },
@@ -159,14 +159,14 @@ export function Component() {
         }
     }, [setFieldValue]);
 
-    const handleProfilePictureClick = useCallback(() => {
-        document.getElementById('profilePictureInput')?.click();
-    }, []);
-
     const handleSubmit = (_name: 'save', e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         createSubmitHandler(validate, setError, handleUpdateUserSubmit)();
     };
+
+    const handleProfilePictureClick = useCallback(() => {
+        document.getElementById('profilePictureInput')?.click();
+    }, []);
 
     const error = getErrorObject(formError);
 
