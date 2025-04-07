@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
     IoEllipsisVertical,
     IoPencil,
@@ -21,6 +20,7 @@ import {
     UserResendInviteInput,
 } from '#generated/types/graphql';
 import useAlert from '#hooks/useAlert';
+import useBooleanState from '#hooks/useBooleanState';
 
 import EditUserModal from '../EditUserModal';
 import ConfirmationModal from './ConfirmationModal';
@@ -57,45 +57,54 @@ const RESEND_INVITE = gql`
 function UserActions({
     userId, userName, isActive,
 }: UserActionsProps) {
-    // Note : We Have to replace useState  with useBooleanState
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
-    const [showResendInviteModal, setShowResendInviteModal] = useState(false);
+    const [showEditModal,
+        {
+            setTrue: setShowEditModalTrue,
+            setFalse: setShowEditModalFalse,
+        }] = useBooleanState(false);
+    const [showResetPasswordModal,
+        {
+            setTrue: setResetPasswordModalTrue,
+            setFalse: setResetPasswordModalFalse,
+        }] = useBooleanState(false);
+    const [showResendInviteModal,
+        {
+            setTrue: setResendInviteModalTrue,
+            setFalse: setResendInviteModalFalse,
+        }] = useBooleanState(false);
 
     const alert = useAlert();
 
-    const [triggerPasswordReset] = useMutation<
-    PasswordResetTriggerMutation,
-    PasswordResetTriggerMutationVariables
->(
-    PASSWORD_RESET,
-    {
-        onCompleted: (response) => {
-            const { errors, ok } = response.public.passwordResetTrigger;
-            if (errors) {
+    const [
+        triggerPasswordReset,
+    ] = useMutation<PasswordResetTriggerMutation, PasswordResetTriggerMutationVariables>(
+        PASSWORD_RESET,
+        {
+            onCompleted: (response) => {
+                const { errors, ok } = response.public.passwordResetTrigger;
+                if (errors) {
+                    alert.show(
+                        'Password reset failed',
+                        { variant: 'danger' },
+                    );
+                } else if (ok) {
+                    alert.show(
+                        'Password reset email sent successfully',
+                        { variant: 'success' },
+                    );
+                }
+            },
+            onError: () => {
                 alert.show(
                     'Password reset failed',
                     { variant: 'danger' },
                 );
-            } else if (ok) {
-                alert.show(
-                    'Password reset email sent successfully',
-                    { variant: 'success' },
-                );
-            }
+            },
         },
-        onError: () => {
-            alert.show(
-                'Password reset failed',
-                { variant: 'danger' },
-            );
-        },
-    },
-);
-    const [triggerResendInvite] = useMutation<
-        ResendInviteMutation,
-        ResendInviteMutationVariables
-    >(
+    );
+    const [
+        triggerResendInvite,
+    ] = useMutation<ResendInviteMutation, ResendInviteMutationVariables>(
         RESEND_INVITE,
         {
             onCompleted: (response) => {
@@ -156,7 +165,7 @@ function UserActions({
         <div className={styles.userActions}>
             <Button
                 name={undefined}
-                onClick={() => setShowEditModal(true)}
+                onClick={setShowEditModalTrue}
                 title="Edit"
                 transparent
             >
@@ -179,7 +188,7 @@ function UserActions({
                         <DropdownMenuItem
                             type="button"
                             name="resendInvite"
-                            onClick={() => setShowResendInviteModal(true)}
+                            onClick={setResendInviteModalTrue}
                         >
                             Resend Invite
                         </DropdownMenuItem>
@@ -195,7 +204,7 @@ function UserActions({
                 <DropdownMenuItem
                     type="button"
                     name="resetPassword"
-                    onClick={() => setShowResetPasswordModal(true)}
+                    onClick={setResetPasswordModalTrue}
                 >
                     Reset Password
                 </DropdownMenuItem>
@@ -203,7 +212,7 @@ function UserActions({
 
             {showEditModal && (
                 <EditUserModal
-                    onClose={() => setShowEditModal(false)}
+                    onClose={setShowEditModalFalse}
                 />
             )}
 
@@ -211,10 +220,10 @@ function UserActions({
                 <ConfirmationModal
                     confirmationHeading="Reset Password"
                     confirmationMessage={`Reset password for ${userName}?`}
-                    onClose={() => setShowResetPasswordModal(false)}
+                    onClose={setResetPasswordModalFalse}
                     onConfirm={() => {
                         handlePasswordReset();
-                        setShowResetPasswordModal(false);
+                        setResetPasswordModalFalse();
                     }}
                 />
             )}
@@ -223,10 +232,10 @@ function UserActions({
                 <ConfirmationModal
                     confirmationHeading="Resend Invite"
                     confirmationMessage={`Resend invite to ${userName}?`}
-                    onClose={() => setShowResendInviteModal(false)}
+                    onClose={setResendInviteModalFalse}
                     onConfirm={() => {
                         handleResendInvite();
-                        setShowResendInviteModal(false);
+                        setResendInviteModalFalse();
                     }}
                 />
             )}

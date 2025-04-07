@@ -100,37 +100,40 @@ export function Component() {
         validate,
     } = useForm(formSchema, { value: defaultFormValues });
 
-    const [passwordResetConfirm, { loading }] = useMutation<
-        PasswordResetMutation,
-        PasswordResetMutationVariables
-    >(PASSWORD_RESET_MUTATION, {
-        onCompleted: (data) => {
-            if (data.public.passwordReset.ok) {
+    const [
+        passwordResetConfirm,
+        { loading },
+    ] = useMutation<PasswordResetMutation, PasswordResetMutationVariables>(
+        PASSWORD_RESET_MUTATION,
+        {
+            onCompleted: (data) => {
+                if (data.public.passwordReset.ok) {
+                    alert.show(
+                        'Password Changed!',
+                        {
+                            variant: 'success',
+                        },
+                    );
+                    navigate('/login');
+                } else {
+                    setError(transformToFormError(
+                        data.public.passwordReset.errors,
+                    ));
+                    const errorMessages = data.public.passwordReset?.errors
+                        ?.map((error: { messages: string; }) => error.messages)
+                        .filter((message: string) => message)
+                        .join(', ');
+                    alert.show(errorMessages, { variant: 'danger' });
+                }
+            },
+            onError: () => {
                 alert.show(
-                    'Password Changed!',
-                    {
-                        variant: 'success',
-                    },
+                    'Could not change password!',
+                    { variant: 'danger' },
                 );
-                navigate('/login');
-            } else {
-                setError(transformToFormError(
-                    data.public.passwordReset.errors,
-                ));
-                const errorMessages = data.public.passwordReset?.errors
-                    ?.map((error: { messages: string; }) => error.messages)
-                    .filter((message: string) => message)
-                    .join(', ');
-                alert.show(errorMessages, { variant: 'danger' });
-            }
+            },
         },
-        onError: () => {
-            alert.show(
-                'Could not change password!',
-                { variant: 'danger' },
-            );
-        },
-    });
+    );
     const handleChangePassword = useCallback(
         () => {
             if (!userId) {

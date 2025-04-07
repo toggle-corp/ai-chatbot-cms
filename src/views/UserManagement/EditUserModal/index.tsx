@@ -63,7 +63,7 @@ function EditUserModal(props: Props) {
                         name="save"
                         disabled={pristine}
                         variant="primary"
-                        onClick={() => {}}
+                        onClick={() => {}} // FIXME : Add Submission logic here
                     >
                         Save
                     </Button>
@@ -74,7 +74,7 @@ function EditUserModal(props: Props) {
                 label="User Role"
                 placeholder="User Role"
                 name="userRole"
-                options={[]}
+                options={[]} // FIXME : add options after server side is ready
                 keySelector={keySelector}
                 labelSelector={labelSelector}
                 value={undefined}
