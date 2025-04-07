@@ -10,6 +10,7 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
+import { isDefined } from '@togglecorp/fujs';
 import {
     Button,
     Chip,
@@ -28,6 +29,7 @@ import {
     UserType,
 } from '#generated/types/graphql';
 import useBooleanState from '#hooks/useBooleanState';
+import useFilterState from '#hooks/useFilterState';
 
 import AddUserModal from './AddUserModal';
 import UserActions from './UserActions';
@@ -65,8 +67,9 @@ const USERS_QUERY = gql`
 `;
 
 const userKeySelector = (option: UserListTable) => option.id;
-const statusKeySelector = (option: { label: string }) => option.label;
-const statusLabelSelector = (option: { label: string }) => option.label;
+
+const statusKeySelector = (option: { isActive: boolean }) => String(option.isActive);
+const statusLabelSelector = (option: { isActive: boolean }) => String(option.isActive);
 
 /** @knipignore */
 // eslint-disable-next-line import/prefer-default-export
@@ -77,15 +80,32 @@ export function Component() {
         setFalse: setShowAddModalFalse,
     }] = useBooleanState(false);
 
+    const {
+        filter,
+        setFilterField,
+    } = useFilterState<{
+        displayName?: string;
+        isActive?: boolean;
+    }>({
+        filter: {},
+        pageSize: PAGE_SIZE,
+    });
+
+    const variables = {
+        pagination: {
+            limit: 10,
+            offset: (page - 1) * PAGE_SIZE,
+        },
+        filters: {
+            displayName: filter.displayName ? { contains: filter.displayName } : undefined,
+            isActive: filter.isActive !== undefined ? { exact: !!filter.isActive } : undefined,
+        },
+    };
+
     const { data: userResult } = useQuery<UsersQuery, UsersQueryVariables>(
         USERS_QUERY,
         {
-            variables: {
-                pagination: {
-                    limit: PAGE_SIZE,
-                    offset: (page - 1) * PAGE_SIZE,
-                },
-            },
+            variables,
         },
     );
 
@@ -140,19 +160,20 @@ export function Component() {
                 <div className={styles.actions}>
                     <TextInput
                         placeholder="Enter Name"
-                        onChange={() => {}}
-                        value={undefined}
-                        name="search"
+                        onChange={setFilterField}
+                        value={filter.displayName}
+                        name="displayName"
                         icons={<IoSearchOutline />}
                     />
                     <SelectInput
                         placeholder="Active Status"
-                        name="status"
-                        options={[]}
+                        name="isActive"
+                        options={userResult?.private.users?.items}
                         keySelector={statusKeySelector}
                         labelSelector={statusLabelSelector}
-                        value={undefined}
-                        onChange={() => {}}
+                        value={isDefined(filter.isActive)
+                            && filter.isActive ? null : null}
+                        onChange={setFilterField}
                     />
                 </div>
             )}
