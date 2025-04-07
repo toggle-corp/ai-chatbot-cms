@@ -48,6 +48,16 @@ const UPDATE_ME = gql`
         }
     }
 `;
+// const CHANGE_PASSWORD = gql`
+//     mutation ChangePassword($input: ChangePasswordInput!) {
+//         private {
+//             changePassword(data: $input) {
+//                 errors
+//                 ok
+//             }
+//         }
+//     }
+// `;
 
 type PartialFormType = PartialForm<UserMeInput> & { email: string };
 
