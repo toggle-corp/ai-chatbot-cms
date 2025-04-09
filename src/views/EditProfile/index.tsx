@@ -1,7 +1,8 @@
-import React, {
+import {
     useCallback,
     useContext,
 } from 'react';
+import { IoPencil } from 'react-icons/io5';
 import {
     gql,
     useMutation,
@@ -9,18 +10,19 @@ import {
 import {
     createSubmitHandler,
     getErrorObject,
+    nonFieldError,
     ObjectSchema,
     PartialForm,
+    removeNull,
     requiredStringCondition,
     useForm,
 } from '@togglecorp/toggle-form';
 import {
+    Avatar,
     Button,
-    PasswordInput,
     TextInput,
 } from '@togglecorp/toggle-ui';
 
-import displayImage from '#assets/displayImage.svg';
 import Container from '#components/Container';
 import Page from '#components/Page';
 import UserContext from '#contexts/user';
@@ -30,6 +32,10 @@ import {
     UserMeInput,
 } from '#generated/types/graphql';
 import useAlert from '#hooks/useAlert';
+import useBooleanState from '#hooks/useBooleanState';
+import { transformToFormError } from '#utils/errorTransform';
+
+import ChangePasswordForm from './ChangePassword';
 
 import styles from './styles.module.css';
 
@@ -39,25 +45,10 @@ const UPDATE_ME = gql`
             updateMe(data: $input) {
                 errors
                 ok
-                result {
-                    email
-                    firstName
-                    lastName
-                }
             }
         }
     }
 `;
-// const CHANGE_PASSWORD = gql`
-//     mutation ChangePassword($input: ChangePasswordInput!) {
-//         private {
-//             changePassword(data: $input) {
-//                 errors
-//                 ok
-//             }
-//         }
-//     }
-// `;
 
 type PartialFormType = PartialForm<UserMeInput> & { email: string };
 
@@ -78,6 +69,9 @@ const EditProfileSchema: FormSchema = {
             required: true,
             requiredValidation: requiredStringCondition,
         },
+        profilePicture: {
+            required: false,
+        },
     }),
 };
 
@@ -86,6 +80,11 @@ const EditProfileSchema: FormSchema = {
 export function Component() {
     const { userAuth } = useContext(UserContext);
     const alert = useAlert();
+    const [showChangePasswordForm, {
+        setTrue: setChangePasswordFormTrue,
+        setFalse: setChangePasswordFormFalse,
+    }] = useBooleanState(false);
+
     const defaultFormValues: PartialFormType = {
         email: userAuth?.email || '',
     };
@@ -93,6 +92,7 @@ export function Component() {
     const {
         pristine,
         value,
+        setPristine,
         error: formError,
         setFieldValue,
         validate,
@@ -105,29 +105,34 @@ export function Component() {
     ] = useMutation<UpdateMeMutation, UpdateMeMutationVariables>(
         UPDATE_ME,
         {
-            onCompleted: (projectResponse) => {
-                const response = projectResponse?.private?.updateMe;
-                if (!response) {
+            onCompleted: (response) => {
+                const { private: privateRes } = response;
+                if (!privateRes) {
                     return;
                 }
-                if (response.ok) {
-                    alert.show(
-                        'Updated Successfully',
-                        {
-                            variant: 'success',
-                        },
-                    );
-                } else {
-                    const errorMessages = response?.errors
-                        ?.map((error: { messages: string; }) => error.messages)
-                        .filter((message: string) => message)
+                const { updateMe: updateMeRes } = privateRes;
+                if (!updateMeRes) return;
+                const { errors, ok } = updateMeRes;
+                if (errors) {
+                    const formErrors = transformToFormError(removeNull(errors));
+                    setError(formErrors);
+                    const errorMessages = errors
+                        ?.map((message: { messages: string; }) => message.messages)
+                        .filter((msg: string) => msg)
                         .join(', ');
-                    alert.show(errorMessages, { variant: 'danger' });
+                    alert.show(errorMessages);
+                } else if (ok) {
+                    setPristine(true);
+                    alert.show(
+                        'Successfully updated your profile!',
+                        { variant: 'success' },
+                    );
                 }
             },
-            onError: () => {
+            onError: (errors) => {
+                setError({ [nonFieldError]: errors.message });
                 alert.show(
-                    'Failed to Update',
+                    'There was an error updating your profile!',
                     { variant: 'danger' },
                 );
             },
@@ -137,12 +142,26 @@ export function Component() {
     const handleUpdateUserSubmit = useCallback((finalValue: PartialFormType) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { email, ...inputWithoutEmail } = finalValue;
-        triggerUpdateMe({
-            variables: {
-                input: inputWithoutEmail as UserMeInput,
-            },
-        });
+
+        const variables: UpdateMeMutationVariables = {
+            input: {
+                ...inputWithoutEmail,
+                profilePicture: finalValue.profilePicture,
+            } as UserMeInput,
+        };
+        triggerUpdateMe({ variables });
     }, [triggerUpdateMe]);
+
+    const handleProfilePictureChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            setFieldValue('profilePicture', file);
+        }
+    }, [setFieldValue]);
+
+    const handleProfilePictureClick = useCallback(() => {
+        document.getElementById('profilePictureInput')?.click();
+    }, []);
 
     const handleSubmit = (_name: 'save', e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
@@ -155,17 +174,36 @@ export function Component() {
         <Page className={styles.mainContent}>
             <Container className={styles.editUrl}>
                 <div className={styles.displayProfile}>
-                    <img
-                        src={displayImage}
-                        alt="display"
-                    />
+                    <div className={styles.profileUpdate}>
+                        <Avatar
+                            src={value.profilePicture}
+                            alt={`${value.firstName} ${value.lastName}`}
+                            className={styles.profileImage}
+                        />
+                        <input
+                            type="file"
+                            accept="image/*"
+                            value={value.profilePicture}
+                            style={{ display: 'none' }}
+                            id="profilePictureInput"
+                            onChange={handleProfilePictureChange}
+                        />
+                        <Button
+                            className={styles.editButton}
+                            variant="default"
+                            name={undefined}
+                            onClick={handleProfilePictureClick}
+                            icons={<IoPencil />}
+                        >
+                            Edit
+                        </Button>
+                    </div>
                     <div className={styles.displayContent}>
                         <h1>
                             {userAuth?.firstName}
                             {' '}
                             {userAuth?.lastName}
                         </h1>
-                        <p>Hr</p>
                     </div>
                 </div>
 
@@ -208,6 +246,7 @@ export function Component() {
                                 type="button"
                                 variant="default"
                                 name="cancel"
+                                onClick={setChangePasswordFormFalse}
                             >
                                 Cancel
                             </Button>
@@ -224,32 +263,18 @@ export function Component() {
                         </div>
                     )}
                 >
-                    <div className={styles.form}>
-                        <PasswordInput
-                            name="oldPassword"
-                            label="Old Password"
-                            value={undefined}
-                            onChange={() => {}}
-                            error={undefined}
-                            disabled={false}
-                        />
-                        <PasswordInput
-                            name="newPassword"
-                            label="New Password"
-                            value={undefined}
-                            onChange={() => {}}
-                            error={undefined}
-                            disabled={false}
-                        />
-                        <PasswordInput
-                            name="confirmNewPassword"
-                            label="Confirm New Password"
-                            value={undefined}
-                            onChange={() => {}}
-                            error={undefined}
-                            disabled={false}
-                        />
-                    </div>
+                    <Button
+                        type="button"
+                        variant="default"
+                        name="ChangePassword"
+                        onClick={setChangePasswordFormTrue}
+                        transparent
+                    >
+                        Change Password
+                    </Button>
+                    {showChangePasswordForm && (
+                        <ChangePasswordForm />
+                    )}
                 </Container>
             </Container>
         </Page>

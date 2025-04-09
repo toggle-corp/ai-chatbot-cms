@@ -115,6 +115,7 @@ function AddUserModal(props: Props) {
             },
         },
     );
+
     const handleAddUserSubmit = useCallback((finalValue: PartialFormType) => {
         addUser({
             variables: {
@@ -123,10 +124,10 @@ function AddUserModal(props: Props) {
         });
     }, [addUser]);
 
-    const handleSubmit = (_name: 'save', e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleSubmit = useCallback((_name: 'save', e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         createSubmitHandler(validate, setError, handleAddUserSubmit)();
-    };
+    }, [validate, setError, handleAddUserSubmit]);
 
     return (
         <Modal
