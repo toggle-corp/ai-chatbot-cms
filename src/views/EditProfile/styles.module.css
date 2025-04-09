@@ -15,6 +15,24 @@
             flex-direction: column;
             gap: var(--cms-ui-spacing-sm);
         }
+        .profile-update{
+            display: flex;
+            align-items:flex-end;
+            
+            .profile-image{
+                display: flex;
+                flex-shrink: 0;
+                border-radius: 50%;
+                width: calc(96px + 15vh);
+                height: calc(96px + 15vh);
+                --size: calc(96px + 15vh);
+               
+            }
+            .edit-button{
+                padding: var(--cms-ui-spacing-xs);  
+                font-size: var(--cms-ui-font-size-xs); 
+            }
+        }
         .form {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
