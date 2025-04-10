@@ -29,7 +29,8 @@
                
             }
             .edit-button{
-                padding: var(--cms-ui-spacing-xs);  
+                position: absolute;
+                left:30%;
                 font-size: var(--cms-ui-font-size-xs); 
             }
         }
