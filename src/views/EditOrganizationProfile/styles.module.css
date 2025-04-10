@@ -12,23 +12,30 @@
             align-items:flex-end ;
 
             .round-image{
+                display: flex;
+                flex-shrink: 0;
                 border-radius: 50%;
-                background-color: var(--cms-ui-color-background); 
-                width: 7rem;
-                height: 7rem;
+                width: calc(96px + 15vh);
+                height: calc(96px + 15vh);
+                --size: calc(96px + 15vh);
             }
-            .edit-button{
-                padding: var(--cms-ui-spacing-xs);  
+            .upload-button{
+                position: absolute;
+                left:30%;
                 font-size: var(--cms-ui-font-size-xs); 
             }
+        }     
+        .form-content {
+            width: 35rem;
         }
-        
+
         .form {
             display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
             gap: var(--cms-ui-spacing-lg);
 
             .full-size-input {
-                max-width: 30rem;
+                grid-column: 1 / -1;
             }
         }
         .actions{
