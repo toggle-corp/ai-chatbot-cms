@@ -1,6 +1,7 @@
 import {
     useCallback,
     useContext,
+    useState,
 } from 'react';
 import { IoPencil } from 'react-icons/io5';
 import {
@@ -50,7 +51,7 @@ const UPDATE_ME = gql`
     }
 `;
 
-type PartialFormType = PartialForm<UserMeInput> & { email: string };
+type PartialFormType = PartialForm<UserMeInput> & { email: string; profilePicture?: File };
 
 type FormSchema = ObjectSchema<PartialFormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -117,8 +118,8 @@ export function Component() {
                     const formErrors = transformToFormError(removeNull(errors));
                     setError(formErrors);
                     const errorMessages = errors
-                        ?.map((message: { messages: string; }) => message.messages)
-                        .filter((msg: string) => msg)
+                        ?.map((error: { messages: string; }) => error.messages)
+                        .filter((messages:string) => messages)
                         .join(', ');
                     alert.show(errorMessages);
                 } else if (ok) {
@@ -146,23 +147,28 @@ export function Component() {
         const variables: UpdateMeMutationVariables = {
             input: {
                 ...inputWithoutEmail,
-                profilePicture: finalValue.profilePicture,
             } as UserMeInput,
         };
         triggerUpdateMe({ variables });
     }, [triggerUpdateMe]);
 
+    const [
+        profilePicturePreview,
+        setProfilePicturePreview,
+    ] = useState<string | undefined>(undefined);
+
     const handleProfilePictureChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            setFieldValue('profilePicture', file);
+        const profilePictureFile = event.target.files?.[0];
+        if (profilePictureFile) {
+            setFieldValue(profilePictureFile, 'profilePicture');
+            const previewUrl = URL.createObjectURL(profilePictureFile);
+            setProfilePicturePreview(previewUrl);
         }
     }, [setFieldValue]);
 
-    const handleSubmit = (_name: 'save', e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
+    const handleSubmit = useCallback(() => {
         createSubmitHandler(validate, setError, handleUpdateUserSubmit)();
-    };
+    }, [handleUpdateUserSubmit, setError, validate]);
 
     const handleProfilePictureClick = useCallback(() => {
         document.getElementById('profilePictureInput')?.click();
@@ -176,22 +182,21 @@ export function Component() {
                 <div className={styles.displayProfile}>
                     <div className={styles.profileUpdate}>
                         <Avatar
-                            src={value.profilePicture}
+                            src={profilePicturePreview}
                             alt={`${value.firstName} ${value.lastName}`}
                             className={styles.profileImage}
                         />
                         <input
                             type="file"
                             accept="image/*"
-                            value={value.profilePicture}
                             style={{ display: 'none' }}
                             id="profilePictureInput"
                             onChange={handleProfilePictureChange}
                         />
                         <Button
+                            name="edit"
                             className={styles.editButton}
                             variant="default"
-                            name={undefined}
                             onClick={handleProfilePictureClick}
                             icons={<IoPencil />}
                         >
@@ -201,7 +206,7 @@ export function Component() {
                     <div className={styles.displayContent}>
                         <h1>
                             {userAuth?.firstName}
-                            {' '}
+
                             {userAuth?.lastName}
                         </h1>
                     </div>
@@ -241,21 +246,20 @@ export function Component() {
                     footerContent={(
                         <div className={styles.actions}>
                             <Button
+                                name="cancel"
                                 className={styles.loginButton}
-                                disabled={false}
                                 type="button"
                                 variant="default"
-                                name="cancel"
                                 onClick={setChangePasswordFormFalse}
                             >
                                 Cancel
                             </Button>
                             <Button
+                                name="save"
                                 className={styles.loginButton}
                                 disabled={pristine || loading}
                                 type="button"
                                 variant="primary"
-                                name="save"
                                 onClick={handleSubmit}
                             >
                                 Save Changes
@@ -264,9 +268,9 @@ export function Component() {
                     )}
                 >
                     <Button
+                        name="changePassword"
                         type="button"
                         variant="default"
-                        name="ChangePassword"
                         onClick={setChangePasswordFormTrue}
                         transparent
                     >
