@@ -2,6 +2,7 @@ import {
     IoEllipsisVertical,
     IoPencil,
 } from 'react-icons/io5';
+import { useParams } from 'react-router-dom';
 import {
     gql,
     useMutation,
@@ -12,10 +13,14 @@ import { Button } from '@togglecorp/toggle-ui';
 import DropdownMenu from '#components/DropdownMenu';
 import DropdownMenuItem from '#components/DropdownMenuItem';
 import {
+    AccountDeactivationMutation,
+    AccountDeactivationMutationVariables,
     PasswordResetTriggerMutation,
     PasswordResetTriggerMutationVariables,
     ResendInviteMutation,
     ResendInviteMutationVariables,
+    UserActivationInput,
+    UserDeactivationInput,
     UserPasswordResetTriggerInput,
     UserResendInviteInput,
 } from '#generated/types/graphql';
@@ -37,9 +42,9 @@ const PASSWORD_RESET = gql`
   mutation PasswordResetTrigger($input: UserPasswordResetTriggerInput!) {
     public {
       passwordResetTrigger(data: $input) {
-        ok
-        errors
-      }
+            ok
+            errors
+        }
     }
   }
 `;
@@ -47,9 +52,19 @@ const RESEND_INVITE = gql`
   mutation ResendInvite($data: UserResendInviteInput!) {
     public {
       resendInvite(data: $data) {
-        ok
-        errors
-      }
+            ok
+            errors
+        }
+    }
+  }
+`;
+const DEACTIVATE_ACCOUNT = gql`
+  mutation AccountDeactivation($data: UserDeactivationInput!) {
+    public {
+        accountDeactivation(data: $data) {
+            ok
+            errors
+        }
     }
   }
 `;
@@ -57,6 +72,9 @@ const RESEND_INVITE = gql`
 function UserActions({
     userId, userName, isActive,
 }: UserActionsProps) {
+    const alert = useAlert();
+    const { uuid, token } = useParams<{ uuid: string, token?: string }>();
+
     const [showEditModal,
         {
             setTrue: setShowEditModalTrue,
@@ -72,9 +90,11 @@ function UserActions({
             setTrue: setResendInviteModalTrue,
             setFalse: setResendInviteModalFalse,
         }] = useBooleanState(false);
-
-    const alert = useAlert();
-
+    const [showDeactivateModal,
+        {
+            setTrue: setDeactivateModalTrue,
+            setFalse: setDeactivateModalFalse,
+        }] = useBooleanState(false);
     const [
         triggerPasswordReset,
     ] = useMutation<PasswordResetTriggerMutation, PasswordResetTriggerMutationVariables>(
@@ -129,6 +149,33 @@ function UserActions({
             },
         },
     );
+    const [
+        triggerDeactivateAccount,
+    ] = useMutation<AccountDeactivationMutation, AccountDeactivationMutationVariables>(
+        DEACTIVATE_ACCOUNT,
+        {
+            onCompleted: (response) => {
+                const { ok, errors } = response.public.accountDeactivation;
+                if (errors) {
+                    alert.show(
+                        'Account deactivation failed',
+                        { variant: 'danger' },
+                    );
+                } else if (ok) {
+                    alert.show(
+                        'Account deactivated successfully',
+                        { variant: 'success' },
+                    );
+                }
+            },
+            onError: () => {
+                alert.show(
+                    'Account deactivation failed',
+                    { variant: 'danger' },
+                );
+            },
+        },
+    );
 
     const handlePasswordReset = () => {
         if (isNotDefined(userId)) {
@@ -161,6 +208,21 @@ function UserActions({
         });
     };
 
+    const handleDeactivate = () => {
+        if (isNotDefined(userId)) {
+            alert.show(
+                'User ID is required to deactivate account',
+                { variant: 'danger' },
+            );
+            return;
+        }
+        triggerDeactivateAccount({
+            variables: {
+                data: { userId } as UserDeactivationInput,
+            },
+        });
+    };
+
     return (
         <div className={styles.userActions}>
             <Button
@@ -179,27 +241,18 @@ function UserActions({
                     <DropdownMenuItem
                         type="button"
                         name="deactivation"
-                        onClick={() => {}}
+                        onClick={setDeactivateModalTrue}
                     >
                         Deactivate account
                     </DropdownMenuItem>
                 ) : (
-                    <>
-                        <DropdownMenuItem
-                            type="button"
-                            name="resendInvite"
-                            onClick={setResendInviteModalTrue}
-                        >
-                            Resend Invite
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            type="button"
-                            name="activation"
-                            onClick={() => {}}
-                        >
-                            Activate Account
-                        </DropdownMenuItem>
-                    </>
+                    <DropdownMenuItem
+                        type="button"
+                        name="resendInvite"
+                        onClick={setResendInviteModalTrue}
+                    >
+                        Resend Invite
+                    </DropdownMenuItem>
                 )}
                 <DropdownMenuItem
                     type="button"
@@ -236,6 +289,17 @@ function UserActions({
                     onConfirm={() => {
                         handleResendInvite();
                         setResendInviteModalFalse();
+                    }}
+                />
+            )}
+            {showDeactivateModal && (
+                <ConfirmationModal
+                    confirmationHeading="Deactivate User"
+                    confirmationMessage={`Are you sure you want to deactivate ${userName}'s account?`}
+                    onClose={setDeactivateModalFalse}
+                    onConfirm={() => {
+                        handleDeactivate();
+                        setDeactivateModalFalse();
                     }}
                 />
             )}
