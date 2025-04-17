@@ -136,13 +136,11 @@ export function Component() {
         });
     }, [triggerUpdateMe]);
 
-    const handleSubmit = useCallback(
-        (_name: 'save', e: React.MouseEvent<HTMLButtonElement>) => {
-            e.preventDefault();
-            createSubmitHandler(validate, setError, handleUpdateUserSubmit)();
-        },
-        [validate, setError, handleUpdateUserSubmit],
-    );
+    const handleSubmit = (_name: 'save', e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        createSubmitHandler(validate, setError, handleUpdateUserSubmit)();
+    };
+
     const error = getErrorObject(formError);
 
     return (

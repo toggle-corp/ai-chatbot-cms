@@ -1,5 +1,4 @@
 import {
-    ApolloClient,
     ApolloClientOptions,
     HttpLink,
     InMemoryCache,
@@ -29,6 +28,4 @@ const apolloOptions: ApolloClientOptions<NormalizedCacheObject> = {
     },
 };
 
-const apolloClient = new ApolloClient(apolloOptions);
-
-export default apolloClient;
+export default apolloOptions;
