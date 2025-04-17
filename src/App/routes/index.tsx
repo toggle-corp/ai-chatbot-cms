@@ -204,19 +204,6 @@ const resetPasswordRedirect = customWrapRoute({
     },
 });
 
-const EditOrganizationProfile = customWrapRoute({
-    parent: homeLayout,
-    path: 'edit-profile-organization',
-    component: {
-        render: () => import('#views/EditOrganizationProfile'),
-        props: {},
-    },
-    wrapperComponent: Auth,
-    context: {
-        title: 'Edit Profile Organization',
-        visibility: 'anything',
-    },
-});
 const wrappedRoutes = {
     rootLayout,
     homeLayout,
@@ -233,7 +220,6 @@ const wrappedRoutes = {
     register,
     registerRedirect,
     activationRedirect,
-    EditOrganizationProfile,
 };
 
 export const unwrappedRoutes = unwrapRoute(Object.values(wrappedRoutes));
