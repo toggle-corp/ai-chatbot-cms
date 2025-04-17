@@ -40,7 +40,7 @@ const UPDATE_ORGANIZATION = gql`
             updateOrganization(data: $input) {
                 errors
                 ok
-                result{
+                result {
                     id
                     name
                     navbarColor
@@ -51,7 +51,7 @@ const UPDATE_ORGANIZATION = gql`
     }
 `;
 
-type PartialFormType = PartialForm<UpdateOrganizationInputType> ;
+type PartialFormType = PartialForm<UpdateOrganizationInputType>;
 
 type FormSchema = ObjectSchema<PartialFormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -71,6 +71,10 @@ const EditOrganizationProfileSchema: FormSchema = {
         sliderBarColor: {
             required: true,
         },
+        name: {
+            required: true,
+            requiredValidation: requiredStringCondition,
+        },
     }),
 };
 const defaultFormValues: PartialFormType = {};
@@ -78,6 +82,10 @@ const defaultFormValues: PartialFormType = {};
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
     const alert = useAlert();
+    const [
+        imagePreview,
+        setImagePreview,
+    ] = useState<string | undefined>();
     const {
         value,
         error: formError,
@@ -86,82 +94,87 @@ export function Component() {
         setError,
     } = useForm(EditOrganizationProfileSchema, { value: defaultFormValues });
 
-    const [
-        triggerUpdateOrganization,
-    ] = useMutation<UpdateOrganizationMutation, UpdateOrganizationMutationVariables>(
-        UPDATE_ORGANIZATION,
-        {
-            onCompleted: (response) => {
-                if (response.private.updateOrganization.ok) {
-                    alert.show(
-                        'Successfully updated!',
-                        { variant: 'success' },
-                    );
-                } else {
-                    setError(transformToFormError(response.private.updateOrganization.errors));
-                    const errorMessages = response.private.updateOrganization.errors
-                        ?.map((error: { messages: string }) => error.messages)
-                        .filter((message: string) => message)
-                        .join(', ');
-                    alert.show(
-                        errorMessages,
-                        { variant: 'danger' },
-                    );
-                }
-            },
-            onError: (errors) => {
-                setError({ [nonFieldError]: errors.message });
+    const [triggerUpdateOrganization] = useMutation<
+        UpdateOrganizationMutation,
+        UpdateOrganizationMutationVariables
+    >(UPDATE_ORGANIZATION, {
+        onCompleted: (response) => {
+            if (response.private.updateOrganization.ok) {
                 alert.show(
-                    'There was an error updating!',
-                    { variant: 'danger' },
+                    'Successfully updated!',
+                    { variant: 'success' },
                 );
-            },
+            } else {
+                setError(transformToFormError(response.private.updateOrganization.errors));
+                const errorMessages = response.private.updateOrganization.errors
+                    ?.map((error: { messages: string }) => error.messages)
+                    .filter((message: string) => message)
+                    .join(', ');
+                alert.show(errorMessages, { variant: 'danger' });
+            }
         },
-    );
-
-    const [
-        organizationImagePreview,
-        setOrganizationImagePreview,
-    ] = useState<string | undefined>(undefined);
-
-    const handleUpdateOrganizationSubmit = useCallback((
-        finalValue: PartialFormType,
-        imageFile?: File,
-    ) => {
-        const variables: UpdateOrganizationMutationVariables = {
-            input: finalValue as UpdateOrganizationInputType,
-        };
-
-        if (imageFile) {
-            variables.input.image = imageFile;
-            setOrganizationImagePreview(URL.createObjectURL(imageFile));
-        }
-
-        triggerUpdateOrganization({ variables });
-    }, [triggerUpdateOrganization]);
-
-    const handleSubmit = useCallback(() => createSubmitHandler(
-        validate,
-        setError,
-        handleUpdateOrganizationSubmit,
-    )(), [handleUpdateOrganizationSubmit, setError, validate]);
-
-    const error = getErrorObject(formError);
+        onError: (errors) => {
+            setError({ [nonFieldError]: errors.message });
+            alert.show(
+                'There was an error updating!',
+                { variant: 'danger' },
+            );
+        },
+    });
 
     const handleImageClick = useCallback(() => {
         document.getElementById('OrganizationImage')?.click();
     }, []);
 
+    const handleImageChange = useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>) => {
+            const image = event.target.files?.[0];
+            if (image) {
+                const imageBlob = URL.createObjectURL(image);
+                setImagePreview(imageBlob);
+                setFieldValue(image, 'image');
+            } else {
+                setImagePreview(undefined);
+                setFieldValue(null, 'image');
+            }
+        },
+        [setFieldValue],
+    );
+    const handleUpdateUserSubmit = useCallback((finalValue: PartialFormType) => {
+        const variables: UpdateOrganizationMutationVariables = {
+            input: {
+                profilePicture: finalValue.image,
+                name: finalValue.name,
+                organization: finalValue.organization,
+            } as UpdateOrganizationInputType,
+        };
+        triggerUpdateOrganization({
+            variables,
+            context: {
+                hasUpload: true,
+            },
+        });
+    }, [triggerUpdateOrganization]);
+
+    const handleSubmit = useCallback(() => {
+        createSubmitHandler(validate, setError, handleUpdateUserSubmit)();
+    }, [handleUpdateUserSubmit, setError, validate]);
+
+    const error = getErrorObject(formError);
+
     return (
         <Page className={styles.mainContent}>
             <Container className={styles.editOrganization}>
                 <Container className={styles.formContent}>
-                    <form className={styles.form} onSubmit={handleSubmit}>
+                    <form
+                        className={styles.form}
+                        onSubmit={handleSubmit}
+                    >
                         <div className={styles.organizationAction}>
                             <Avatar
                                 className={styles.roundImage}
-                                src={organizationImagePreview}
-                                alt="Organization Logo"
+                                src={imagePreview}
+                                alt={`${value.organization || 'Organization'}`}
                             />
                             <Button
                                 className={styles.uploadButton}
@@ -176,20 +189,15 @@ export function Component() {
                                 accept="image/*"
                                 style={{ display: 'none' }}
                                 id="OrganizationImage"
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                        handleUpdateOrganizationSubmit(value, file);
-                                    }
-                                }}
+                                onChange={handleImageChange}
                             />
                         </div>
                         <TextInput
                             className={styles.fullSizeInput}
-                            name="organization"
+                            name="name"
                             label="Organization Name"
-                            value={value?.organization}
-                            error={error?.organization}
+                            value={value?.name}
+                            error={error?.name}
                             onChange={setFieldValue}
                         />
                         <ColorInput
@@ -203,7 +211,11 @@ export function Component() {
                             onChange={setFieldValue}
                         />
                         <div className={styles.actions}>
-                            <Button type="button" variant="default" name={undefined}>
+                            <Button
+                                type="button"
+                                variant="default"
+                                name={undefined}
+                            >
                                 Cancel
                             </Button>
                             <Button

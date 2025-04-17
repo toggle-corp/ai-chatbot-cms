@@ -14,6 +14,7 @@ import {
 } from '@togglecorp/fujs';
 import { Avatar } from '@togglecorp/toggle-ui';
 
+import organizationLogo from '#assets/organizationLogo.svg';
 import DropdownMenu from '#components/DropdownMenu';
 import DropdownMenuItem from '#components/DropdownMenuItem';
 import Heading from '#components/Heading';
@@ -75,9 +76,18 @@ function Navbar(props: Props) {
 
     return (
         <nav className={_cs(styles.navbar, className)}>
-            <Heading level={5}>
-                ToggTalkie
-            </Heading>
+            <Link
+                type="link"
+                to="edit-organization-profile"
+            >
+                <Heading level={5}>
+                    <img
+                        alt="OrganizationLogo"
+                        src={organizationLogo}
+                    />
+                </Heading>
+            </Link>
+
             <DropdownMenu
                 className={styles.dropdown}
                 label={userAuth?.firstName}
@@ -114,6 +124,13 @@ function Navbar(props: Props) {
                         Logout
                     </DropdownMenuItem>
                 )}
+                <DropdownMenuItem
+                    className={styles.editProfile}
+                    type="link"
+                    to="edit-organization-profile"
+                >
+                    Edit Organization Profile
+                </DropdownMenuItem>
             </DropdownMenu>
         </nav>
     );

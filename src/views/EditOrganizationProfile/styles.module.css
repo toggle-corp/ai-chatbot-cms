@@ -5,6 +5,7 @@
         background-color: var(--cms-ui-color-white-card);
         padding: var(--cms-ui-spacing-xl);
         gap: var(--cms-ui-spacing-lg);
+
         .organization-action{
             display: flex;
             align-items:flex-end ;
@@ -22,7 +23,10 @@
                 left:30%;
                 font-size: var(--cms-ui-font-size-xs); 
             }
-        }     
+        }   
+        .organization-image-input{
+            display: none;
+        }  
         .form-content {
             width: 35rem;
         }

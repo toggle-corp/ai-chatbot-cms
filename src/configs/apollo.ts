@@ -26,6 +26,7 @@ const link: ApolloLink = ApolloLink.from([
         httpLink,
     ),
 ]);
+
 const apolloOptions: ApolloClientOptions<NormalizedCacheObject> = {
     link,
     cache: new InMemoryCache(),
