@@ -7,7 +7,6 @@ import {
     useMutation,
 } from '@apollo/client';
 import {
-    createSubmitHandler,
     getErrorObject,
     nonFieldError,
     ObjectSchema,
@@ -50,9 +49,7 @@ const UPDATE_ORGANIZATION = gql`
         }
     }
 `;
-
 type PartialFormType = PartialForm<UpdateOrganizationInputType>;
-
 type FormSchema = ObjectSchema<PartialFormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const EditOrganizationProfileSchema: FormSchema = {
@@ -78,23 +75,25 @@ const EditOrganizationProfileSchema: FormSchema = {
     }),
 };
 const defaultFormValues: PartialFormType = {};
+
 /** @knipignore */
 // eslint-disable-next-line import/prefer-default-export
 export function Component() {
     const alert = useAlert();
     const [
-        imagePreview,
-        setImagePreview,
-    ] = useState<string | undefined>();
+        organizationImagePreview,
+        setOrganizationImagePreview,
+    ] = useState<string | undefined>(undefined);
+
     const {
         value,
         error: formError,
         setFieldValue,
         validate,
         setError,
+        setValue,
     } = useForm(EditOrganizationProfileSchema, { value: defaultFormValues });
-
-    const [triggerUpdateOrganization] = useMutation<
+    const [triggerUpdateOrganization, { loading }] = useMutation<
         UpdateOrganizationMutation,
         UpdateOrganizationMutationVariables
     >(UPDATE_ORGANIZATION, {
@@ -107,10 +106,13 @@ export function Component() {
             } else {
                 setError(transformToFormError(response.private.updateOrganization.errors));
                 const errorMessages = response.private.updateOrganization.errors
-                    ?.map((error: { messages: string }) => error.messages)
-                    .filter((message: string) => message)
+                    ?.map((error: { messages: string; }) => error.messages)
+                    .filter(Boolean)
                     .join(', ');
-                alert.show(errorMessages, { variant: 'danger' });
+                alert.show(
+                    errorMessages,
+                    { variant: 'danger' },
+                );
             }
         },
         onError: (errors) => {
@@ -121,47 +123,53 @@ export function Component() {
             );
         },
     });
-
     const handleImageClick = useCallback(() => {
-        document.getElementById('OrganizationImage')?.click();
+        const fileInput = document.getElementById('OrganizationImage');
+        if (fileInput) {
+            fileInput.click();
+        }
     }, []);
 
-    const handleImageChange = useCallback(
+    const handleOrganizationImageChange = useCallback(
         (event: React.ChangeEvent<HTMLInputElement>) => {
             const image = event.target.files?.[0];
             if (image) {
                 const imageBlob = URL.createObjectURL(image);
-                setImagePreview(imageBlob);
+                setOrganizationImagePreview(imageBlob);
                 setFieldValue(image, 'image');
             } else {
-                setImagePreview(undefined);
+                setOrganizationImagePreview(undefined);
                 setFieldValue(null, 'image');
             }
         },
         [setFieldValue],
     );
-    const handleUpdateUserSubmit = useCallback((finalValue: PartialFormType) => {
-        const variables: UpdateOrganizationMutationVariables = {
-            input: {
-                profilePicture: finalValue.image,
-                name: finalValue.name,
-                organization: finalValue.organization,
-            } as UpdateOrganizationInputType,
-        };
-        triggerUpdateOrganization({
-            variables,
-            context: {
-                hasUpload: true,
-            },
-        });
-    }, [triggerUpdateOrganization]);
+    const handleSubmit = useCallback(
+        (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            const isValid = validate();
+            if (isValid) {
+                const input: UpdateOrganizationInputType = {
+                    ...value,
+                    name: value.name || '',
+                    image: value.image instanceof File ? value.image : undefined,
+                    organization: value.organization || '',
+                };
 
-    const handleSubmit = useCallback(() => {
-        createSubmitHandler(validate, setError, handleUpdateUserSubmit)();
-    }, [handleUpdateUserSubmit, setError, validate]);
+                triggerUpdateOrganization({
+                    variables: { input },
+                    context: { hasUpload: true },
+                });
+            }
+        },
+        [validate, triggerUpdateOrganization, value],
+    );
+    const handleCancel = useCallback(() => {
+        setValue(defaultFormValues);
+        setOrganizationImagePreview(undefined);
+    }, [setValue]);
 
     const error = getErrorObject(formError);
-
     return (
         <Page className={styles.mainContent}>
             <Container className={styles.editOrganization}>
@@ -173,8 +181,8 @@ export function Component() {
                         <div className={styles.organizationAction}>
                             <Avatar
                                 className={styles.roundImage}
-                                src={imagePreview}
-                                alt={`${value.organization || 'Organization'}`}
+                                src={organizationImagePreview}
+                                alt={`${value.name}`}
                             />
                             <Button
                                 className={styles.uploadButton}
@@ -189,7 +197,7 @@ export function Component() {
                                 accept="image/*"
                                 style={{ display: 'none' }}
                                 id="OrganizationImage"
-                                onChange={handleImageChange}
+                                onChange={handleOrganizationImageChange}
                             />
                         </div>
                         <TextInput
@@ -200,21 +208,33 @@ export function Component() {
                             error={error?.name}
                             onChange={setFieldValue}
                         />
+                        <TextInput
+                            className={styles.fullSizeInput}
+                            name="organization"
+                            label="Organization Id"
+                            value={value?.organization}
+                            error={error?.organization}
+                            onChange={setFieldValue}
+                        />
                         <ColorInput
                             label="Primary Color"
                             name="navbarColor"
                             onChange={setFieldValue}
+                            value={value.navbarColor ?? ''}
                         />
                         <ColorInput
                             label="Accent Color"
                             name="sliderBarColor"
                             onChange={setFieldValue}
+                            value={value.sliderBarColor ?? ''}
                         />
                         <div className={styles.actions}>
                             <Button
                                 type="button"
                                 variant="default"
                                 name={undefined}
+                                onClick={handleCancel}
+                                disabled={loading}
                             >
                                 Cancel
                             </Button>
@@ -222,6 +242,7 @@ export function Component() {
                                 type="submit"
                                 variant="primary"
                                 name={undefined}
+                                disabled={loading}
                             >
                                 Save Changes
                             </Button>
@@ -232,4 +253,5 @@ export function Component() {
         </Page>
     );
 }
+
 Component.displayName = 'EditOrganizationProfile';
