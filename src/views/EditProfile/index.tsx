@@ -1,4 +1,4 @@
-import {
+import React, {
     useCallback,
     useContext,
     useState,
@@ -14,7 +14,6 @@ import {
     nonFieldError,
     ObjectSchema,
     PartialForm,
-    removeNull,
     requiredStringCondition,
     useForm,
 } from '@togglecorp/toggle-form';
@@ -51,7 +50,7 @@ const UPDATE_ME = gql`
     }
 `;
 
-type PartialFormType = PartialForm<UserMeInput> & { email: string; profilePicture?: File };
+type PartialFormType = PartialForm<UserMeInput> & { email: string; };
 
 type FormSchema = ObjectSchema<PartialFormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -89,11 +88,14 @@ export function Component() {
     const defaultFormValues: PartialFormType = {
         email: userAuth?.email || '',
     };
+    const [
+        profilePicturePreview,
+        setProfilePicturePreview,
+    ] = useState<string | undefined>(undefined);
 
     const {
         pristine,
         value,
-        setPristine,
         error: formError,
         setFieldValue,
         validate,
@@ -107,27 +109,18 @@ export function Component() {
         UPDATE_ME,
         {
             onCompleted: (response) => {
-                const { private: privateRes } = response;
-                if (!privateRes) {
-                    return;
-                }
-                const { updateMe: updateMeRes } = privateRes;
-                if (!updateMeRes) return;
-                const { errors, ok } = updateMeRes;
-                if (errors) {
-                    const formErrors = transformToFormError(removeNull(errors));
-                    setError(formErrors);
-                    const errorMessages = errors
-                        ?.map((error: { messages: string; }) => error.messages)
-                        .filter((messages:string) => messages)
-                        .join(', ');
-                    alert.show(errorMessages);
-                } else if (ok) {
-                    setPristine(true);
+                if (response.private.updateMe.ok) {
                     alert.show(
                         'Successfully updated!',
                         { variant: 'success' },
                     );
+                } else {
+                    setError(transformToFormError(response.private.updateMe.errors));
+                    const errorMessages = response.private.updateMe.errors
+                        ?.map((error: { messages: string }) => error.messages)
+                        .filter((message: string) => message)
+                        .join(', ');
+                    alert.show(errorMessages, { variant: 'danger' });
                 }
             },
             onError: (errors) => {
@@ -147,28 +140,43 @@ export function Component() {
         const variables: UpdateMeMutationVariables = {
             input: {
                 ...inputWithoutEmail,
+                profilePicture: finalValue.profilePicture,
             } as UserMeInput,
         };
-        triggerUpdateMe({ variables });
+
+        triggerUpdateMe({
+            variables,
+            context: {
+                hasUpload: true,
+            },
+        });
     }, [triggerUpdateMe]);
 
-    const [
-        profilePicturePreview,
-        setProfilePicturePreview,
-    ] = useState<string | undefined>(undefined);
-
-    const handleProfilePictureChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        const profilePictureFile = event.target.files?.[0];
-        if (profilePictureFile) {
-            setFieldValue(profilePictureFile, 'profilePicture');
-            const previewUrl = URL.createObjectURL(profilePictureFile);
-            setProfilePicturePreview(previewUrl);
-        }
-    }, [setFieldValue]);
+    const handleProfileImageChange = useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>) => {
+            const image = event.target.files?.[0];
+            if (image) {
+                const imageBlob = URL.createObjectURL(image);
+                setProfilePicturePreview(imageBlob);
+                setFieldValue(image, 'profilePicture');
+            } else {
+                setProfilePicturePreview(undefined);
+                setFieldValue(null, 'profilePicture');
+            }
+        },
+        [setFieldValue],
+    );
 
     const handleSubmit = useCallback(() => {
-        createSubmitHandler(validate, setError, handleUpdateUserSubmit)();
-    }, [handleUpdateUserSubmit, setError, validate]);
+        if (showChangePasswordForm) {
+            const changePasswordForm = document.querySelector('form');
+            if (changePasswordForm) {
+                changePasswordForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+            }
+        } else {
+            createSubmitHandler(validate, setError, handleUpdateUserSubmit)();
+        }
+    }, [showChangePasswordForm, handleUpdateUserSubmit, setError, validate]);
 
     const handleProfilePictureClick = useCallback(() => {
         document.getElementById('profilePictureInput')?.click();
@@ -187,11 +195,12 @@ export function Component() {
                             className={styles.profileImage}
                         />
                         <input
+                            name="profilePicture"
                             type="file"
                             accept="image/*"
                             style={{ display: 'none' }}
                             id="profilePictureInput"
-                            onChange={handleProfilePictureChange}
+                            onChange={handleProfileImageChange}
                         />
                         <Button
                             name="edit"
@@ -206,7 +215,7 @@ export function Component() {
                     <div className={styles.displayContent}>
                         <h1>
                             {userAuth?.firstName}
-
+                            {' '}
                             {userAuth?.lastName}
                         </h1>
                     </div>
@@ -267,16 +276,17 @@ export function Component() {
                         </div>
                     )}
                 >
-                    <Button
-                        name="changePassword"
-                        type="button"
-                        variant="default"
-                        onClick={setChangePasswordFormTrue}
-                        transparent
-                    >
-                        Change Password
-                    </Button>
-                    {showChangePasswordForm && (
+                    {!showChangePasswordForm ? (
+                        <Button
+                            name="changePassword"
+                            type="button"
+                            variant="default"
+                            onClick={setChangePasswordFormTrue}
+                            transparent
+                        >
+                            Change Password
+                        </Button>
+                    ) : (
                         <ChangePasswordForm />
                     )}
                 </Container>

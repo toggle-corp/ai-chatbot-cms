@@ -32,6 +32,8 @@
         "@togglecorp/fujs": "^2.0.0",
         "@togglecorp/toggle-form": "^2.0.4",
         "@togglecorp/toggle-ui": "^0.18.3",
+        "@types/apollo-upload-client": "^18.0.0",
+        "apollo-upload-client": "^18.0.1",
         "graphql": "^16.9.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",

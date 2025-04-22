@@ -2,7 +2,6 @@ import {
     IoEllipsisVertical,
     IoPencil,
 } from 'react-icons/io5';
-import { useParams } from 'react-router-dom';
 import {
     gql,
     useMutation,
@@ -19,7 +18,6 @@ import {
     PasswordResetTriggerMutationVariables,
     ResendInviteMutation,
     ResendInviteMutationVariables,
-    UserActivationInput,
     UserDeactivationInput,
     UserPasswordResetTriggerInput,
     UserResendInviteInput,
@@ -73,8 +71,6 @@ function UserActions({
     userId, userName, isActive,
 }: UserActionsProps) {
     const alert = useAlert();
-    const { uuid, token } = useParams<{ uuid: string, token?: string }>();
-
     const [showEditModal,
         {
             setTrue: setShowEditModalTrue,
