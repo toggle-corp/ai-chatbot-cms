@@ -1,4 +1,5 @@
 import {
+    useCallback,
     useMemo,
     useState,
 } from 'react';
@@ -10,7 +11,6 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
-import { isDefined } from '@togglecorp/fujs';
 import {
     Button,
     Chip,
@@ -65,7 +65,10 @@ const USERS_QUERY = gql`
         }
     }
 `;
-
+const statusOptions = [
+    { isActive: true, label: 'Active' },
+    { isActive: false, label: 'Inactive' },
+];
 const userKeySelector = (option: UserListTable) => option.id;
 
 const statusKeySelector = (option: { isActive: boolean }) => String(option.isActive);
@@ -107,6 +110,21 @@ export function Component() {
         {
             variables,
         },
+    );
+    const onChange = useCallback(
+        (newValue: string | undefined) => {
+            let isActiveValue;
+            if (newValue === 'true') {
+                isActiveValue = true;
+            } else if (newValue === 'false') {
+                isActiveValue = false;
+            } else {
+                isActiveValue = undefined;
+            }
+
+            setFilterField(isActiveValue, 'isActive');
+        },
+        [setFilterField],
     );
 
     const columns = useMemo(() => ([
@@ -168,18 +186,19 @@ export function Component() {
                     <SelectInput
                         placeholder="Active Status"
                         name="isActive"
-                        options={userResult?.private.users?.items}
+                        options={statusOptions}
                         keySelector={statusKeySelector}
                         labelSelector={statusLabelSelector}
-                        value={isDefined(filter.isActive)
-                            && filter.isActive ? null : null}
-                        onChange={setFilterField}
+                        value={filter.isActive !== undefined ? String(filter.isActive) : null}
+                        onChange={onChange}
                     />
                 </div>
             )}
             actions={(
                 <>
-                    <Chip>
+                    <Chip
+                        className={styles.userCount}
+                    >
                         {userResult?.private?.users?.count}
                         Users
                     </Chip>
