@@ -1,0 +1,5 @@
+.content-actions{
+    display :flex;
+    flex-direction:row;
+    gap: var(--cms-ui-spacing-sm);
+}

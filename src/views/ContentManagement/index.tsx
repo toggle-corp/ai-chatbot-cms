@@ -8,16 +8,20 @@ import {
 } from '@apollo/client';
 import {
     Button,
+    createDateColumn,
     createStringColumn,
     Pager,
     Table,
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
+import { createElementColumn } from '#components/CreateElementColumn';
 import {
     ContentListQuery,
     ContentListQueryVariables,
 } from '#generated/types/graphql';
+
+import ContentActions from './ContentActions';
 
 import styles from './styles.module.css';
 
@@ -69,11 +73,23 @@ export function Component() {
 
     const columns = useMemo(() => ([
         createStringColumn<ContentListTable, string>(
+            'sn',
+            'S.N',
+            (item) => (item.id),
+        ),
+
+        createStringColumn<ContentListTable, string>(
             'title',
             'Title',
             (item) => item.title,
+            { columnClassName: styles.actions },
         ),
-        // FIXME: Add CreateDAte after added in server side
+        createDateColumn<ContentListTable, string>(
+            'createdAt',
+            'Created At',
+            (item) => item.createdAt,
+            { columnClassName: styles.actions },
+        ),
         createStringColumn<ContentListTable, string>(
             'documentTypeDisplay',
             'File Type',
@@ -83,11 +99,22 @@ export function Component() {
             'tag',
             'Tag',
             (item) => item.tag.map((tag: { name: string; }) => tag.name).join(','),
+            { columnClassName: styles.actions },
         ),
         createStringColumn<ContentListTable, string>(
             'documentStatusDisplay',
             'Status',
             (item) => item.documentStatus,
+            { columnClassName: styles.actions },
+        ),
+        createElementColumn<ContentListTable, string, { contentId: number }>(
+            'actions',
+            'Actions',
+            ContentActions,
+            (_key, datum) => ({
+                contentId: Number(datum.id),
+            }),
+            { columnClassName: styles.actions },
         ),
     ]), []);
 
