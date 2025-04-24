@@ -3,13 +3,17 @@
 
     .table {
         background-color: var(--cms-ui-color-white-card);
-
+        overflow: auto;
         .header-row {
             .header-cell {
+                background-color: var(--cms-ui-color-blue-100);
                 >* {
                     font-weight: bold;
                 }
             }
+        }
+        .actions{
+            min-width:14rem;
         }
     }
 }
