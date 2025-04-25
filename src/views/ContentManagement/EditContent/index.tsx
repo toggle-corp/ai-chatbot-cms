@@ -6,7 +6,9 @@ import {
 import {
     createSubmitHandler,
     getErrorObject,
+    nonFieldError,
     ObjectSchema,
+    removeNull,
     requiredStringCondition,
     useForm,
 } from '@togglecorp/toggle-form';
@@ -22,6 +24,7 @@ import {
     UpdateContentTitleMutationVariables,
 } from '#generated/types/graphql';
 import useAlert from '#hooks/useAlert';
+import { transformToFormError } from '#utils/errorTransform';
 
 import styles from './styles.module.css';
 
@@ -53,14 +56,14 @@ const defaultFormValues: PartialFormType = {};
 
 interface Props {
     onClose: () => void;
-    contentId: number;
+    id: number;
 }
 
 function EditContentModal(props: Props) {
     const alert = useAlert();
     const {
         onClose,
-        contentId,
+        id,
     } = props;
 
     const {
@@ -78,27 +81,31 @@ function EditContentModal(props: Props) {
     ] = useMutation<UpdateContentTitleMutation, UpdateContentTitleMutationVariables>(
         UPDATE_CONTENT,
         {
-            onCompleted: (projectResponse) => {
-                const response = projectResponse?.private?.updateContentTitle;
-                if (!response) {
-                    return;
-                }
-                if (response.ok) {
+            onCompleted: (response) => {
+                const { private: privateRes } = response;
+                if (!privateRes) return;
+                const { updateContentTitle: updateContentRes } = privateRes;
+                if (!updateContentRes) return;
+                const { errors, ok } = updateContentRes;
+
+                if (errors) {
+                    const formErrors = transformToFormError(removeNull(errors));
+                    setError(formErrors);
+                    const errorMessages = errors
+                        ?.map((message: { messages: string; }) => message.messages)
+                        .filter((msg: string) => msg)
+                        .join(', ');
+                    alert.show(errorMessages);
+                } else if (ok) {
+                    onClose();
                     alert.show(
                         'Updated Successfully',
-                        {
-                            variant: 'success',
-                        },
+                        { variant: 'success' },
                     );
-                } else {
-                    const errorMessages = response?.errors
-                        ?.map((error: { messages: string; }) => error.messages)
-                        .filter((message: string) => message)
-                        .join(', ');
-                    alert.show(errorMessages, { variant: 'danger' });
                 }
             },
-            onError: () => {
+            onError: (error) => {
+                setError({ [nonFieldError]: error.message });
                 alert.show(
                     'Failed to Update',
                     { variant: 'danger' },
@@ -112,11 +119,11 @@ function EditContentModal(props: Props) {
             variables: {
                 input: {
                     ...finalValue,
-                    content: contentId,
+                    content: id,
                 } as unknown as UpdateContentTitleInput,
             },
         });
-    }, [updateContentTrigger, contentId]);
+    }, [updateContentTrigger, id]);
 
     const handleSubmit = useCallback(() => {
         createSubmitHandler(validate, setError, handleUpdateContentSubmit)();
