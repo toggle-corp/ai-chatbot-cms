@@ -1,11 +1,13 @@
 import {
     useCallback,
+    useMemo,
     useState,
 } from 'react';
 import {
     gql,
     useMutation,
 } from '@apollo/client';
+import { isNotDefined } from '@togglecorp/fujs';
 import {
     createSubmitHandler,
     getErrorObject,
@@ -60,7 +62,7 @@ function AddContentModal(props: Props) {
         onClose,
     } = props;
 
-    const [formContent, setFormContent] = useState<PartialContentType>();
+    const [fileSelectedName, setFileSelectedName] = useState<string>();
     const alert = useAlert();
 
     const {
@@ -79,7 +81,6 @@ function AddContentModal(props: Props) {
         const newFile: PartialContentType = {
             clientId: values[0].key,
             documentFile: values[0].file,
-            title: '',
         };
         setFieldValue(
             (oldValue: PartialContentType[] | undefined) => (
@@ -139,11 +140,27 @@ function AddContentModal(props: Props) {
     );
 
     const handleFileClick = useCallback((name: string) => {
-        const content = value.contents?.find((ctn) => ctn.clientId === name);
-        setFormContent(content);
-    }, [value.contents]);
+        setFileSelectedName(name);
+    }, []);
+
+    const formContent = useMemo(() => {
+        if (isNotDefined(value.contents)) {
+            return undefined;
+        }
+
+        const indexValue = value.contents?.findIndex(((ctn) => ctn.clientId === fileSelectedName));
+
+        const valueContent = value.contents[indexValue ?? 0];
+
+        return {
+            formValue: valueContent,
+            mainIndex: indexValue ?? 0,
+            name: valueContent?.documentFile?.name,
+        };
+    }, [fileSelectedName, value.contents]);
 
     const handleCreateContentSubmit = useCallback((finalValue: PartialFormType) => {
+        console.log('finalValue', finalValue);
         createContent({
             variables: {
                 input: finalValue as ContentCreateInput,
@@ -186,6 +203,7 @@ function AddContentModal(props: Props) {
             <Container childrenContainerClassName={styles.uploadSection}>
                 <UploadFiles
                     onAdd={handleAddFiles}
+                    accept="text/plain"
                 />
                 <div className={styles.uploadsContainer}>
                     <Heading
@@ -194,28 +212,33 @@ function AddContentModal(props: Props) {
                         Uploads
                     </Heading>
                     <div className={styles.fileCardContainer}>
-                        {value.contents.length <= 0 && (
+                        {(isNotDefined(value.contents) || value.contents.length <= 0) ? (
                             <div>No uploads</div>
-                        )}
-                        {value.contents.map((file) => (
-                            <RawButton
-                                type="button"
-                                name={file.clientId}
-                                onClick={handleFileClick}
-                                key={file.clientId}
-                                className={styles.fileCard}
-                            >
-                                {file.documentFile}
-                            </RawButton>
-                        ))}
+                        )
+                            : value.contents.map((file) => (
+                                <RawButton
+                                    type="button"
+                                    name={file.clientId}
+                                    onClick={handleFileClick}
+                                    key={file.clientId}
+                                    className={styles.fileCard}
+                                >
+                                    {file.documentFile.name}
+                                </RawButton>
+                            ))}
                     </div>
                 </div>
             </Container>
-            <FormPreviewSection
-                value={formContent}
-                onChange={onContentFormChange}
-                error={getErrorObject(error?.contents)}
-            />
+            {isNotDefined(formContent?.formValue)
+                ? <div>Please select the file</div>
+                : (
+                    <FormPreviewSection
+                        value={formContent.formValue}
+                        index={formContent.mainIndex}
+                        onChange={onContentFormChange}
+                        error={getErrorObject(error?.contents)}
+                    />
+                )}
         </Modal>
     );
 }

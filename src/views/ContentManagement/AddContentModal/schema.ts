@@ -1,17 +1,25 @@
 import {
     ArraySchema,
     ObjectSchema,
+    PartialForm,
+    PurgeNull,
     requiredStringCondition,
 } from '@togglecorp/toggle-form';
 
 import { ContentCreateInput } from '#generated/types/graphql';
+import { DeepReplace } from '#utils/common';
 
-type Content = ContentCreateInput & { clientId: string };
+type ContentFormFields = ContentCreateInput & { clientId: string };
 
 type FormType = {
-    contents: Content[];
+    contents: ContentFormFields[];
 }
-export type PartialFormType = Partial<FormType>;
+type FormFields = DeepReplace<FormType, ContentCreateInput, ContentFormFields>
+
+export type PartialFormType = PartialForm<
+    PurgeNull<FormFields>,
+    'clientId'
+>;
 
 export type FormSchema = ObjectSchema<PartialFormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;

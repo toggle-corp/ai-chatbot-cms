@@ -19,10 +19,11 @@ export type FileLike = {
 interface Props {
     className?: string;
     onAdd: (v: FileLike[]) => void;
+    accept: string
 }
 
 function UploadFiles(props: Props) {
-    const { onAdd, className } = props;
+    const { onAdd, className, accept } = props;
     const handleFileInputChange = useCallback((values: File[] | null | undefined) => {
         const basicFiles = values
             ? values.map((file) => ({
@@ -43,6 +44,7 @@ function UploadFiles(props: Props) {
             value={null}
             onChange={handleFileInputChange}
             label="Upload file"
+            accept={accept}
             multiple
         >
             Browse Files

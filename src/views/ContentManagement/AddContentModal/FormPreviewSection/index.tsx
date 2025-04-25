@@ -23,7 +23,7 @@ import {
 import { PartialContentType } from '../schema';
 
 import styles from './styles.module.css';
-import { isNotDefined } from '@togglecorp/fujs';
+import { useMemo } from 'react';
 
 const TAGS = gql`
     query Tags {
@@ -46,7 +46,6 @@ const tagsLabelSelector = (option: TagsOptionsList) => option.name;
 
 const defaultValue: PartialContentType = {
     clientId: '-1',
-    title: '',
 };
 
 interface Props {
@@ -73,15 +72,15 @@ function FormPreviewSection(props: Props) {
         TAGS,
     );
 
+    const textPreviewFile = useMemo(() => (
+        URL.createObjectURL(value?.documentFile)
+    ), [value?.documentFile]);
+
     const onUploadFormChange = useFormObject(index, onChange, defaultValue);
 
     const error = (value && value.clientId && errorFromProps)
         ? getErrorObject(errorFromProps?.[value.clientId])
         : undefined;
-
-    if (isNotDefined(value)) {
-        return <div>No file selected</div>;
-    }
 
     return (
         <Container className={styles.previewSection}>
@@ -96,13 +95,13 @@ function FormPreviewSection(props: Props) {
                     name="title"
                     label="Title"
                     onChange={onUploadFormChange}
-                    value={value.title}
+                    value={value?.title}
                     error={error?.title}
                 />
                 <MultiSelectInput
                     name="tag"
                     label="Tags"
-                    value={value.tag}
+                    value={value?.tag}
                     error={error?.tag}
                     onChange={onUploadFormChange}
                     options={tagsResult?.private.tags.items}
@@ -111,7 +110,7 @@ function FormPreviewSection(props: Props) {
                 />
             </div>
             <div>
-                <iframe title="preview" src={value.documentFile} />
+                <iframe title="preview" src={textPreviewFile} />
             </div>
         </Container>
     );
