@@ -1,11 +1,11 @@
-name: publish Docker Image
+name: Publish nginx serve image
 
 on:
   workflow_dispatch:
   push:
     branches:
       - develop
-      - project/*'
+      - feature/*'
   
 permissions:
   packages: write
