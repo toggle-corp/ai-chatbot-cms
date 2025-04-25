@@ -57,10 +57,10 @@ const RETRIGGER_CONTENT = gql`
 `;
 
 interface ContentActionsProps {
-    contentId: number;
+    id: number;
 }
 
-function ContentActions({ contentId }: ContentActionsProps) {
+function ContentActions({ id }: ContentActionsProps) {
     const alert = useAlert();
     const [showEditContentModal, {
         setTrue: setShowEditContentModalTrue,
@@ -121,26 +121,24 @@ function ContentActions({ contentId }: ContentActionsProps) {
             },
         },
     );
-
     const handleArchiveContent = useCallback(() => {
         triggerArchiveContent({
             variables: {
                 input: {
-                    content: contentId,
+                    content: id,
                 } as unknown as ArchiveContentInput,
             },
         });
-    }, [triggerArchiveContent, contentId]);
-
+    }, [triggerArchiveContent, id]);
     const handleRetriggerContent = useCallback(() => {
         retriggerContent({
             variables: {
                 input: {
-                    content: contentId,
+                    content: id,
                 } as unknown as RetriggerContentInput,
             },
         });
-    }, [retriggerContent, contentId]);
+    }, [retriggerContent, id]);
 
     return (
         <div className={styles.contentActions}>
@@ -171,7 +169,7 @@ function ContentActions({ contentId }: ContentActionsProps) {
             {showEditContentModal && (
                 <EditContentModal
                     onClose={setShowEditContentModalFalse}
-                    contentId={contentId}
+                    id={id}
                 />
             )}
         </div>

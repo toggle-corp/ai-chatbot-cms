@@ -15,5 +15,10 @@
         .actions{
             min-width:14rem;
         }
+        .status{
+            background-color:  var(--cms-ui-color-background);
+            color: var(--cms-ui-primary-text-color);
+            font-weight: var(--cms-ui-font-weight-medium);
+        }
     }
 }
