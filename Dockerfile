@@ -29,17 +29,7 @@ RUN corepack prepare --activate
     RUN pnpm install
     
     COPY . .
-    
-    # Dynamic configs. Can be changed with containers. (Placeholder values)
-    # ENV APP_TITLE=APP_TITLE_PLACEHOLDER
-    # ENV APP_ENVIRONMENT=APP_ENVIRONMENT_PLACEHOLDER
-    # ENV APP_GRAPHQL_ENDPOINT=APP_GRAPHQL_ENDPOINT_PLACEHOLDER
-    # ENV APP_AUTH_URL=APP_AUTH_URL_PLACEHOLDER
-    # ENV APP_ADMIN_URL=APP_ADMIN_URL_PLACEHOLDER
-    # ENV APP_UMAMI_SRC=APP_UMAMI_SRC_PLACEHOLDER
-    # ENV APP_UMAMI_ID=APP_UMAMI_ID_PLACEHOLDER
-    # ENV APP_SENTRY_DSN=APP_SENTRY_DSN_PLACEHOLDER
-    
+        
     # # Build variables (Requires backend pulled)
     ENV APP_GRAPHQL_CODEGEN_ENDPOINT=./backend/schema.graphql
     

@@ -29,11 +29,6 @@ cp -r --no-target-directory "$SOURCE_DIRECTORY" "$DESTINATION_DIRECTORY"
 find "$DESTINATION_DIRECTORY" -type f -exec sed -i "s|\<APP_TITLE_PLACEHOLDER\>|$APP_TITLE|g" {} +
 # find "$DESTINATION_DIRECTORY" -type f -exec sed -i "s|\<APP_ENVIRONMENT_PLACEHOLDER\>|$APP_ENVIRONMENT|g" {} +
 find "$DESTINATION_DIRECTORY" -type f -exec sed -i "s|\<APP_GRAPHQL_ENDPOINT_PLACEHOLDER\>|$APP_GRAPHQL_ENDPOINT|g" {} +
-# find "$DESTINATION_DIRECTORY" -type f -exec sed -i "s|\<APP_AUTH_URL_PLACEHOLDER\>|$APP_AUTH_URL|g" {} +
-# find "$DESTINATION_DIRECTORY" -type f -exec sed -i "s|\<APP_ADMIN_URL_PLACEHOLDER\>|$APP_ADMIN_URL|g" {} +
-# find "$DESTINATION_DIRECTORY" -type f -exec sed -i "s|\<APP_UMAMI_SRC_PLACEHOLDER\>|$APP_UMAMI_SRC|g" {} +
-# find "$DESTINATION_DIRECTORY" -type f -exec sed -i "s|\<APP_UMAMI_ID_PLACEHOLDER\>|$APP_UMAMI_ID|g" {} +
-# find "$DESTINATION_DIRECTORY" -type f -exec sed -i "s|\<APP_SENTRY_DSN_PLACEHOLDER\>|$APP_SENTRY_DSN|g" {} +
 
 # Show diffs (Useful to debug issues)
 set +xe
