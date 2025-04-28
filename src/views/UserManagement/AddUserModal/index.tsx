@@ -124,8 +124,7 @@ function AddUserModal(props: Props) {
         });
     }, [addUser]);
 
-    const handleSubmit = useCallback((_name: 'save', e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
+    const handleSubmit = useCallback(() => {
         createSubmitHandler(validate, setError, handleAddUserSubmit)();
     }, [validate, setError, handleAddUserSubmit]);
 

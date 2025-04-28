@@ -30,8 +30,6 @@
                
             }
             .edit-button{
-                position: absolute;
-                left:30%;
                 font-size: var(--cms-ui-font-size-xs); 
             }
         }
@@ -42,12 +40,15 @@
 
             .full-size-input {
                 grid-column:1 /-1;
-                width:50%;
+                width:65%;
             }
         }
         .actions{
             display:flex;
             gap: var(--cms-ui-spacing-md);
+        }
+        .change-password-icon {
+            font-size: var(--cms-ui-font-size-xs);
         }
     }
 }
