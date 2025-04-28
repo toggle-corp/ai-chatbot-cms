@@ -13,7 +13,6 @@ import {
 } from '@apollo/client';
 import {
     Button,
-    Chip,
     createStringColumn,
     Pager,
     SelectInput,
@@ -21,6 +20,7 @@ import {
     TextInput,
 } from '@togglecorp/toggle-ui';
 
+import Chip from '#components/Chip';
 import Container from '#components/Container';
 import { createElementColumn } from '#components/CreateElementColumn';
 import {
@@ -201,10 +201,9 @@ export function Component() {
                 <>
                     <Chip
                         className={styles.userCount}
-                    >
-                        {userResult?.private?.users?.count}
-                        Users
-                    </Chip>
+                        variant="default"
+                        label={`${userResult?.private?.users?.count} users`}
+                    />
                     <Button
                         name="Add User"
                         variant="primary"
