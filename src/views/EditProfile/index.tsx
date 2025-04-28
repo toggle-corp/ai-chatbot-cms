@@ -3,7 +3,11 @@ import React, {
     useContext,
     useState,
 } from 'react';
-import { IoPencil } from 'react-icons/io5';
+import {
+    IoCaretDownSharp,
+    IoCaretUpOutline,
+    IoPencil,
+} from 'react-icons/io5';
 import {
     gql,
     useMutation,
@@ -87,6 +91,8 @@ export function Component() {
 
     const defaultFormValues: PartialFormType = {
         email: userAuth?.email || '',
+        firstName: userAuth?.firstName,
+        lastName: userAuth?.lastName,
     };
     const [
         profilePicturePreview,
@@ -160,7 +166,7 @@ export function Component() {
                 setProfilePicturePreview(imageBlob);
                 setFieldValue(image, 'profilePicture');
             } else {
-                setProfilePicturePreview(undefined);
+                setProfilePicturePreview(image);
                 setFieldValue(null, 'profilePicture');
             }
         },
@@ -191,7 +197,7 @@ export function Component() {
                     <div className={styles.profileUpdate}>
                         <Avatar
                             src={profilePicturePreview}
-                            alt={`${value.firstName} ${value.lastName}`}
+                            alt={`${userAuth?.firstName} ${userAuth?.lastName}`}
                             className={styles.profileImage}
                         />
                         <input
@@ -276,19 +282,25 @@ export function Component() {
                         </div>
                     )}
                 >
-                    {!showChangePasswordForm ? (
-                        <Button
-                            name="changePassword"
-                            type="button"
-                            variant="default"
-                            onClick={setChangePasswordFormTrue}
-                            transparent
-                        >
-                            Change Password
-                        </Button>
-                    ) : (
-                        <ChangePasswordForm />
-                    )}
+                    <Button
+                        name="changePassword"
+                        type="button"
+                        variant="default"
+                        onClick={
+                            showChangePasswordForm
+                                ? setChangePasswordFormFalse
+                                : setChangePasswordFormTrue
+                        }
+                        transparent
+                        actions={
+                            showChangePasswordForm
+                                ? <IoCaretUpOutline className={styles.changePasswordIcon} />
+                                : <IoCaretDownSharp className={styles.changePasswordIcon} />
+                        }
+                    >
+                        Change password
+                    </Button>
+                    {showChangePasswordForm && <ChangePasswordForm />}
                 </Container>
             </Container>
         </Page>

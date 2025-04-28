@@ -36,7 +36,7 @@ import UserActions from './UserActions';
 
 import styles from './styles.module.css';
 
-type UserListTable = NonNullable<NonNullable<NonNullable<UserType>>>;
+type UserListTable = NonNullable<NonNullable<NonNullable<UserType> & {sn: string; }>>;
 
 const PAGE_SIZE = 10;
 
@@ -65,6 +65,7 @@ const USERS_QUERY = gql`
         }
     }
 `;
+// FIXME: Add Enums after server side is fixed
 const statusOptions = [
     { isActive: true, label: 'Active' },
     { isActive: false, label: 'Inactive' },
@@ -126,12 +127,16 @@ export function Component() {
         },
         [setFilterField],
     );
+    const Users = userResult?.private.users.items?.map((user, index) => ({
+        ...user,
+        sn: (page - 1) * PAGE_SIZE + index + 1,
+    })) as unknown as UserListTable[];
 
     const columns = useMemo(() => ([
         createStringColumn<UserListTable, string>(
             'sn',
             'S.N',
-            (item) => String(item.id),
+            (item) => String(item.sn),
         ),
         createStringColumn<UserListTable, string>(
             'email',
@@ -166,8 +171,6 @@ export function Component() {
              }),
          ),
     ]), []);
-
-    const Users = userResult?.private.users.items as UserType[];
 
     return (
         <Container

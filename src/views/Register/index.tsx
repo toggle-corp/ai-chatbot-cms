@@ -196,12 +196,12 @@ export function Component() {
         },
         [userId, registerToken, triggerRegisterUser, alert],
     );
-
-    const handleSubmit = (_name: 'save', e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        e.preventDefault();
-        createSubmitHandler(validate, setError, handleFormSubmit)();
-    };
-
+    const handleSubmit = useCallback(
+        () => {
+            createSubmitHandler(validate, setError, handleFormSubmit)();
+        },
+        [validate, setError, handleFormSubmit],
+    );
     return (
         <Page>
             <Container
