@@ -5,13 +5,13 @@ import {
 } from '@apollo/client';
 import {
     Button,
-    Chip,
     createDateColumn,
     createStringColumn,
     Pager,
     Table,
 } from '@togglecorp/toggle-ui';
 
+import Chip, { ChipVariant } from '#components/Chip';
 import Container from '#components/Container';
 import { createElementColumn } from '#components/CreateElementColumn';
 import {
@@ -26,11 +26,11 @@ import ContentActions from './ContentActions';
 
 import styles from './styles.module.css';
 
-type ContentListTable = NonNullable<NonNullable<NonNullable<ContentListQuery['private']>['contents']>['items']>[number];
+type ContentListTable = NonNullable<NonNullable<NonNullable<ContentListQuery['private']>['contents']>['items']>[number]& {serialNumber: string; };
 
 const contentKeySelector = (option: ContentListTable) => option.id;
 
-const PAGE_SIZE = 2;
+const PAGE_SIZE = 10;
 
 const CREATE_CONTENT_QUERY = gql`
     query ContentList(
@@ -71,7 +71,7 @@ const CONTENT_ENUMS = gql`
 
 const statusVariant: Record<string, string> = {
     Pending: 'default',
-    'Text extracted': 'default',
+    'Text extracted': 'primary',
     'Added to vector': 'success',
     'Deleted from vector': 'warning',
     Failure: 'danger',
@@ -86,16 +86,24 @@ export function Component() {
         createdAtGte?: string;
         createdAtLte?: string;
         documentType?: string;
-        documentStatus?: string ;
+        documentStatus?: string;
     }>({
         pageSize: PAGE_SIZE,
         filter: {},
     });
-
     const {
         data: contentResult,
     } = useQuery<ContentListQuery, ContentListQueryVariables>(
         CREATE_CONTENT_QUERY,
+        {
+            variables: {
+                pagination: {
+                    limit: 10,
+                    offset: (page - 1) * PAGE_SIZE,
+                },
+
+            },
+        },
     );
 
     const {
@@ -108,7 +116,17 @@ export function Component() {
 
     const documentStatus = contentEnumsResponse?.enums.ContentDocumentStatus;
 
+    const data = contentResult?.private.contents.items?.map((user, index) => ({
+        ...user,
+        serialNumber: (page - 1) * PAGE_SIZE + index + 1,
+    })) as unknown as ContentListTable[];
+
     const columns = useMemo(() => ([
+        createStringColumn<ContentListTable, string>(
+            'sn',
+            'S.N',
+            (item) => String(item.serialNumber),
+        ),
         createStringColumn<ContentListTable, string>(
             'title',
             'Title',
@@ -125,8 +143,9 @@ export function Component() {
             'documentTypeDisplay',
             'File Type',
             (item) => documentType?.find(
-                (type) => type.key === item.documentType,
+                (type: { key: string; }) => type.key === item.documentType,
             )?.label,
+            { columnClassName: styles.actions },
         ),
         createStringColumn<ContentListTable, string>(
             'tag',
@@ -138,15 +157,16 @@ export function Component() {
         { status: string | undefined; variant: string }>(
             'documentStatusDisplay',
             'Status',
-            ({ status }) => (
+            ({ status, variant }) => (
                 <Chip
                     className={styles.status}
                     label={status}
+                    variant={variant as ChipVariant}
                 />
             ),
             (_key, item) => {
                 const statusLabel = documentStatus?.find(
-                    (status) => status.key === item.documentStatus,
+                    (status: { key: string; }) => status.key === item.documentStatus,
                 )?.label;
                 const variant = statusLabel ? statusVariant[statusLabel] : '';
                 return {
@@ -156,7 +176,7 @@ export function Component() {
             },
             { columnClassName: styles.actions },
         ),
-        createElementColumn<ContentListTable, string, { id: number }>(
+        createElementColumn<ContentListTable, string, { id: number}>(
             'actions',
             'Actions',
             ContentActions,
@@ -167,8 +187,6 @@ export function Component() {
         ),
     ]), [documentType, documentStatus]);
 
-    const data = contentResult?.private.contents;
-
     return (
         <Container
             className={styles.container}
@@ -178,7 +196,7 @@ export function Component() {
                 <Button
                     name="Add Content"
                     variant="primary"
-                    onClick={() => {}}
+                    onClick={() => { }}
                     disabled
                 >
                     Add
@@ -189,7 +207,7 @@ export function Component() {
                     infoHidden
                     itemsPerPageControlHidden
                     activePage={page}
-                    itemsCount={data?.count ?? 0}
+                    itemsCount={contentResult?.private?.contents?.count ?? 0}
                     maxItemsPerPage={PAGE_SIZE}
                     onActivePageChange={setPage}
                 />
@@ -199,7 +217,7 @@ export function Component() {
                 className={styles.table}
                 headerCellClassName={styles.headerCell}
                 headerRowClassName={styles.headerRow}
-                data={data?.items}
+                data={data}
                 columns={columns}
                 keySelector={contentKeySelector}
             />

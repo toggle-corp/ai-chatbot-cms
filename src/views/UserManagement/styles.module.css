@@ -1,14 +1,15 @@
 .container {
     padding: var(--cms-ui-spacing-lg) var(--cms-ui-spacing-md);
     
+    .user-count{
+        font-weight: var(--cms-ui-font-weight-bold)
+    }
+
     .actions{
         display:flex;
         gap: var(--cms-ui-spacing-md);
-
-        .user-count{
-            background-color :var(--cms-ui-color-background);
-        }
     }
+    
     .table {
         background-color: var(--cms-ui-color-white-card);
         .header-row {
