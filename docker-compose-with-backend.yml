@@ -1,8 +1,10 @@
-name: chatbot
-
+# NOTE: Please read ./README.md before using this
+#
 services:
   react:
-    build: ../
+    build:
+      context: ../
+      target: dev
     command: sh -c 'pnpm install --frozen-lockfile && pnpm start --host'
     environment:
       APP_TITLE: ${APP_TITLE:-CMS}
