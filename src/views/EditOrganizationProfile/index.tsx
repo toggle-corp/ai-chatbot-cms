@@ -208,14 +208,6 @@ export function Component() {
                             error={error?.name}
                             onChange={setFieldValue}
                         />
-                        <TextInput
-                            className={styles.fullSizeInput}
-                            name="organization"
-                            label="Organization Id"
-                            value={value?.organization}
-                            error={error?.organization}
-                            onChange={setFieldValue}
-                        />
                         <ColorInput
                             label="Primary Color"
                             name="navbarColor"
