@@ -30,10 +30,11 @@ import ConfirmationModal from './ConfirmationModal';
 
 import styles from './styles.module.css';
 
-interface UserActionsProps {
+interface Props {
     userId: string;
     userName: string;
     isActive: boolean;
+    refetch:() => void;
 }
 
 const PASSWORD_RESET = gql`
@@ -67,9 +68,13 @@ const DEACTIVATE_ACCOUNT = gql`
   }
 `;
 
-function UserActions({
-    userId, userName, isActive,
-}: UserActionsProps) {
+function UserActions(props:Props) {
+    const {
+        userId,
+        userName,
+        isActive,
+        refetch,
+    } = props;
     const alert = useAlert();
     const [showEditModal,
         {
@@ -108,6 +113,7 @@ function UserActions({
                         'Password reset email sent successfully',
                         { variant: 'success' },
                     );
+                    refetch();
                 }
             },
             onError: () => {
@@ -135,6 +141,7 @@ function UserActions({
                         'Resend invitation email sent successfully',
                         { variant: 'success' },
                     );
+                    refetch();
                 }
             },
             onError: () => {
@@ -162,6 +169,7 @@ function UserActions({
                         'Account deactivated successfully',
                         { variant: 'success' },
                     );
+                    refetch();
                 }
             },
             onError: () => {
