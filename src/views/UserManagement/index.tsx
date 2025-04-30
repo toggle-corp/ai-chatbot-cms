@@ -36,7 +36,7 @@ import UserActions from './UserActions';
 
 import styles from './styles.module.css';
 
-type UserListTable = NonNullable<NonNullable<NonNullable<UserType> & {sn: string; }>>;
+type UserListTable = NonNullable<NonNullable<NonNullable<UserType> & { sn: string }>>;
 
 const PAGE_SIZE = 10;
 
@@ -49,7 +49,7 @@ const USERS_QUERY = gql`
             users(
                 pagination: $pagination,
                 filters: $filters
-                ) {
+            ) {
                 limit
                 offset
                 count
@@ -65,7 +65,7 @@ const USERS_QUERY = gql`
         }
     }
 `;
-// FIXME: Add Enums after server side is fixed
+
 const statusOptions = [
     { isActive: true, label: 'Active' },
     { isActive: false, label: 'Inactive' },
@@ -97,7 +97,7 @@ export function Component() {
 
     const variables = {
         pagination: {
-            limit: 10,
+            limit: PAGE_SIZE,
             offset: (page - 1) * PAGE_SIZE,
         },
         filters: {
@@ -106,12 +106,16 @@ export function Component() {
         },
     };
 
-    const { data: userResult } = useQuery<UsersQuery, UsersQueryVariables>(
+    const {
+        data: userResult,
+        refetch: userRefetch,
+    } = useQuery<UsersQuery, UsersQueryVariables>(
         USERS_QUERY,
         {
             variables,
         },
     );
+
     const onChange = useCallback(
         (newValue: string | undefined) => {
             let isActiveValue;
@@ -127,6 +131,7 @@ export function Component() {
         },
         [setFilterField],
     );
+
     const Users = userResult?.private.users.items?.map((user, index) => ({
         ...user,
         sn: (page - 1) * PAGE_SIZE + index + 1,
@@ -156,21 +161,27 @@ export function Component() {
             (item) => item.lastName,
             { columnClassName: styles.email },
         ),
-        createElementColumn<UserListTable, string, {
+        createElementColumn<UserListTable, string,
+        {
             userName: string,
             isActive: boolean,
             userId: string,
-         }>(
-             'actions',
-             'Actions',
-             UserActions,
-             (_key, datum) => ({
-                 userName: datum.firstName,
-                 isActive: datum.isActive,
-                 userId: datum.id,
-             }),
-         ),
-    ]), []);
+            refetch:(
+            ) => void,
+                }>(
+                'actions',
+                'Actions',
+                UserActions,
+                (_key, datum) => (
+                    {
+                        userName: datum.firstName,
+                        isActive: datum.isActive,
+                        userId: datum.id,
+                        refetch: userRefetch,
+                    }
+                ),
+                ),
+    ]), [userRefetch]);
 
     return (
         <Container
@@ -236,6 +247,7 @@ export function Component() {
             {showAddModal && (
                 <AddUserModal
                     onClose={setShowAddModalFalse}
+                    addUserRefetch={userRefetch}
                 />
             )}
         </Container>

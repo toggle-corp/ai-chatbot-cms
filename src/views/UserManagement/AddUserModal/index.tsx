@@ -58,6 +58,7 @@ const defaultFormValues: PartialFormType = {};
 
 interface Props {
     onClose: () => void;
+    addUserRefetch:()=> void;
 }
 
 /** @knipignore */
@@ -65,6 +66,7 @@ function AddUserModal(props: Props) {
     const alert = useAlert();
     const {
         onClose,
+        addUserRefetch,
     } = props;
 
     const {
@@ -100,6 +102,7 @@ function AddUserModal(props: Props) {
                     alert.show(errorMessages);
                 } else if (ok) {
                     onClose();
+                    addUserRefetch();
                     alert.show(
                         'User Activation Link is sent to your email',
                         { variant: 'success' },

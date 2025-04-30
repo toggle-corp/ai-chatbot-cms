@@ -56,11 +56,13 @@ const RETRIGGER_CONTENT = gql`
   }
 `;
 
-interface ContentActionsProps {
+interface Props {
     id: number;
+    refetch: () => void;
 }
 
-function ContentActions({ id }: ContentActionsProps) {
+function ContentActions(props: Props) {
+    const { id, refetch } = props;
     const alert = useAlert();
     const [showEditContentModal, {
         setTrue: setShowEditContentModalTrue,
@@ -84,6 +86,7 @@ function ContentActions({ id }: ContentActionsProps) {
                         'Successfully Archived the Content',
                         { variant: 'success' },
                     );
+                    refetch();
                 }
             },
             onError: () => {
@@ -111,6 +114,7 @@ function ContentActions({ id }: ContentActionsProps) {
                         'Successfully Retriggered the Content',
                         { variant: 'success' },
                     );
+                    refetch();
                 }
             },
             onError: () => {
@@ -168,6 +172,7 @@ function ContentActions({ id }: ContentActionsProps) {
             </Button>
             {showEditContentModal && (
                 <EditContentModal
+                    refetchContent={refetch}
                     onClose={setShowEditContentModalFalse}
                     id={id}
                 />

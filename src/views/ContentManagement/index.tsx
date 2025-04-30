@@ -93,6 +93,7 @@ export function Component() {
     });
     const {
         data: contentResult,
+        refetch: contentRefetch,
     } = useQuery<ContentListQuery, ContentListQueryVariables>(
         CREATE_CONTENT_QUERY,
         {
@@ -176,16 +177,18 @@ export function Component() {
             },
             { columnClassName: styles.actions },
         ),
-        createElementColumn<ContentListTable, string, { id: number}>(
+        createElementColumn<ContentListTable, string, { id: number, refetch:(
+        ) => void}>(
             'actions',
             'Actions',
             ContentActions,
             (_key, datum) => ({
                 id: Number(datum.id),
+                refetch: contentRefetch,
             }),
             { columnClassName: styles.actions },
-        ),
-    ]), [documentType, documentStatus]);
+            ),
+    ]), [documentType, documentStatus, contentRefetch]);
 
     return (
         <Container
