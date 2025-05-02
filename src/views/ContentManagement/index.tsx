@@ -93,7 +93,6 @@ export function Component() {
     });
     const {
         data: contentResult,
-        refetch: contentRefetch,
     } = useQuery<ContentListQuery, ContentListQueryVariables>(
         CREATE_CONTENT_QUERY,
         {
@@ -160,7 +159,6 @@ export function Component() {
             'Status',
             ({ status, variant }) => (
                 <Chip
-                    className={styles.status}
                     label={status}
                     variant={variant as ChipVariant}
                 />
@@ -177,18 +175,16 @@ export function Component() {
             },
             { columnClassName: styles.actions },
         ),
-        createElementColumn<ContentListTable, string, { id: number, refetch:(
-        ) => void}>(
+        createElementColumn<ContentListTable, string, { id: number}>(
             'actions',
             'Actions',
             ContentActions,
             (_key, datum) => ({
                 id: Number(datum.id),
-                refetch: contentRefetch,
             }),
             { columnClassName: styles.actions },
-            ),
-    ]), [documentType, documentStatus, contentRefetch]);
+        ),
+    ]), [documentType, documentStatus]);
 
     return (
         <Container
