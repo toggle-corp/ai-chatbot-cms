@@ -34,6 +34,16 @@ const UPDATE_CONTENT = gql`
         updateContentTitle(data: $input) {
             ok
             errors
+            result {
+                createdAt
+                documentStatus
+                documentType
+                id
+                tag {
+                name
+                }
+                title
+            }
         }
     }
   }
@@ -57,7 +67,6 @@ const defaultFormValues: PartialFormType = {};
 interface Props {
     onClose: () => void;
     id: number;
-    refetchContent: () => void;
 }
 
 function EditContentModal(props: Props) {
@@ -65,7 +74,6 @@ function EditContentModal(props: Props) {
     const {
         onClose,
         id,
-        refetchContent,
     } = props;
 
     const {
@@ -100,7 +108,6 @@ function EditContentModal(props: Props) {
                     alert.show(errorMessages);
                 } else if (ok) {
                     onClose();
-                    refetchContent();
                     alert.show(
                         'Updated Successfully',
                         { variant: 'success' },

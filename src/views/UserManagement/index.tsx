@@ -20,7 +20,7 @@ import {
     TextInput,
 } from '@togglecorp/toggle-ui';
 
-import Chip from '#components/Chip';
+import Chip, { ChipVariant } from '#components/Chip';
 import Container from '#components/Container';
 import { createElementColumn } from '#components/CreateElementColumn';
 import {
@@ -65,8 +65,8 @@ const USERS_QUERY = gql`
         }
     }
 `;
-
-const statusOptions = [
+// FIXME: Add enum after server side is fixed
+const statusOption = [
     { isActive: true, label: 'Active' },
     { isActive: false, label: 'Inactive' },
 ];
@@ -74,6 +74,11 @@ const userKeySelector = (option: UserListTable) => option.id;
 
 const statusKeySelector = (option: { isActive: boolean }) => String(option.isActive);
 const statusLabelSelector = (option: { isActive: boolean }) => String(option.isActive);
+
+const statusVariant: Record<string, string> = {
+    active: 'success',
+    inActive: 'danger',
+};
 
 /** @knipignore */
 // eslint-disable-next-line import/prefer-default-export
@@ -108,7 +113,7 @@ export function Component() {
 
     const {
         data: userResult,
-        refetch: userRefetch,
+        refetch: userRefetch, // FIXME: Remove  this after the result added in graphql
     } = useQuery<UsersQuery, UsersQueryVariables>(
         USERS_QUERY,
         {
@@ -161,6 +166,25 @@ export function Component() {
             (item) => item.lastName,
             { columnClassName: styles.email },
         ),
+        createElementColumn<UserListTable, string, { activeStatus: string; variant: string }>(
+            'isActive',
+            'Status',
+            ({ activeStatus, variant }) => (
+                <Chip
+                    label={activeStatus}
+                    variant={variant as ChipVariant}
+                />
+            ),
+            (_key, item) => {
+                const statusLabel = item.isActive ? 'Active' : 'Inactive';
+                const variant = item.isActive ? statusVariant.active : statusVariant.inActive;
+                return {
+                    activeStatus: statusLabel,
+                    variant,
+                };
+            },
+            { columnClassName: styles.status },
+        ),
         createElementColumn<UserListTable, string,
         {
             userName: string,
@@ -180,6 +204,7 @@ export function Component() {
                         refetch: userRefetch,
                     }
                 ),
+                { columnClassName: styles.status },
                 ),
     ]), [userRefetch]);
 
@@ -200,7 +225,7 @@ export function Component() {
                     <SelectInput
                         placeholder="Active Status"
                         name="isActive"
-                        options={statusOptions}
+                        options={statusOption}
                         keySelector={statusKeySelector}
                         labelSelector={statusLabelSelector}
                         value={filter.isActive !== undefined ? String(filter.isActive) : null}

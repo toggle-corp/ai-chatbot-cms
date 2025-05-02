@@ -21,8 +21,12 @@
                 }
             }
         }
+        .status{
+            width: 0%;
+            min-width:10rem;
+        }
         .email{
             min-width:20rem;
-        }
+        }  
     } 
 }

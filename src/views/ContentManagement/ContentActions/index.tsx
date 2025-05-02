@@ -25,13 +25,27 @@ import EditContentModal from '../EditContent';
 
 import styles from './styles.module.css';
 
+interface Props {
+    id: number;
+}
+
 const ARCHIVE_CONTENT = gql`
   mutation ArchiveContent($input: ArchiveContentInput!) {
     private {
-      archiveContent(data: $input) {
-        ok
-        errors
-      }
+        archiveContent(data: $input) {
+            ok
+            errors
+            result {
+                createdAt
+                documentStatus
+                documentType
+                id
+                tag {
+                    name
+                }
+                title
+            }
+        }
     }
   }
 `;
@@ -56,13 +70,8 @@ const RETRIGGER_CONTENT = gql`
   }
 `;
 
-interface Props {
-    id: number;
-    refetch: () => void;
-}
-
 function ContentActions(props: Props) {
-    const { id, refetch } = props;
+    const { id } = props;
     const alert = useAlert();
     const [showEditContentModal, {
         setTrue: setShowEditContentModalTrue,
@@ -86,7 +95,6 @@ function ContentActions(props: Props) {
                         'Successfully Archived the Content',
                         { variant: 'success' },
                     );
-                    refetch();
                 }
             },
             onError: () => {
@@ -114,7 +122,6 @@ function ContentActions(props: Props) {
                         'Successfully Retriggered the Content',
                         { variant: 'success' },
                     );
-                    refetch();
                 }
             },
             onError: () => {
@@ -172,7 +179,6 @@ function ContentActions(props: Props) {
             </Button>
             {showEditContentModal && (
                 <EditContentModal
-                    refetchContent={refetch}
                     onClose={setShowEditContentModalFalse}
                     id={id}
                 />
