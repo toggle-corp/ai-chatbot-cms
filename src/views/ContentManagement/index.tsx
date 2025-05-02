@@ -11,7 +11,7 @@ import {
     Table,
 } from '@togglecorp/toggle-ui';
 
-import Chip, { ChipVariant } from '#components/Chip';
+import Chip, { type ChipVariant } from '#components/Chip';
 import Container from '#components/Container';
 import { createElementColumn } from '#components/CreateElementColumn';
 import {
@@ -26,7 +26,7 @@ import ContentActions from './ContentActions';
 
 import styles from './styles.module.css';
 
-type ContentListTable = NonNullable<NonNullable<NonNullable<ContentListQuery['private']>['contents']>['items']>[number]& {serialNumber: string; };
+type ContentListTable = NonNullable<NonNullable<NonNullable<ContentListQuery['private']>['contents']>['items']>[number] & {serialNumber: string; };
 
 const contentKeySelector = (option: ContentListTable) => option.id;
 
@@ -116,10 +116,12 @@ export function Component() {
 
     const documentStatus = contentEnumsResponse?.enums.ContentDocumentStatus;
 
-    const data = contentResult?.private.contents.items?.map((user, index) => ({
-        ...user,
-        serialNumber: (page - 1) * PAGE_SIZE + index + 1,
-    })) as unknown as ContentListTable[];
+    const data = useMemo(() => (
+        contentResult?.private.contents.items?.map((user, index) => ({
+            ...user,
+            serialNumber: (page - 1) * PAGE_SIZE + index + 1,
+        })) as unknown as ContentListTable[]
+    ), [contentResult, page]);
 
     const columns = useMemo(() => ([
         createStringColumn<ContentListTable, string>(

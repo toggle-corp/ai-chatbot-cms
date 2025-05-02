@@ -58,7 +58,7 @@ const defaultFormValues: PartialFormType = {};
 
 interface Props {
     onClose: () => void;
-    addUserRefetch:()=> void;
+    addUserRefetch:()=> void; // FIXME: Remove  this after the result added in graphql
 }
 
 /** @knipignore */
@@ -66,7 +66,7 @@ function AddUserModal(props: Props) {
     const alert = useAlert();
     const {
         onClose,
-        addUserRefetch,
+        addUserRefetch, // FIXME: Remove  this after the result added in graphql
     } = props;
 
     const {
@@ -102,7 +102,7 @@ function AddUserModal(props: Props) {
                     alert.show(errorMessages);
                 } else if (ok) {
                     onClose();
-                    addUserRefetch();
+                    addUserRefetch(); // FIXME: Remove  this after the result added in graphql
                     alert.show(
                         'User Activation Link is sent to your email',
                         { variant: 'success' },
