@@ -9,7 +9,7 @@ import {
 import { ContentCreateInput } from '#generated/types/graphql';
 import { DeepReplace } from '#utils/common';
 
-type ContentFormFields = ContentCreateInput & { clientId: string };
+type ContentFormFields = ContentCreateInput & { clientId: string, status: string };
 
 type FormType = {
     contents: ContentFormFields[];

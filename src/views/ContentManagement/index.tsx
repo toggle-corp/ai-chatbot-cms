@@ -108,8 +108,8 @@ export function Component() {
         CREATE_CONTENT_QUERY,
         {
             variables: {
-                pagination: {
-                    limit: 10,
+                input: {
+                    limit: PAGE_SIZE,
                     offset: (page - 1) * PAGE_SIZE,
                 },
 

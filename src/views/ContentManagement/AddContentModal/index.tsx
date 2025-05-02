@@ -7,7 +7,10 @@ import {
     gql,
     useMutation,
 } from '@apollo/client';
-import { isNotDefined } from '@togglecorp/fujs';
+import {
+    isDefined,
+    isNotDefined,
+} from '@togglecorp/fujs';
 import {
     createSubmitHandler,
     getErrorObject,
@@ -42,12 +45,28 @@ import createContentFormSchema, {
 
 import styles from './styles.module.css';
 
+type Status = 'pending' | 'success' | 'failure';
+
+interface FilesStatusKeyValue {
+    [clientId: string]: Status
+}
+
 const CREATE_CONTENT = gql`
     mutation CreateContent($input: ContentCreateInput!) {
         private {
             createContent(data: $input) {
                 ok
                 errors
+                result {
+                    id
+                    documentType
+                    documentStatus
+                    title
+                    tag {
+                        id
+                        name
+                    }
+                }
             }
         }
     }
@@ -63,6 +82,8 @@ function AddContentModal(props: Props) {
     } = props;
 
     const [fileSelectedName, setFileSelectedName] = useState<string>();
+    const [filesStatusKeyValue, setFilesStatusKeyValue] = useState<FilesStatusKeyValue>();
+    const [submissionFileClientId, setSubmissionFileClientId] = useState<string>();
     const alert = useAlert();
 
     const {
@@ -78,10 +99,17 @@ function AddContentModal(props: Props) {
     );
 
     const handleAddFiles = useCallback((values: FileLike[]) => {
+        const clientId = values[0].key;
+
         const newFile: PartialContentType = {
-            clientId: values[0].key,
+            clientId,
             documentFile: values[0].file,
         };
+        setFilesStatusKeyValue((oldVal) => ({
+            ...oldVal,
+            [clientId]: 'pending',
+        }));
+
         setFieldValue(
             (oldValue: PartialContentType[] | undefined) => (
                 [...(oldValue ?? []), newFile]
@@ -94,7 +122,6 @@ function AddContentModal(props: Props) {
 
     const {
         setValue: onContentFormChange,
-        removeValue: onContentFormRemove,
     } = useFormArray<'contents', PartialContentType>(
         'contents',
         setFieldValue,
@@ -122,7 +149,42 @@ function AddContentModal(props: Props) {
                         .join(', ');
                     alert.show(errorMessages);
                 } else if (ok) {
-                    onClose();
+                    if (isDefined(submissionFileClientId)) {
+                        setFilesStatusKeyValue((oldVal) => ({
+                            ...oldVal,
+                            [submissionFileClientId]: 'success',
+                        }));
+                    }
+                    const valueIndexOf = value.contents?.findIndex(
+                        (content) => content.clientId === submissionFileClientId,
+                    );
+
+                    if (
+                        isNotDefined(value)
+                            || isNotDefined(value.contents)
+                            || isNotDefined(valueIndexOf)
+                    ) {
+                        return;
+                    }
+
+                    const {
+                        clientId,
+                        ...inputWithoutClientId
+                    } = value.contents[valueIndexOf + 1];
+
+                    setSubmissionFileClientId(clientId);
+
+                    const variables: CreateContentMutationVariables = {
+                        input: {
+                            ...inputWithoutClientId,
+                        } as ContentCreateInput,
+                    };
+                    createContent({
+                        variables,
+                        context: {
+                            hasUpload: true,
+                        },
+                    });
                     alert.show(
                         'Content addition successfully',
                         { variant: 'success' },
@@ -131,6 +193,12 @@ function AddContentModal(props: Props) {
             },
             onError: (emailError) => {
                 setError({ [nonFieldError]: emailError.message });
+                if (isDefined(submissionFileClientId)) {
+                    setFilesStatusKeyValue((oldVal) => ({
+                        ...oldVal,
+                        [submissionFileClientId]: 'failure',
+                    }));
+                }
                 alert.show(
                     'Content addition failed',
                     { variant: 'danger' },
@@ -160,16 +228,28 @@ function AddContentModal(props: Props) {
     }, [fileSelectedName, value.contents]);
 
     const handleCreateContentSubmit = useCallback((finalValue: PartialFormType) => {
-        console.log('finalValue', finalValue);
+        if (isNotDefined(finalValue) || isNotDefined(finalValue.contents)) {
+            return;
+        }
+        const { clientId, ...inputWithoutClientId } = finalValue.contents[0];
+
+        setSubmissionFileClientId(clientId);
+
+        const variables: CreateContentMutationVariables = {
+            input: {
+                ...inputWithoutClientId,
+            } as ContentCreateInput,
+        };
         createContent({
-            variables: {
-                input: finalValue as ContentCreateInput,
+            variables,
+            context: {
+                hasUpload: true,
             },
         });
     }, [createContent]);
 
     const handleSubmit = useCallback(() => {
-        createSubmitHandler(validate, setError, handleCreateContentSubmit);
+        createSubmitHandler(validate, setError, handleCreateContentSubmit)();
     }, [handleCreateContentSubmit, validate, setError]);
 
     return (
@@ -224,6 +304,7 @@ function AddContentModal(props: Props) {
                                     className={styles.fileCard}
                                 >
                                     {file.documentFile.name}
+                                    {filesStatusKeyValue?.[file.clientId]}
                                 </RawButton>
                             ))}
                     </div>

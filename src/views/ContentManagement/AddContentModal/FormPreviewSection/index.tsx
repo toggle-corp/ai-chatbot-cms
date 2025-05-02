@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
     gql,
     useQuery,
@@ -23,7 +24,6 @@ import {
 import { PartialContentType } from '../schema';
 
 import styles from './styles.module.css';
-import { useMemo } from 'react';
 
 const TAGS = gql`
     query Tags {
