@@ -20,7 +20,7 @@ import {
     TextInput,
 } from '@togglecorp/toggle-ui';
 
-import Chip, { ChipVariant } from '#components/Chip';
+import Chip, { type ChipVariant } from '#components/Chip';
 import Container from '#components/Container';
 import { createElementColumn } from '#components/CreateElementColumn';
 import {
@@ -137,10 +137,12 @@ export function Component() {
         [setFilterField],
     );
 
-    const Users = userResult?.private.users.items?.map((user, index) => ({
-        ...user,
-        sn: (page - 1) * PAGE_SIZE + index + 1,
-    })) as unknown as UserListTable[];
+    const Users = useMemo(() => (
+        userResult?.private.users.items?.map((user, index) => ({
+            ...user,
+            sn: (page - 1) * PAGE_SIZE + index + 1,
+        })) as unknown as UserListTable[]
+    ), [page, userResult]);
 
     const columns = useMemo(() => ([
         createStringColumn<UserListTable, string>(
@@ -201,6 +203,7 @@ export function Component() {
                         userName: datum.firstName,
                         isActive: datum.isActive,
                         userId: datum.id,
+                        // FIXME: Remove  this after the result added in graphql
                         refetch: userRefetch,
                     }
                 ),
@@ -272,6 +275,7 @@ export function Component() {
             {showAddModal && (
                 <AddUserModal
                     onClose={setShowAddModalFalse}
+                    // FIXME: Remove  this after the result added in graphql
                     addUserRefetch={userRefetch}
                 />
             )}

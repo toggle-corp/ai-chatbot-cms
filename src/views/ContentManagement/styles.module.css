@@ -7,7 +7,7 @@
             .header-cell {
                 background-color: var(--cms-ui-color-blue-100);
                 >* {
-                    font-weight: bold;
+                    font-weight: var(--cms-ui-font-weight-bold);
                 }
             }
         }

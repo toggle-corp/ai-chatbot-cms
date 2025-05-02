@@ -34,7 +34,7 @@ interface Props {
     userId: string;
     userName: string;
     isActive: boolean;
-    refetch:() => void;
+    refetch:() => void; // FIXME: Remove  this after the result added in graphql
 }
 
 const PASSWORD_RESET = gql`
@@ -73,7 +73,7 @@ function UserActions(props:Props) {
         userId,
         userName,
         isActive,
-        refetch,
+        refetch, // FIXME: Remove  this after the result added in graphql
     } = props;
     const alert = useAlert();
     const [showEditModal,
@@ -113,7 +113,7 @@ function UserActions(props:Props) {
                         'Password reset email sent successfully',
                         { variant: 'success' },
                     );
-                    refetch();
+                    refetch(); // FIXME: Remove  this after the result added in graphql
                 }
             },
             onError: () => {
@@ -141,7 +141,7 @@ function UserActions(props:Props) {
                         'Resend invitation email sent successfully',
                         { variant: 'success' },
                     );
-                    refetch();
+                    refetch(); // FIXME: Remove  this after the result added in graphql
                 }
             },
             onError: () => {
@@ -169,7 +169,7 @@ function UserActions(props:Props) {
                         'Account deactivated successfully',
                         { variant: 'success' },
                     );
-                    refetch();
+                    refetch(); // FIXME: Remove  this after the result added in graphql
                 }
             },
             onError: () => {

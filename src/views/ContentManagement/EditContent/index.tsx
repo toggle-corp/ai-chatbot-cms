@@ -40,7 +40,7 @@ const UPDATE_CONTENT = gql`
                 documentType
                 id
                 tag {
-                name
+                    name
                 }
                 title
             }
