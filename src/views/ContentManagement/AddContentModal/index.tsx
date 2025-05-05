@@ -58,14 +58,14 @@ const CREATE_CONTENT = gql`
                 ok
                 errors
                 result {
-                    id
+                    createdAt
                     documentType
                     documentStatus
-                    title
+                    id
                     tag {
-                        id
                         name
                     }
+                    title
                 }
             }
         }
@@ -74,11 +74,13 @@ const CREATE_CONTENT = gql`
 
 interface Props {
     onClose: () => void;
+    contentRefetch: () => void;
 }
 
 function AddContentModal(props: Props) {
     const {
         onClose,
+        contentRefetch,
     } = props;
 
     const [fileSelectedName, setFileSelectedName] = useState<string>();
@@ -155,36 +157,40 @@ function AddContentModal(props: Props) {
                             [submissionFileClientId]: 'success',
                         }));
                     }
+
                     const valueIndexOf = value.contents?.findIndex(
                         (content) => content.clientId === submissionFileClientId,
                     );
 
                     if (
                         isNotDefined(value)
-                            || isNotDefined(value.contents)
-                            || isNotDefined(valueIndexOf)
+                        || isNotDefined(value.contents)
+                        || isNotDefined(valueIndexOf)
                     ) {
                         return;
                     }
 
-                    const {
-                        clientId,
-                        ...inputWithoutClientId
-                    } = value.contents[valueIndexOf + 1];
+                    if (isDefined(value.contents[valueIndexOf + 1])) {
+                        const {
+                            clientId,
+                            ...inputWithoutClientId
+                        } = value.contents[valueIndexOf + 1];
 
-                    setSubmissionFileClientId(clientId);
+                        setSubmissionFileClientId(clientId);
 
-                    const variables: CreateContentMutationVariables = {
-                        input: {
-                            ...inputWithoutClientId,
-                        } as ContentCreateInput,
-                    };
-                    createContent({
-                        variables,
-                        context: {
-                            hasUpload: true,
-                        },
-                    });
+                        const variables: CreateContentMutationVariables = {
+                            input: {
+                                ...inputWithoutClientId,
+                            } as ContentCreateInput,
+                        };
+                        createContent({
+                            variables,
+                            context: {
+                                hasUpload: true,
+                            },
+                        });
+                    }
+
                     alert.show(
                         'Content addition successfully',
                         { variant: 'success' },
@@ -207,6 +213,17 @@ function AddContentModal(props: Props) {
         },
     );
 
+    if (isDefined(filesStatusKeyValue)) {
+        const isAllContentSuccessful = Object.values(
+            filesStatusKeyValue,
+        ).every((content) => content === 'success');
+
+        if (isAllContentSuccessful) {
+            contentRefetch();
+            onClose();
+        }
+    }
+
     const handleFileClick = useCallback((name: string) => {
         setFileSelectedName(name);
     }, []);
@@ -228,7 +245,10 @@ function AddContentModal(props: Props) {
     }, [fileSelectedName, value.contents]);
 
     const handleCreateContentSubmit = useCallback((finalValue: PartialFormType) => {
-        if (isNotDefined(finalValue) || isNotDefined(finalValue.contents)) {
+        if (
+            isNotDefined(finalValue)
+            || isNotDefined(finalValue.contents)
+        ) {
             return;
         }
         const { clientId, ...inputWithoutClientId } = finalValue.contents[0];
@@ -240,6 +260,7 @@ function AddContentModal(props: Props) {
                 ...inputWithoutClientId,
             } as ContentCreateInput,
         };
+
         createContent({
             variables,
             context: {

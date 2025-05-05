@@ -104,11 +104,12 @@ export function Component() {
 
     const {
         data: contentResult,
+        refetch: contentRefetch,
     } = useQuery<ContentListQuery, ContentListQueryVariables>(
         CREATE_CONTENT_QUERY,
         {
             variables: {
-                input: {
+                pagination: {
                     limit: PAGE_SIZE,
                     offset: (page - 1) * PAGE_SIZE,
                 },
@@ -237,6 +238,7 @@ export function Component() {
             {showAddModal && (
                 <AddContentModal
                     onClose={setShowAddModalFalse}
+                    contentRefetch={contentRefetch}
                 />
             )}
         </>
