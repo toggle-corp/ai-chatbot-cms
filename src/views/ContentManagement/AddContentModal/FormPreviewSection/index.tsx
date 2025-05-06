@@ -1,8 +1,12 @@
-import { useMemo } from 'react';
+import {
+    useEffect,
+    useState,
+} from 'react';
 import {
     gql,
     useQuery,
 } from '@apollo/client';
+import { isNotDefined } from '@togglecorp/fujs';
 import {
     ArrayError,
     getErrorObject,
@@ -66,15 +70,34 @@ function FormPreviewSection(props: Props) {
         onChange,
     } = props;
 
+    const [previewText, setPreviewText] = useState<string>();
+
     const {
         data: tagsResult,
     } = useQuery<TagsQuery, TagsQueryVariables>(
         TAGS,
     );
 
-    const textPreviewFile = useMemo(() => (
-        URL.createObjectURL(value?.documentFile)
-    ), [value?.documentFile]);
+    useEffect(() => {
+        const textPreview = async () => {
+            if (isNotDefined(value?.documentFile)) {
+                return;
+            }
+            const textUrl = URL.createObjectURL(value?.documentFile);
+
+            try {
+                const response = await fetch(textUrl);
+                const text = await response.text();
+                setPreviewText(text);
+            } catch (error) {
+                setPreviewText("Couldn't preview the File");
+            } finally {
+                URL.revokeObjectURL(textUrl);
+            }
+        };
+
+        textPreview();
+    }, [value?.documentFile]);
 
     const onUploadFormChange = useFormObject(index, onChange, defaultValue);
 
@@ -110,7 +133,12 @@ function FormPreviewSection(props: Props) {
                 />
             </div>
             <div>
-                <iframe title="preview" src={textPreviewFile} />
+                <Heading
+                    level={6}
+                >
+                    Preview
+                </Heading>
+                <div className={styles.previewText}>{previewText}</div>
             </div>
         </Container>
     );
