@@ -1,0 +1,147 @@
+import {
+    useEffect,
+    useState,
+} from 'react';
+import {
+    gql,
+    useQuery,
+} from '@apollo/client';
+import { isNotDefined } from '@togglecorp/fujs';
+import {
+    ArrayError,
+    getErrorObject,
+    SetValueArg,
+    useFormObject,
+} from '@togglecorp/toggle-form';
+import {
+    MultiSelectInput,
+    TextInput,
+} from '@togglecorp/toggle-ui';
+
+import Container from '#components/Container';
+import Heading from '#components/Heading';
+import {
+    TagsQuery,
+    TagsQueryVariables,
+} from '#generated/types/graphql';
+
+import { PartialContentType } from '../schema';
+
+import styles from './styles.module.css';
+
+const TAGS = gql`
+    query Tags {
+        private {
+            tags {
+                items {
+                    name
+                    id
+                    description
+                }
+            }
+        }
+    }
+`;
+
+type TagsOptionsList = NonNullable<NonNullable<NonNullable<NonNullable<TagsQuery>['private']>['tags']>['items']>[number];
+
+const tagsKeySelector = (option: TagsOptionsList) => option.id;
+const tagsLabelSelector = (option: TagsOptionsList) => option.name;
+
+const defaultValue: PartialContentType = {
+    clientId: '-1',
+};
+
+interface Props {
+    value: PartialContentType | undefined;
+    error: ArrayError<PartialContentType> | undefined;
+    index: number;
+    onChange: (
+        value: SetValueArg<PartialContentType>,
+        index: number,
+    ) => void;
+}
+
+function FormPreviewSection(props: Props) {
+    const {
+        value,
+        error: errorFromProps,
+        index,
+        onChange,
+    } = props;
+
+    const [previewText, setPreviewText] = useState<string>();
+
+    const {
+        data: tagsResult,
+    } = useQuery<TagsQuery, TagsQueryVariables>(
+        TAGS,
+    );
+
+    useEffect(() => {
+        const textPreview = async () => {
+            if (isNotDefined(value?.documentFile)) {
+                return;
+            }
+            const textUrl = URL.createObjectURL(value?.documentFile);
+
+            try {
+                const response = await fetch(textUrl);
+                const text = await response.text();
+                setPreviewText(text);
+            } catch (error) {
+                setPreviewText("Couldn't preview the File");
+            } finally {
+                URL.revokeObjectURL(textUrl);
+            }
+        };
+
+        textPreview();
+    }, [value?.documentFile]);
+
+    const onUploadFormChange = useFormObject(index, onChange, defaultValue);
+
+    const error = (value && value.clientId && errorFromProps)
+        ? getErrorObject(errorFromProps?.[value.clientId])
+        : undefined;
+
+    return (
+        <Container className={styles.previewSection}>
+            <div>
+                <Heading
+                    level={6}
+                >
+                    File Details
+                </Heading>
+                <TextInput
+                    required
+                    name="title"
+                    label="Title"
+                    onChange={onUploadFormChange}
+                    value={value?.title}
+                    error={error?.title}
+                />
+                <MultiSelectInput
+                    name="tag"
+                    label="Tags"
+                    value={value?.tag}
+                    error={error?.tag}
+                    onChange={onUploadFormChange}
+                    options={tagsResult?.private.tags.items}
+                    keySelector={tagsKeySelector}
+                    labelSelector={tagsLabelSelector}
+                />
+            </div>
+            <div>
+                <Heading
+                    level={6}
+                >
+                    Preview
+                </Heading>
+                <div className={styles.previewText}>{previewText}</div>
+            </div>
+        </Container>
+    );
+}
+
+export default FormPreviewSection;

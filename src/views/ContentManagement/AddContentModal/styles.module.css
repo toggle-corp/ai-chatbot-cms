@@ -1,0 +1,38 @@
+.body-modal{
+    display: flex;
+    gap: var(--cms-ui-spacing-md);
+
+    .upload-section {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: var(--cms-ui-spacing-md);
+
+        .uploads-container {
+            background-color: var(--cms-ui-color-white);
+            padding: var(--cms-ui-spacing-md);
+
+            .file-card-container {
+                display: flex;
+                flex-direction: column;
+                gap: var(--cms-ui-spacing-sm);
+
+                .file-card {
+                    background-color: var(--cms-ui-color-blue-20);
+                    padding: var(--cms-ui-spacing-md);
+                }
+            }
+        }
+    }
+
+    .preview-section {
+        flex: 2;
+        background-color: var(--cms-ui-color-white);
+    }
+}
+
+.footer-content{
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--cms-ui-spacing-md);
+}

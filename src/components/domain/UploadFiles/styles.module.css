@@ -1,0 +1,4 @@
+.upload-file {
+    background-color: var(--cms-ui-color-white);
+    padding: var(--cms-ui-spacing-lg);
+}

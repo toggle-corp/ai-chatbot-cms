@@ -26,6 +26,6 @@
     }
 
     &.level-six {
-        --font-size: var(--cms-ui-font-size-lg);
+        --font-size: var(--cms-ui-font-size-md);
     }
 }
